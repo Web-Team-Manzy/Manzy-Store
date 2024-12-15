@@ -1,11 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-async function connect(){
+async function connect() {
     try {
-        await mongoose.connect('mongodb+srv://22120216:1234567890@cluster0.a4c05.mongodb.net/ManzyStoreDB?retryWrites=true&w=majority&appName=Cluster0'); 
-        console.log('Connect successfully!!!');
+        await mongoose.connect(
+            "mongodb+srv://hoanglenam0905:22120217@cluster0.5queg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        );
+        console.log("Connect successfully!!!");
     } catch (error) {
-        console.log('Connect failure!!!');
+        console.log("Connect failure!!!");
     }
 }
 
