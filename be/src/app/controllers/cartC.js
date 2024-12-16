@@ -4,8 +4,16 @@ class cartC {
     async getUserCart(req, res) {
         try {
             
+            const {userID} = req.body;
+
+            const userData = await userM.findById(userID);
+            let cartData = await userData.cartDate;
+
+            res.json({success: true, cartData});
+
         } catch (error) {
-            
+            console.log(error);
+            res.json({success: false, message: error.message});    
         }
 
     }
@@ -44,9 +52,19 @@ class cartC {
         try {
             
             const { userId, itemId, size, quantity } = req.body;
+            
+            const userData = await userM.findById(userID);
+            let cartData = await userData.cartDate;
+
+            cartData[itemId][size] = quantity;
+
+            await userM.findByIdAndUpdate(userID, {cartData: cartData});
+
+            res.json({success: true, message: "Update cart successfully"});
 
         } catch (error) {
-            
+            console.log(error);
+            res.json({success: false, message: error.message});
         }
     }
 }
