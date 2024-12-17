@@ -1,4 +1,4 @@
-const { createUserService } = require("../../services/userService");
+const { createUserService, loginService } = require("../../services/userService");
 
 require("dotenv").config();
 
@@ -32,7 +32,38 @@ class AuthController {
     async handleLogin(req, res) {
         try {
             const { email, password } = req.body;
-        } catch (error) {}
+
+            const result = await loginService(email, password);
+
+            if (result.EC === 1) {
+                return res.status(400).json(result);
+            }
+
+            const { user, accessToken, refreshToken } = result.DT;
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: 1000 * 60 * 60 * 24 * 7,
+            });
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Login successfully",
+                DT: {
+                    user,
+                    accessToken,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 1,
+                EM: error.message,
+                DT: {},
+            });
+        }
     }
 }
 
