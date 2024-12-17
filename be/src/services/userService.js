@@ -1,7 +1,8 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../app/models/userM");
+const { issueAccessToken, createRefreshToken } = require("../util/authHelper");
 
 const saltRounds = 10;
 const createUserService = async (userData) => {
@@ -36,7 +37,6 @@ const createUserService = async (userData) => {
             password: hashedPassword,
             firstName,
             lastName,
-            role: "admin",
         });
 
         if (!result) {
@@ -62,6 +62,83 @@ const createUserService = async (userData) => {
     }
 };
 
+const loginService = async (email, password) => {
+    try {
+        if (!email || !password) {
+            return {
+                EC: 1,
+                EM: "Missing required fields",
+                DT: {},
+            };
+        }
+
+        // find user by email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return {
+                EC: 1,
+                EM: "Email/Password is incorrect",
+                DT: {},
+            };
+        }
+
+        // compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return {
+                EC: 1,
+                EM: "Email/Password is incorrect",
+                DT: {},
+            };
+        }
+
+        // generate token
+        const payload = {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+        };
+
+        const accessToken = issueAccessToken(payload);
+
+        const refreshToken = await createRefreshToken(user._id);
+
+        if (!refreshToken) {
+            return {
+                EC: 1,
+                EM: "Create refresh token failed",
+                DT: {},
+            };
+        }
+
+        return {
+            EC: 0,
+            EM: "Login successfully",
+            DT: {
+                accessToken,
+                refreshToken,
+                user: {
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role,
+                },
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
 module.exports = {
     createUserService,
+    loginService,
 };
