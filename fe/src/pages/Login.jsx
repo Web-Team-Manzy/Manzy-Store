@@ -18,20 +18,32 @@ const Login = () => {
             </div>
 
             <input
-                type="text"
+                type="email"
                 className="w-full px-3 py-2 border border-gray-800"
-                placeholder="Username"
+                placeholder="Email"
                 required=""
             ></input>
             {currentState === "Sign In" ? (
                 ""
             ) : (
-                <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-800"
-                    placeholder="Email"
-                    required=""
-                ></input>
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                    <div className="flex-1">
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-800"
+                            placeholder="First Name"
+                            required=""
+                        ></input>
+                    </div>
+                    <div className="flex-1">
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-800"
+                            placeholder="Last Name"
+                            required=""
+                        ></input>
+                    </div>
+                </div>
             )}
             <input
                 type="password"
