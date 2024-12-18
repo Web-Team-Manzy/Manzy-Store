@@ -45,7 +45,14 @@ class AuthController {
                 httpOnly: true,
                 secure: false, // set true if your using https
                 sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 7,
+                maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
+            });
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
 
             return res.status(200).json({

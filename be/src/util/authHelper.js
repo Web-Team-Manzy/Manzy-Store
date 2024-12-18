@@ -13,7 +13,7 @@ const issueAccessToken = (payload) => {
 const createRefreshToken = async (userId) => {
     try {
         let expiryDate = new Date();
-        expiryDate.setSeconds(60 * 60 * 24 * 7);
+        expiryDate.setSeconds(+process.env.JWT_REFRESH_TOKEN_EXPIRE);
 
         const token = uuidv4();
         const refreshToken = await RefreshToken.create({
