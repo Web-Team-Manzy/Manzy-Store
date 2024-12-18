@@ -54,7 +54,7 @@ const accountReducer = (state = initialState, action) => {
             console.log(">>> action: ", action);
             return {
                 ...state,
-                isLoading: false,
+                isLoading: true,
                 errorMessage: "",
                 isDoLogin: false,
             };

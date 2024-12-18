@@ -6,6 +6,8 @@ import { doLogin } from "../redux/action/accountAction";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+import { createUserApi } from "../utils/api";
+
 const Login = () => {
     const [currentState, setCurrentState] = useState("Sign In");
 
@@ -18,12 +20,25 @@ const Login = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
 
         // >>> Backend Test Login API
-        dispatch(doLogin(email, password));
+        if (currentState === "Sign In") {
+            dispatch(doLogin(email, password));
+        } else {
+            const res = await createUserApi(email, password, firstName, lastName);
+
+            if (res && res.EC === 0) {
+                toast.success("Create account success!");
+                setCurrentState("Sign In");
+            } else {
+                toast.error(res.EM);
+            }
+        }
         // >>>
     };
 
@@ -71,6 +86,8 @@ const Login = () => {
                             className="w-full px-3 py-2 border border-gray-800"
                             placeholder="First Name"
                             required=""
+                            value={firstName}
+                            onChange={(event) => setFirstName(event.target.value)}
                         ></input>
                     </div>
                     <div className="flex-1">
@@ -79,6 +96,8 @@ const Login = () => {
                             className="w-full px-3 py-2 border border-gray-800"
                             placeholder="Last Name"
                             required=""
+                            value={lastName}
+                            onChange={(event) => setLastName(event.target.value)}
                         ></input>
                     </div>
                 </div>
