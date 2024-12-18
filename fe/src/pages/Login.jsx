@@ -1,11 +1,26 @@
 import React from "react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import { doLogin } from "../redux/action/accountAction";
 
 const Login = () => {
     const [currentState, setCurrentState] = useState("Sign In");
+
+    // >>> Backend Test Login API
+    const dispatch = useDispatch();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+
+        // >>> Backend Test Login API
+        dispatch(doLogin(email, password));
+        // >>>
     };
+    // >>> End Backend Test Login API
 
     return (
         <form
@@ -22,6 +37,8 @@ const Login = () => {
                 className="w-full px-3 py-2 border border-gray-800"
                 placeholder="Email"
                 required=""
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
             ></input>
             {currentState === "Sign In" ? (
                 ""
@@ -50,6 +67,8 @@ const Login = () => {
                 className="w-full px-3 py-2 border border-gray-800"
                 placeholder="Password"
                 required=""
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
             ></input>
 
             <div className="w-full flex justify-between text-sm mt-[-8px]">
