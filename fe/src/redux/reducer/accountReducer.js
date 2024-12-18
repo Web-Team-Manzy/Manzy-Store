@@ -8,6 +8,7 @@ const initialState = {
         role: "",
     },
     isLoading: false,
+    isDoLogin: false,
     errorMessage: "",
 };
 
@@ -19,6 +20,7 @@ const accountReducer = (state = initialState, action) => {
                 ...state,
                 isLoading: true,
                 errorMessage: "",
+                isDoLogin: action.isDoLogin || false,
             };
         case USER_LOGIN_SUCCESS:
             console.log(">>> action: ", action);
@@ -27,6 +29,7 @@ const accountReducer = (state = initialState, action) => {
                 userInfo: action.user,
                 isLoading: false,
                 errorMessage: "",
+                isDoLogin: action.isDoLogin || false,
             };
         case USER_LOGIN_FAIL:
             console.log(">>> action: ", action);
@@ -34,6 +37,7 @@ const accountReducer = (state = initialState, action) => {
                 ...state,
                 isLoading: false,
                 errorMessage: action.error,
+                isDoLogin: action.isDoLogin || false,
             };
         default:
             return state;

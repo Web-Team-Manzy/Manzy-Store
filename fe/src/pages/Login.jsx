@@ -14,6 +14,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const message = useSelector((state) => state.account.errorMessage);
     const userInfo = useSelector((state) => state.account.userInfo);
+    const isDoLogin = useSelector((state) => state.account.isDoLogin);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -29,9 +30,13 @@ const Login = () => {
     useEffect(() => {
         // show toast message when login success or fail
         if (message) {
-            toast.error(message);
+            if (isDoLogin) {
+                toast.error(message);
+            }
         } else if (userInfo.email) {
-            toast.success("Login Success");
+            if (isDoLogin) {
+                toast.success("Login success!");
+            }
             navigate("/");
         }
     }, [message, userInfo]);

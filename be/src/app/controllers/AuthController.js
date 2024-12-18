@@ -3,6 +3,18 @@ const { createUserService, loginService } = require("../../services/userService"
 require("dotenv").config();
 
 class AuthController {
+    // [GET] /account
+    async getUserAccount(req, res) {
+        return res.status(200).json({
+            EC: 0,
+            EM: "Get user account successfully",
+            DT: {
+                user: req.user,
+                accessToken: req.accessToken,
+            },
+        });
+    }
+
     // [POST] /login
     async register(req, res) {
         try {
