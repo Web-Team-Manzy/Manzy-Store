@@ -7,6 +7,7 @@ const {
     issueAccessToken,
     createRefreshToken,
     verifyRefreshTokenExpiration,
+    getGoogleUserData,
 } = require("../util/authHelper");
 
 const saltRounds = 10;
@@ -42,6 +43,64 @@ const createUserService = async (userData) => {
             password: hashedPassword,
             firstName,
             lastName,
+        });
+
+        if (!result) {
+            return {
+                EC: 1,
+                EM: "Create user failed",
+                DT: {},
+            };
+        }
+
+        return {
+            EC: 0,
+            EM: "Register successfully",
+            DT: { email, firstName, lastName },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
+const createGoogleUserService = async (userData) => {
+    try {
+        const { email, firstName, lastName } = userData;
+
+        if (!email || !firstName || !lastName) {
+            return {
+                EC: 1,
+                EM: "Missing required fields",
+                DT: {},
+            };
+        }
+
+        // check if email exists
+        const user = await User.findOne({
+            email,
+        });
+
+        if (user) {
+            return {
+                EC: 1,
+                EM: "Email is already in use",
+                DT: {},
+            };
+        }
+
+        // save to db
+        let result = await User.create({
+            email,
+            firstName,
+            password: userData.googleId,
+            lastName,
+            source: "google",
+            googleId: userData.googleId,
         });
 
         if (!result) {
@@ -145,6 +204,76 @@ const loginService = async (email, password) => {
     }
 };
 
+const loginGoogleService = async (code) => {
+    try {
+        // get user data from google
+        const userData = await getGoogleUserData(code);
+
+        if (!userData) {
+            return {
+                EC: 1,
+                EM: "Unauthorized",
+            };
+        }
+
+        const { email } = userData;
+
+        let user = await User.findOne({
+            email,
+        });
+
+        if (!user) {
+            user = await createGoogleUserService({
+                email,
+                firstName: userData?.given_name || userData?.family_name || "Google User",
+                lastName: userData?.family_name || userData?.given_name || "Google User",
+                googleId: userData?.id || "",
+                source: "google",
+            });
+
+            if (!user) {
+                return {
+                    EC: 2,
+                    EM: "Internal server error",
+                };
+            }
+        }
+
+        // create an access token
+        const payload = {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+        };
+
+        const accessToken = issueAccessToken(payload);
+
+        // create a refresh token
+        await RefreshToken.deleteMany({ user: user._id });
+
+        const refreshToken = await createRefreshToken(user._id);
+
+        return {
+            EC: 0,
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            user: {
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role,
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 3,
+            EM: "Internal server error",
+        };
+    }
+};
+
 const refreshTokenService = async (refreshToken) => {
     try {
         // fetch refresh token
@@ -213,4 +342,5 @@ module.exports = {
     createUserService,
     loginService,
     refreshTokenService,
+    loginGoogleService,
 };

@@ -1,6 +1,10 @@
 require("dotenv").config();
 
-const { createUserService, loginService } = require("../../services/userService");
+const {
+    createUserService,
+    loginService,
+    loginGoogleService,
+} = require("../../services/userService");
 const { deleteRefreshTokenOfUser } = require("../../util/authHelper");
 const User = require("../models/userM");
 
@@ -89,6 +93,61 @@ class AuthController {
         }
     }
 
+    // [POST] /login/google
+    async handleLoginGoogle(req, res) {
+        try {
+            const { code } = req?.body;
+
+            if (!code) {
+                return res.status(401).json({
+                    EC: 2,
+                    EM: "Unauthorized",
+                });
+            }
+
+            const data = await loginGoogleService(code);
+
+            const { refresh_token, ...other } = data;
+
+            if (!other) {
+                return res.status(401).json({
+                    EC: 2,
+                    EM: "Unauthorized",
+                });
+            }
+
+            if (!refresh_token) {
+                return res.status(401).json({
+                    EC: 2,
+                    EM: "Unauthorized",
+                });
+            }
+
+            res.cookie("refreshToken", refresh_token, {
+                httpOnly: true,
+                secure: false, // set to true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
+            });
+
+            res.cookie("accessToken", other.accessToken, {
+                httpOnly: true,
+                secure: false, // set to true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
+            });
+
+            return res.status(200).json(data);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 3,
+                EM: "Internal server error",
+            });
+        }
+    }
+
+    // [POST] /logout
     async handleLogout(req, res) {
         try {
             res.clearCookie("accessToken");

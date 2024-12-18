@@ -5,7 +5,7 @@ const authHelper = require("../util/authHelper");
 const { refreshTokenService } = require("../services/userService");
 
 const auth = async (req, res, next) => {
-    const white_lists = ["/", "/register", "/login", "/refresh-token"];
+    const white_lists = ["/", "/register", "/login", "/refresh-token", "/login/google"];
 
     if (white_lists.find((url) => url === req.originalUrl)) {
         return next();

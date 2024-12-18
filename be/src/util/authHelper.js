@@ -1,8 +1,36 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const { OAuth2Client } = require("google-auth-library");
 
 const RefreshToken = require("../app/models/RefreshToken");
+
+const oauth2Client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    "postmessage"
+);
+
+const getGoogleUserData = async (code) => {
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+
+        oauth2Client.setCredentials(tokens);
+
+        const { data } = await oauth2Client.request({
+            url: "https://www.googleapis.com/oauth2/v2/userinfo",
+        });
+
+        if (!data) {
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
 
 const verifyToken = (token) => {
     let key = process.env.JWT_ACCESS_TOKEN_SECRET;
@@ -67,6 +95,7 @@ const verifyRefreshTokenExpiration = async (token) => {
 };
 
 module.exports = {
+    getGoogleUserData,
     issueAccessToken,
     createRefreshToken,
     extractToken,
