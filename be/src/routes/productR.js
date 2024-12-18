@@ -5,7 +5,7 @@ const upload = require("../middleware/multer");
 
 router.get("/list", productC.listProduct);
 
-router.get(
+router.post(
   "/add",
   upload.fields([
     { name: "image1", maxCount: 1 },
@@ -18,7 +18,7 @@ router.get(
 
 router.get("/detail", productC.detailProduct);
 
-router.get("/update", productC.updateProduct);
+router.put("/update", productC.updateProduct);
 
 router.delete("/delete", productC.deleteProduct);
 

@@ -1,9 +1,11 @@
+// filepath: /D:/BigBoss/Phát triển ứng dụng web/Đồ án Mai Anh Tuấn siêu cấp vip/Manzy-Store/be/src/config/cloud/clConfig.js
+require('dotenv').config();
 const { v2: cloudinary } = require('cloudinary');
 
 cloudinary.config({
-    cloud_name: 'duxrwlvtv',
-    api_key: '344482831384216',
-    api_secret: '3hHTqPeelhZupwbQLaU0uu0Sn04'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 module.exports = cloudinary;
