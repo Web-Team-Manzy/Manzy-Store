@@ -11,6 +11,7 @@ class AuthController {
             DT: {
                 user: req.user,
                 accessToken: req.accessToken,
+                refreshToken: req.refreshToken,
             },
         });
     }
@@ -73,6 +74,7 @@ class AuthController {
                 DT: {
                     user,
                     accessToken,
+                    refreshToken,
                 },
             });
         } catch (error) {

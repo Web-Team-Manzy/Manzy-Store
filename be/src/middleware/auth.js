@@ -13,12 +13,13 @@ const auth = (req, res, next) => {
         let tokenFromHeader = authHelper.extractToken(req);
 
         if ((cookies && cookies.accessToken) || tokenFromHeader) {
-            let token = cookies && cookies.accessToken ? cookies.accessToken : tokenFromHeader;
+            let accessToken =
+                cookies && cookies.accessToken ? cookies.accessToken : tokenFromHeader;
             // console.log(">>> token", token);
 
             // verify token
             try {
-                const decoded = authHelper.verifyToken(token);
+                const decoded = authHelper.verifyToken(accessToken);
 
                 if (!decoded) {
                     return res.status(401).json({
@@ -35,7 +36,8 @@ const auth = (req, res, next) => {
                     role: decoded.role,
                 };
 
-                req.accessToken = token;
+                req.accessToken = accessToken;
+                req.refreshToken = req?.cookies?.refreshToken || "";
                 // console.log(">>> decoded", decoded);
 
                 return next();

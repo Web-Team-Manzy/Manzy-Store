@@ -7,6 +7,8 @@ const initialState = {
         lastName: "",
         role: "",
     },
+    accessToken: "",
+    refreshToken: "",
     isLoading: false,
     isDoLogin: false,
     errorMessage: "",
@@ -27,6 +29,8 @@ const accountReducer = (state = initialState, action) => {
             return {
                 ...state,
                 userInfo: action.user,
+                accessToken: action.accessToken,
+                refreshToken: action.refreshToken,
                 isLoading: false,
                 errorMessage: "",
                 isDoLogin: action.isDoLogin || false,

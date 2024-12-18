@@ -26,7 +26,9 @@ export const doLogin = (email, password) => {
                 if (response && +response.EC === 0) {
                     dispatch({
                         type: USER_LOGIN_SUCCESS,
-                        user: response.DT.user,
+                        user: response?.DT?.user || {},
+                        accessToken: response?.DT?.accessToken || "",
+                        refreshToken: response?.DT?.refreshToken || "",
                         isDoLogin: true,
                     });
                 } else {
@@ -63,7 +65,9 @@ export const doGetAccount = () => {
                 if (response && +response.EC === 0) {
                     dispatch({
                         type: USER_LOGIN_SUCCESS,
-                        user: response.DT.user,
+                        user: response?.DT?.user || {},
+                        accessToken: response?.DT?.accessToken || "",
+                        refreshToken: response?.DT?.refreshToken || "",
                     });
                 } else {
                     dispatch({
