@@ -223,12 +223,23 @@ const loginGoogleService = async (code) => {
         });
 
         if (!user) {
-            user = await createGoogleUserService({
+            let result = await createGoogleUserService({
                 email,
                 firstName: userData?.given_name || userData?.family_name || "Google User",
                 lastName: userData?.family_name || userData?.given_name || "Google User",
                 googleId: userData?.id || "",
                 source: "google",
+            });
+
+            if (result.EC === 1) {
+                return {
+                    EC: 1,
+                    EM: "Internal server error",
+                };
+            }
+
+            user = await User.findOne({
+                email,
             });
 
             if (!user) {
@@ -247,6 +258,7 @@ const loginGoogleService = async (code) => {
             role: user.role,
         };
 
+
         const accessToken = issueAccessToken(payload);
 
         // create a refresh token
@@ -256,13 +268,16 @@ const loginGoogleService = async (code) => {
 
         return {
             EC: 0,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            user: {
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                role: user.role,
+            EM: "Login successfully",
+            DT: {
+                accessToken,
+                refreshToken,
+                user: {
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role,
+                },
             },
         };
     } catch (error) {

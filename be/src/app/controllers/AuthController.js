@@ -107,37 +107,31 @@ class AuthController {
 
             const data = await loginGoogleService(code);
 
-            const { refresh_token, ...other } = data;
+            const { user, accessToken, refreshToken } = data.DT;
 
-            if (!other) {
-                return res.status(401).json({
-                    EC: 2,
-                    EM: "Unauthorized",
-                });
-            }
-
-            if (!refresh_token) {
-                return res.status(401).json({
-                    EC: 2,
-                    EM: "Unauthorized",
-                });
-            }
-
-            res.cookie("refreshToken", refresh_token, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: false, // set to true if your using https
+                secure: false, // set true if your using https
                 sameSite: "strict",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
-            res.cookie("accessToken", other.accessToken, {
+            res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: false, // set to true if your using https
+                secure: false, // set true if your using https
                 sameSite: "strict",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
 
-            return res.status(200).json(data);
+            return res.status(200).json({
+                EC: 0,
+                EM: "Login successfully",
+                DT: {
+                    user,
+                    accessToken,
+                    refreshToken,
+                },
+            });
         } catch (error) {
             console.log(error);
             return res.status(500).json({

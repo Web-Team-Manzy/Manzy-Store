@@ -7,20 +7,27 @@ const { refreshTokenService } = require("../services/userService");
 const auth = async (req, res, next) => {
     const white_lists = ["/", "/register", "/login", "/refresh-token", "/login/google"];
 
-    if (white_lists.find((url) => url === req.originalUrl)) {
+    if (white_lists.find((url) => url === req.originalUrl || url === "/login/google" && req.originalUrl.includes(url))) {
         return next();
     } else {
+        console.log(">>> req.cookies", req.cookies);
         let cookies = req.cookies;
         let tokenFromHeader = authHelper.extractToken(req);
 
         if ((cookies && cookies.accessToken) || tokenFromHeader) {
             let accessToken =
                 cookies && cookies.accessToken ? cookies.accessToken : tokenFromHeader;
+
+            // console.log(">>> cookies", cookies);
             // console.log(">>> token", token);
+
+            console.log(">>> accessToken", accessToken);
 
             // verify token
             try {
                 const decoded = authHelper.verifyToken(accessToken);
+
+                console.log(">>> decoded", decoded);
 
                 if (!decoded) {
                     return res.status(401).json({

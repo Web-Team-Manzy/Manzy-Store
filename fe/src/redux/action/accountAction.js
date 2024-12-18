@@ -50,6 +50,51 @@ export const doLogin = (email, password) => {
     };
 };
 
+export const doLoginGoogle = (code) => {
+    return async (dispatch, getState) => {
+        dispatch({
+            type: USER_LOGIN_REQUEST,
+        });
+
+        axios
+            .post(
+                "http://localhost:8080/login/google",
+                {
+                    code
+                },
+                {
+                    withCredentials: true,
+                }
+            )
+            .then((response) => {
+                console.log(">>> response: ", response);
+                if (response && +response.EC === 0) {
+                    dispatch({
+                        type: USER_LOGIN_SUCCESS,
+                        user: response?.DT?.user || {},
+                        accessToken: response?.DT?.accessToken || "",
+                        refreshToken: response?.DT?.refreshToken || "",
+                        isDoLogin: true,
+                    });
+                } else {
+                    dispatch({
+                        type: USER_LOGIN_FAIL,
+                        error: response.EM,
+                        isDoLogin: true,
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(">>> error: ", error);
+                dispatch({
+                    type: USER_LOGIN_FAIL,
+                    error: response.EM,
+                    isDoLogin: true,
+                });
+            });
+    };
+};
+
 export const doGetAccount = () => {
     return async (dispatch, getState) => {
         dispatch({
