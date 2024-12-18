@@ -2,7 +2,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../app/models/userM");
-const { issueAccessToken, createRefreshToken } = require("../util/authHelper");
+const RefreshToken = require("../app/models/RefreshToken");
+const {
+    issueAccessToken,
+    createRefreshToken,
+    verifyRefreshTokenExpiration,
+} = require("../util/authHelper");
 
 const saltRounds = 10;
 const createUserService = async (userData) => {
@@ -104,6 +109,8 @@ const loginService = async (email, password) => {
 
         const accessToken = issueAccessToken(payload);
 
+        await RefreshToken.deleteMany({ user: user._id });
+
         const refreshToken = await createRefreshToken(user._id);
 
         if (!refreshToken) {
@@ -138,7 +145,72 @@ const loginService = async (email, password) => {
     }
 };
 
+const refreshTokenService = async (refreshToken) => {
+    try {
+        // fetch refresh token
+        const token = await RefreshToken.findOne({
+            token: refreshToken,
+        }).populate("user");
+
+        if (!token) {
+            return {
+                EC: 1,
+                EM: "Unauthorized",
+            };
+        }
+
+        // verify expiration
+        const isExpired = await verifyRefreshTokenExpiration(token);
+
+        if (isExpired) {
+            // delete token
+            await RefreshToken.findByIdAndDelete(token._id).exec();
+            return {
+                EC: 2,
+                EM: "Unauthorized",
+            };
+        }
+
+        const payload = {
+            email: token.user.email,
+            firstName: token.user.firstName,
+            lastName: token.user.lastName,
+            role: token.user.role,
+        };
+
+        await RefreshToken.findByIdAndDelete(token._id).exec();
+
+        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_TOKEN_SECRET, {
+            expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE,
+        });
+
+        const newRefreshToken = await createRefreshToken(token.user._id);
+
+        return {
+            EC: 0,
+            EM: "Refresh token successfully",
+            DT: {
+                refresh_token: newRefreshToken,
+                access_token: accessToken,
+                user: {
+                    email: token.user.email,
+                    firstName: token.user.firstName,
+                    lastName: token.user.lastName,
+                    role: token.user.role,
+                },
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 3,
+            EM: "Internal server error",
+        };
+    }
+};
+
 module.exports = {
     createUserService,
     loginService,
+    refreshTokenService,
 };

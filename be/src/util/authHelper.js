@@ -11,9 +11,9 @@ const verifyToken = (token) => {
     try {
         decoded = jwt.verify(token, key);
     } catch (err) {
-        // if (err instanceof jwt.TokenExpiredError) {
-        //     return "TokenExpiredError";
-        // }
+        if (err instanceof jwt.TokenExpiredError) {
+            return "TokenExpiredError";
+        }
         console.log(err);
     }
     return decoded;
@@ -62,10 +62,15 @@ const deleteRefreshTokenOfUser = async (userId) => {
     }
 };
 
+const verifyRefreshTokenExpiration = async (token) => {
+    return token.expiryDate.getTime() < new Date().getTime();
+};
+
 module.exports = {
     issueAccessToken,
     createRefreshToken,
     extractToken,
     verifyToken,
     deleteRefreshTokenOfUser,
+    verifyRefreshTokenExpiration,
 };

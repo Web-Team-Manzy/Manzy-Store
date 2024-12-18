@@ -2,8 +2,9 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 const authHelper = require("../util/authHelper");
+const { refreshTokenService } = require("../services/userService");
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
     const white_lists = ["/", "/register", "/login", "/refresh-token"];
 
     if (white_lists.find((url) => url === req.originalUrl)) {
@@ -29,6 +30,60 @@ const auth = (req, res, next) => {
                     });
                 }
 
+                if (decoded && decoded === "TokenExpiredError") {
+                    // refresh token
+                    const refreshToken = req?.cookies?.refreshToken || "";
+                    if (!refreshToken) {
+                        return res.status(401).json({
+                            EC: 1,
+                            EM: "Unauthorized",
+                            DT: {},
+                        });
+                    }
+
+                    const result = await refreshTokenService(refreshToken);
+
+                    if (result.EC === 1) {
+                        return res.status(401).json({
+                            EC: 1,
+                            EM: "Unauthorized",
+                            DT: {},
+                        });
+                    }
+
+                    res.cookie("refreshToken", result.DT.refresh_token, {
+                        httpOnly: true,
+                        secure: false, // set true if your using https
+                        sameSite: "strict",
+                        maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
+                    });
+
+                    res.cookie("accessToken", result.DT.access_token, {
+                        httpOnly: true,
+                        secure: false, // set true if your using https
+                        sameSite: "strict",
+                        maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
+                    });
+
+                    // req.user = {
+                    //     email: result.DT.user.email,
+                    //     firstName: result.DT.user.firstName,
+                    //     lastName: result.DT.user.lastName,
+                    //     role: result.DT.user.role,
+                    // };
+
+                    // req.accessToken = result.DT.accessToken;
+                    // req.refreshToken = result.DT.refreshToken;
+
+                    // return next();
+
+                    return res.status(419).json({
+                        EC: 1,
+                        EM: "Need to refresh token",
+                        DT: {},
+                    });
+                }
+
                 req.user = {
                     email: decoded.email,
                     firstName: decoded.firstName,
@@ -50,9 +105,55 @@ const auth = (req, res, next) => {
             }
         } else {
             // return exception
-            return res.status(401).json({
+            const refreshToken = req?.cookies?.refreshToken || "";
+            if (!refreshToken) {
+                return res.status(401).json({
+                    EC: 1,
+                    EM: "Unauthorized",
+                    DT: {},
+                });
+            }
+
+            const result = await refreshTokenService(refreshToken);
+
+            if (result.EC === 1) {
+                res.clearCookie("refreshToken");
+                return res.status(401).json({
+                    EC: 1,
+                    EM: "Unauthorized",
+                    DT: {},
+                });
+            }
+
+            res.cookie("refreshToken", result.DT.refresh_token, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
+            });
+
+            res.cookie("accessToken", result.DT.access_token, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
+            });
+
+            // req.user = {
+            //     email: result.DT.user.email,
+            //     firstName: result.DT.user.firstName,
+            //     lastName: result.DT.user.lastName,
+            //     role: result.DT.user.role,
+            // };
+
+            // req.accessToken = result.DT.accessToken;
+            // req.refreshToken = result.DT.refreshToken;
+
+            // return next();
+
+            return res.status(419).json({
                 EC: 1,
-                EM: "Unauthorized",
+                EM: "Need to refresh token",
                 DT: {},
             });
         }

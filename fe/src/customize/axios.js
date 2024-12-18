@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -7,6 +8,16 @@ const instance = axios.create({
 
 // Alter defaults after instance has been created
 // instance.defaults.headers.common["Authorization"] = "Bearer " + localStorage.getItem("token");
+
+axiosRetry(instance, {
+    retries: 3,
+    retryCondition: (error) => {
+        return error.response.status === 500 || error.response.status === 419;
+    },
+    retryDelay: (retryCount, error) => {
+        return retryCount * 1000;
+    },
+});
 
 // Add a request interceptor
 instance.interceptors.request.use(
