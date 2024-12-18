@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { doLogin } from "../redux/action/accountAction";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [currentState, setCurrentState] = useState("Sign In");
 
     // >>> Backend Test Login API
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const message = useSelector((state) => state.account.errorMessage);
+    const userInfo = useSelector((state) => state.account.userInfo);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,6 +25,17 @@ const Login = () => {
         dispatch(doLogin(email, password));
         // >>>
     };
+
+    useEffect(() => {
+        // show toast message when login success or fail
+        if (message) {
+            toast.error(message);
+        } else if (userInfo.email) {
+            toast.success("Login Success");
+            navigate("/");
+        }
+    }, [message, userInfo]);
+
     // >>> End Backend Test Login API
 
     return (

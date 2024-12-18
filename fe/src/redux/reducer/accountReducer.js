@@ -17,14 +17,23 @@ const accountReducer = (state = initialState, action) => {
             console.log(">>> action: ", action);
             return {
                 ...state,
+                isLoading: true,
+                errorMessage: "",
             };
         case USER_LOGIN_SUCCESS:
+            console.log(">>> action: ", action);
             return {
                 ...state,
+                userInfo: action.user,
+                isLoading: false,
+                errorMessage: "",
             };
         case USER_LOGIN_FAIL:
+            console.log(">>> action: ", action);
             return {
                 ...state,
+                isLoading: false,
+                errorMessage: action.error,
             };
         default:
             return state;

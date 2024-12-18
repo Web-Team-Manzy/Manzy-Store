@@ -22,20 +22,24 @@ export const doLogin = (email, password) => {
                 }
             )
             .then((response) => {
+                console.log(">>> response: ", response);
                 if (response && +response.EC === 0) {
                     dispatch({
                         type: USER_LOGIN_SUCCESS,
-                        data: response.DT,
+                        user: response.DT.user,
                     });
                 } else {
                     dispatch({
                         type: USER_LOGIN_FAIL,
+                        error: response.EM,
                     });
                 }
             })
             .catch((error) => {
+                console.log(">>> error: ", error);
                 dispatch({
                     type: USER_LOGIN_FAIL,
+                    error: response.EM,
                 });
             });
     };
