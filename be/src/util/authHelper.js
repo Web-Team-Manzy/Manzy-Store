@@ -54,9 +54,18 @@ const createRefreshToken = async (userId) => {
     }
 };
 
+const deleteRefreshTokenOfUser = async (userId) => {
+    try {
+        await RefreshToken.deleteMany({ user: userId });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 module.exports = {
     issueAccessToken,
     createRefreshToken,
     extractToken,
     verifyToken,
+    deleteRefreshTokenOfUser,
 };

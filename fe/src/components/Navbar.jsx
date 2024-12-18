@@ -3,7 +3,9 @@ import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
+import { doLogout } from "../redux/action/accountAction";
 
 const Navbar = () => {
     const [visible, setVisible] = useState(false);
@@ -11,9 +13,12 @@ const Navbar = () => {
     const { setShowSearch, getCartCount } = useContext(ShopContext);
 
     // >>> Backend Test
+    const dispatch = useDispatch();
     const userInfo = useSelector((state) => state.account.userInfo);
 
-    const handleLogout = () => {};
+    const handleLogout = () => {
+        dispatch(doLogout(userInfo.email));
+    };
     // >>> End Backend Test
 
     return (

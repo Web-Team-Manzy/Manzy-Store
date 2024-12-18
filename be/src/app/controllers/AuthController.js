@@ -1,6 +1,8 @@
-const { createUserService, loginService } = require("../../services/userService");
-
 require("dotenv").config();
+
+const { createUserService, loginService } = require("../../services/userService");
+const { deleteRefreshTokenOfUser } = require("../../util/authHelper");
+const User = require("../models/userM");
 
 class AuthController {
     // [GET] /account
@@ -16,7 +18,7 @@ class AuthController {
         });
     }
 
-    // [POST] /login
+    // [POST] /register
     async register(req, res) {
         try {
             const userData = req.body;
@@ -76,6 +78,36 @@ class AuthController {
                     accessToken,
                     refreshToken,
                 },
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 1,
+                EM: error.message,
+                DT: {},
+            });
+        }
+    }
+
+    async handleLogout(req, res) {
+        try {
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
+
+            // delete refresh token in database
+            const email = req.user.email;
+            const user = await User.findOne({
+                email,
+            });
+
+            if (user) {
+                await deleteRefreshTokenOfUser(user._id);
+            }
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Logout successfully",
+                DT: {},
             });
         } catch (error) {
             console.log(error);

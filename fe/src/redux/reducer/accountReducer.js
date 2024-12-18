@@ -1,4 +1,11 @@
-import { USER_LOGIN_REQUEST, USER_LOGIN_SUCCESS, USER_LOGIN_FAIL } from "../action/accountAction";
+import {
+    USER_LOGIN_REQUEST,
+    USER_LOGIN_SUCCESS,
+    USER_LOGIN_FAIL,
+    USER_LOGOUT_REQUEST,
+    USER_LOGOUT_SUCCESS,
+    USER_LOGOUT_FAIL,
+} from "../action/accountAction";
 
 const initialState = {
     userInfo: {
@@ -42,6 +49,38 @@ const accountReducer = (state = initialState, action) => {
                 isLoading: false,
                 errorMessage: action.error,
                 isDoLogin: action.isDoLogin || false,
+            };
+        case USER_LOGOUT_REQUEST:
+            console.log(">>> action: ", action);
+            return {
+                ...state,
+                isLoading: false,
+                errorMessage: "",
+                isDoLogin: false,
+            };
+        case USER_LOGOUT_SUCCESS:
+            console.log(">>> action: ", action);
+            return {
+                ...state,
+                userInfo: {
+                    email: "",
+                    firstName: "",
+                    lastName: "",
+                    role: "",
+                },
+                accessToken: "",
+                refreshToken: "",
+                isLoading: false,
+                isDoLogin: false,
+                errorMessage: "",
+            };
+        case USER_LOGOUT_FAIL:
+            console.log(">>> action: ", action);
+            return {
+                ...state,
+                isLoading: false,
+                errorMessage: action.error,
+                isDoLogin: false,
             };
         default:
             return state;

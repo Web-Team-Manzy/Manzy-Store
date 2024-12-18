@@ -85,3 +85,46 @@ export const doGetAccount = () => {
             });
     };
 };
+
+export const USER_LOGOUT_REQUEST = "USER_LOGOUT_REQUEST";
+export const USER_LOGOUT_SUCCESS = "USER_LOGOUT_SUCCESS";
+export const USER_LOGOUT_FAIL = "USER_LOGOUT_FAIL";
+
+export const doLogout = (email) => {
+    return async (dispatch, getState) => {
+        dispatch({
+            type: USER_LOGOUT_REQUEST,
+        });
+
+        axios
+            .post(
+                "http://localhost:8080/logout",
+                {
+                    email,
+                },
+                {
+                    withCredentials: true,
+                }
+            )
+            .then((response) => {
+                console.log(">>> response: ", response);
+                if (response && +response.EC === 0) {
+                    dispatch({
+                        type: USER_LOGOUT_SUCCESS,
+                    });
+                } else {
+                    dispatch({
+                        type: USER_LOGOUT_FAIL,
+                        error: response.EM,
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(">>> error: ", error);
+                dispatch({
+                    type: USER_LOGOUT_FAIL,
+                    error: response.EM,
+                });
+            });
+    };
+};
