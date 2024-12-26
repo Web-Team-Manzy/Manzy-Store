@@ -9,4 +9,7 @@ router.get("/", userController.index);
 // Get user by id
 router.get("/:id", userController.show);
 
+// Update user by id
+router.put("/:id", userController.update);
+
 module.exports = router;

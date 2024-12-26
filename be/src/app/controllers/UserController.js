@@ -66,6 +66,57 @@ class UserController {
             });
         }
     }
+
+    // [PUT] /users/:id
+    async update(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { name, email, phone, address } = req.body;
+
+            if (!id) {
+                return res.status(400).json({
+                    EC: 1,
+                    EM: "Invalid id",
+                    DT: [],
+                });
+            }
+
+            if (!name || !email || !phone || !address) {
+                return res.status(400).json({
+                    EC: 1,
+                    EM: "Missing required fields",
+                    DT: [],
+                });
+            }
+
+            const user = await User.findByIdAndUpdate(
+                id,
+                { name, email, phone, address },
+                { new: true }
+            ).select("-password");
+
+            if (!user) {
+                return res.status(400).json({
+                    EC: 1,
+                    EM: "No user found",
+                    DT: [],
+                });
+            }
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Success",
+                DT: user,
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 1,
+                EM: "Internal server error",
+                DT: [],
+            });
+        }
+    }
 }
 
 module.exports = new UserController();
