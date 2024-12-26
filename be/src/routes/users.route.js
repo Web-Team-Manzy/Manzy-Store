@@ -12,4 +12,7 @@ router.get("/:id", userController.show);
 // Update user by id
 router.put("/:id", userController.update);
 
+// Delete user by id
+router.delete("/:id", userController.destroy);
+
 module.exports = router;
