@@ -7,7 +7,13 @@ const { refreshTokenService } = require("../services/userService");
 const auth = async (req, res, next) => {
     const white_lists = ["/", "/register", "/login", "/refresh-token", "/login/google"];
 
-    if (white_lists.find((url) => url === req.originalUrl || url === "/login/google" && req.originalUrl.includes(url))) {
+    if (
+        white_lists.find(
+            (url) =>
+                url === req.originalUrl ||
+                (url === "/login/google" && req.originalUrl.includes(url))
+        )
+    ) {
         return next();
     } else {
         console.log(">>> req.cookies", req.cookies);
@@ -122,6 +128,8 @@ const auth = async (req, res, next) => {
             }
 
             const result = await refreshTokenService(refreshToken);
+
+            console.log(">>> result", result);
 
             if (result.EC === 1) {
                 res.clearCookie("refreshToken");

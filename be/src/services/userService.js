@@ -258,7 +258,6 @@ const loginGoogleService = async (code) => {
             role: user.role,
         };
 
-
         const accessToken = issueAccessToken(payload);
 
         // create a refresh token
@@ -347,7 +346,7 @@ const refreshTokenService = async (refreshToken) => {
     } catch (error) {
         console.log(error);
         return {
-            EC: 3,
+            EC: 1,
             EM: "Internal server error",
         };
     }
