@@ -47,11 +47,40 @@ class productC {
 
     async listProduct(req, res) {
         try {
-            const products = await productM.find({});
-            res.json({success: true, products});
+            const { 
+                page = 1, 
+                limit = 10, 
+                category, 
+                sortField = 'name', 
+                sortOrder = 'asc', 
+                search 
+            } = req.query;
+    
+            const query = {};
+            if (category) query.category = category;
+            if (search) query.name = { $regex: search, $options: 'i' };
+    
+            const sortOption = {};
+            sortOption[sortField] = sortOrder === 'asc' ? 1 : -1;
+    
+            const total = await productM.countDocuments(query);
+            const totalPages = Math.ceil(total / limit);
+            const products = await productM.find(query)
+                .sort(sortOption)
+                .skip((page - 1) * parseInt(limit))
+                .limit(parseInt(limit));
+    
+            res.json({
+                success: true,
+                search: search || '',
+                category: category || '',
+                currentPage: parseInt(page),
+                totalPages,
+                products
+            });
         } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});
+            res.json({ success: false, message: error.message });
         }
     }
 
