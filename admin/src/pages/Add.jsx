@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../App";
@@ -14,8 +14,13 @@ const Add = ({ token }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState("Topwear");
+
+  const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState([]);
+
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
 
@@ -29,7 +34,7 @@ const Add = ({ token }) => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      formData.append("subCategory", subCategory);
+      // formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
 
@@ -39,9 +44,9 @@ const Add = ({ token }) => {
       image4 && formData.append("image4", image4);
 
       const response = await axios.post(
-        backendUrl + "/api/product/add",
+        backendUrl + "/product/add",
         formData,
-        { headers: { token } }
+        { headers: {"Authorization" : `Bearer ${token}`}}
       );
 
       if (response.data.success) {
@@ -62,8 +67,24 @@ const Add = ({ token }) => {
       toast.error(error.message);
     }
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/category/list`, { headers: {"Authorization" : `Bearer ${token}`}});
+        setCategories(response.data.data);
+        // setSubCategories(response.data.subCategories);
+
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
-    <form className="flex flex-col w-full items-start gap-3">
+    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-3">
       <div>
         <p className="mb-2">Upload Image</p>
       </div>
@@ -153,23 +174,28 @@ const Add = ({ token }) => {
             onChange={(e) => setCategory(e.target.value)}
             className="w-full px-3 py-2 "
           >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+            
           </select>
         </div>
-
+{/* 
         <div>
           <p className="mb-2">Sub Category</p>
           <select
             onChange={(e) => setSubCategory(e.target.value)}
             className="w-full px-3 py-2 "
           >
-            <option value="Topwear">Topwear</option>
-            <option value="Bottomwear">Bottomwear</option>
-            <option value="Winterwear">Winterwear</option>
+            {subCategories.map((subCat) => (
+              <option key={subCat._id} value={subCat._id}>
+                {subCat.name}
+              </option>
+            ))}
           </select>
-        </div>
+        </div> */}
 
         <div>
           <p className="mb-2">Product price</p>

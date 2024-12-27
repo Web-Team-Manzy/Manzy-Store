@@ -2,29 +2,30 @@ import { toast } from "react-toastify";
 import { backendUrl } from "../App";
 import axios from "axios";
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const Login = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmitHandler = async (e) => {
-    setToken("123");
-    // try {
-    //   e.preventDefault();
+    try {
+      e.preventDefault();
 
-    //   const response = await axios.post(backendUrl + "/api/user/admin", {
-    //     email,
-    //     password,
-    //   });
-    //   if (response.data.success) {
-    //     setToken(response.data.token);
-    //   } else {
-    //     toast.error(response.data.message);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   toast.error(error.message);
-    // }
+      const response = await axios.post(backendUrl + "/login", {
+        email,
+        password,
+      });
+      console.log(response);
+      if (response.data.EC === 0) {
+        setToken(response.data.DT.accessToken);
+      } else {
+        toast.error(response.data.EM);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -68,5 +69,7 @@ const Login = ({ setToken }) => {
     </div>
   );
 };
-
+Login.propTypes = {
+  setToken: PropTypes.func.isRequired,
+};
 export default Login;

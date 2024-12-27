@@ -1,30 +1,31 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
-import { currency } from "../App";
+import { backendUrl, currency } from "../App";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
 
   const fetchList = async () => {
-    // try {
-    //   const response = await axios.get(backendUrl + "/api/product/list");
-    //   if (response.data.success) {
-    //     setList(response.data.products);
-    //   } else {
-    //     toast.error(response.data.message);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   toast.error(error.message);
-    // }
+    try {
+      const response = await axios.get(backendUrl + "/product/list", { headers: {"Authorization" : `Bearer ${token}`}});
+      if (response.data.success) {
+        setList(response.data.products);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
 
   const removeProduct = async (id) => {
     try {
       const response = await axios.post(
-        backendUrl + "/api/product/remove",
+        backendUrl + "/product/remove",
         { id },
         { headers: { token } }
       );
@@ -65,14 +66,17 @@ const List = ({ token }) => {
             className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
             key={index}
           >
-            <img className="w-12" src={item.image[0]} alt="" />
+            <img className="w-12" src={item.images[0]} alt="" />
             <p>{item.name}</p>
             <p>{item.category}</p>
             <p>
               {currency}
               {item.price}
             </p>
-            <p className="text-right md:text-center cursor-pointer text-lg">
+            <p
+              onClick={() => removeProduct(item._id)}
+              className="text-right md:text-center cursor-pointer text-lg"
+            >
               X
             </p>
           </div>
@@ -81,5 +85,7 @@ const List = ({ token }) => {
     </>
   );
 };
-
+List.propTypes = {
+  token: PropTypes.string.isRequired,
+};
 export default List;
