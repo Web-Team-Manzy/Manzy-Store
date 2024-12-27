@@ -244,7 +244,7 @@ const loginGoogleService = async (code) => {
 
             if (!user) {
                 return {
-                    EC: 2,
+                    EC: 1,
                     EM: "Internal server error",
                 };
             }
@@ -282,7 +282,7 @@ const loginGoogleService = async (code) => {
     } catch (error) {
         console.log(error);
         return {
-            EC: 3,
+            EC: 1,
             EM: "Internal server error",
         };
     }
@@ -309,7 +309,7 @@ const refreshTokenService = async (refreshToken) => {
             // delete token
             await RefreshToken.findByIdAndDelete(token._id).exec();
             return {
-                EC: 2,
+                EC: 1,
                 EM: "Unauthorized",
             };
         }
