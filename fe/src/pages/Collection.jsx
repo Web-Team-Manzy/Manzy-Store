@@ -1,18 +1,21 @@
 import React, { useContext, useState, useEffect } from "react";
-import { ShopContext } from "../context/shopContext";
+import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { getCategories, getProducts } from "../service/callAPI";
+import axios from "axios";
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { search, showSearch } = useContext(ShopContext);
+
   const [showFilter, setShowFilter] = useState(false);
+  const [products, setProducts] = useState([]);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState(null); // Category được chọn
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavant");
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const itemsPerPage = 8; // Số sản phẩm mỗi trang
 
   const categorySubCategoryMap = {
     Accessories: ["Watches", "Belts", "Hats"],
@@ -39,29 +42,6 @@ const Collection = () => {
     );
   };
 
-  const applyFilter = () => {
-    let productsCopy = products.slice();
-
-    if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (category) {
-      productsCopy = productsCopy.filter((item) => item.category === category);
-    }
-
-    if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        subCategory.includes(item.subCategory)
-      );
-    }
-
-    setFilterProducts(productsCopy);
-    setCurrentPage(1); // Reset về trang đầu tiên khi lọc
-  };
-
   const sortProducts = () => {
     let fpCopy = filterProducts.slice();
 
@@ -73,31 +53,47 @@ const Collection = () => {
         setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
         break;
       default:
-        applyFilter();
         break;
     }
   };
 
-  // Lấy danh sách sản phẩm thuộc trang hiện tại
-  const paginatedProducts = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filterProducts.slice(startIndex, endIndex);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const collectionList = async (page, catagory) => {
+    try {
+      const res = await getProducts(page, catagory);
+      setCurrentPage(res.currentPage);
+      setTotalPages(res.totalPages);
+      console.log(catagory);
+      console.log(res);
+      setFilterProducts(res.products);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const totalPages = Math.ceil(filterProducts.length / itemsPerPage);
-
-  useEffect(() => {
-    setFilterProducts(products);
-  }, [products]);
-
-  useEffect(() => {
-    applyFilter();
-  }, [category, subCategory, search, showSearch]);
+  // useEffect(() => {
+  //   setFilterProducts(products);
+  // }, [products]);
 
   useEffect(() => {
     sortProducts();
   }, [sortType]);
+
+  // useEffect(() => {
+  //   const filrer = async () => {
+  //     try {
+  //       const res = await getCategories();
+  //       console.log(res);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    collectionList(currentPage, "67630263c5ade05c56e6a107");
+  }, [currentPage, category]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -178,12 +174,12 @@ const Collection = () => {
 
         {/* Products grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
-          {paginatedProducts().map((item, index) => (
+          {filterProducts.map((item, index) => (
             <ProductItem
               key={index}
               id={item._id}
-              image={item.image}
               name={item.name}
+              image={item.images}
               price={item.price}
             />
           ))}

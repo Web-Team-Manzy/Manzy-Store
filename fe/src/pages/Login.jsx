@@ -1,165 +1,187 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { doLogin, doLoginGoogle } from "../redux/action/accountAction";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 
+import { doLogin, doLoginGoogle } from "../redux/action/accountAction";
 import { createUserApi } from "../utils/api";
-import axios from "../customize/axios";
 
 const Login = () => {
-    const [currentState, setCurrentState] = useState("Sign In");
+  const [currentState, setCurrentState] = useState("Sign In");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-    // >>> Backend Test Login API
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const message = useSelector((state) => state.account.errorMessage);
-    const userInfo = useSelector((state) => state.account.userInfo);
-    const isDoLogin = useSelector((state) => state.account.isDoLogin);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const message = useSelector((state) => state.account.errorMessage);
+  const userInfo = useSelector((state) => state.account.userInfo);
+  const isDoLogin = useSelector((state) => state.account.isDoLogin);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+  useEffect(() => {
+    if (message) {
+      if (isDoLogin) {
+        toast.error(message);
+      }
+    } else if (userInfo.email) {
+      if (isDoLogin) {
+        toast.success("Login success!");
+      }
+      navigate("/");
+    }
+  }, [message, userInfo]);
 
-    const onSubmitHandler = async (event) => {
-        event.preventDefault();
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
 
-        // >>> Backend Test Login API
-        if (currentState === "Sign In") {
-            dispatch(doLogin(email, password));
-        } else {
-            const res = await createUserApi(email, password, firstName, lastName);
+    if (currentState === "Sign In") {
+      dispatch(doLogin(email, password));
+    } else {
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match.");
+        return;
+      }
 
-            if (res && res.EC === 0) {
-                toast.success("Create account success!");
-                setCurrentState("Sign In");
-            } else {
-                toast.error(res.EM);
-            }
-        }
-        // >>>
-    };
+      const res = await createUserApi(email, password, firstName, lastName);
+      if (res && res.EC === 0) {
+        toast.success("Account created successfully!");
+        setCurrentState("Sign In");
+      } else {
+        toast.error(res.EM);
+      }
+    }
+  };
 
-    useEffect(() => {
-        // show toast message when login success or fail
-        if (message) {
-            if (isDoLogin) {
-                toast.error(message);
-            }
-        } else if (userInfo.email) {
-            if (isDoLogin) {
-                toast.success("Login success!");
-            }
-            navigate("/");
-        }
-    }, [message, userInfo]);
+  const handleLoginGoogle = useGoogleLogin({
+    flow: "auth-code",
+    ux_mode: "popup",
+    onSuccess: async (res) => {
+      dispatch(doLoginGoogle(res.code));
+    },
+    onError: (error) => {
+      console.error("Google login error:", error);
+    },
+  });
 
-    // >>> Backend Test Login API
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
+          <h2 className="text-2xl font-semibold text-gray-800 text-center">
+            {currentState}
+          </h2>
 
-    const handleLoginGoogle = useGoogleLogin({
-        flow: "auth-code",
-        ux_mode: "popup",
-        onSuccess: async (res) => {
-            dispatch(doLoginGoogle(res.code));
-        },
-        onError: (error) => {
-            console.log(">>> error", error);
-        },
-    });
+          {/* Email input */}
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-    // >>> End Backend Test Login API
+          {/* Password fields */}
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-    return (
-        <>
-            {
-                // >>> Backend Test Login API
-                <div>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleLoginGoogle();
-                        }}
-                    >
-                        Sign in with Google 🚀
-                    </button>
-                </div>
-                // >>>
-            }
-            <form
-                onSubmit={onSubmitHandler}
-                className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800"
-            >
-                <div className="inline-flex items-center gap-2 mb-2 mt-10">
-                    <p className="prata-regular text-3xl">{currentState}</p>
-                    <hr className="border-none h-[1.5px] w-8 bg-gray-800"></hr>
-                </div>
+          {currentState === "Sign Up" && (
+            <>
+              {/* Confirm Password */}
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
 
-                <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-800"
-                    placeholder="Email"
-                    required=""
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                ></input>
-                {currentState === "Sign In" ? (
-                    ""
-                ) : (
-                    <div className="flex flex-col md:flex-row gap-4 w-full">
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-800"
-                                placeholder="First Name"
-                                required=""
-                                value={firstName}
-                                onChange={(event) => setFirstName(event.target.value)}
-                            ></input>
-                        </div>
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-800"
-                                placeholder="Last Name"
-                                required=""
-                                value={lastName}
-                                onChange={(event) => setLastName(event.target.value)}
-                            ></input>
-                        </div>
-                    </div>
-                )}
-                <input
-                    type="password"
-                    className="w-full px-3 py-2 border border-gray-800"
-                    placeholder="Password"
-                    required=""
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                ></input>
+              {/* Name */}
+              <input
+                type="text"
+                placeholder="Name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
 
-                <div className="w-full flex justify-between text-sm mt-[-8px]">
-                    <p className=" cursor-pointer">Forgot your password?</p>
-                    {currentState === "Sign In" ? (
-                        <p className="cursor-pointer" onClick={() => setCurrentState("Sign Up")}>
-                            Create an account
-                        </p>
-                    ) : (
-                        <p className="cursor-pointer" onClick={() => setCurrentState("Sign In")}>
-                            Sign In
-                        </p>
-                    )}
-                </div>
+              {/* Phone Number */}
+              <input
+                type="text"
+                placeholder="Phone Number"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </>
+          )}
 
-                <button className="bg-black text-white font-light px-8 py-2 mt-4">
-                    {currentState === "Sign In" ? "Sign In" : "Sign Up"}
-                </button>
-            </form>
-        </>
-    );
+          {/* Navigation between Sign In and Sign Up */}
+          <div className="flex justify-between text-sm text-blue-500 mt-[-6px]">
+            {currentState === "Sign In" ? (
+              <>
+                <p className="cursor-pointer hover:underline">
+                  Forgot your password?
+                </p>
+                <p
+                  className="cursor-pointer hover:underline"
+                  onClick={() => setCurrentState("Sign Up")}
+                >
+                  Create an account
+                </p>
+              </>
+            ) : (
+              <p
+                className="cursor-pointer hover:underline"
+                onClick={() => setCurrentState("Sign In")}
+              >
+                Already have an account? Sign In
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            {currentState}
+          </button>
+        </form>
+
+        {/* Sign in with Google */}
+        <div className="flex flex-col items-center mt-4">
+          <p className="text-sm text-gray-500 mb-2">or continue with</p>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleLoginGoogle();
+            }}
+            className="flex items-center justify-center w-64 bg-white text-gray-800 border border-gray-300 rounded-md px-3 py-2 shadow-sm hover:shadow-md transition"
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google"
+              className="w-5 h-5 mr-2"
+            />
+            <span className="text-sm font-medium">Sign in with Google</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Login;

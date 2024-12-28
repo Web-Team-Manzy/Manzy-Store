@@ -88,7 +88,7 @@ export const doLoginGoogle = (code) => {
         console.log(">>> error: ", error);
         dispatch({
           type: USER_LOGIN_FAIL,
-          error: response.EM,
+          error: error,
           isDoLogin: true,
         });
       });
@@ -125,7 +125,7 @@ export const doGetAccount = () => {
         console.log(">>> error: ", error);
         dispatch({
           type: USER_LOGIN_FAIL,
-          error: response.EM,
+          error: error,
         });
       });
   };
@@ -168,7 +168,7 @@ export const doLogout = (email) => {
         console.log(">>> error: ", error);
         dispatch({
           type: USER_LOGOUT_FAIL,
-          error: response.EM,
+          error: error,
         });
       });
   };
