@@ -1,4 +1,5 @@
 const productM = require('../models/productM'); 
+const categoryM = require('../models/categoryM');
 const cloudinary = require('../../config/cloud/clConfig');
 
 class productC {
@@ -44,17 +45,54 @@ class productC {
         }
 
     }
-
+    // 
     async listProduct(req, res) {
         try {
-            const products = await productM.find({});
-            res.json({success: true, products});
+            const { 
+                page = 1, 
+                limit = 10, 
+                category, 
+                sortField = 'name', 
+                sortOrder = 'asc', 
+                search 
+            } = req.query;
+    
+            let query = {};
+            if (category) {
+                const categoryDoc = await categoryM.findOne({ name: category });
+                if (categoryDoc) query.category = categoryDoc._id;
+            }
+    
+            if (search) {
+                query.name = { $regex: search, $options: 'i' };
+            }
+    
+            const sortOption = {};
+            sortOption[sortField] = sortOrder === 'asc' ? 1 : -1;
+    
+            const total = await productM.countDocuments(query);
+            const totalPages = Math.ceil(total / limit);
+            const products = await productM.find(query)
+                .populate('category', 'name')
+                .populate('subCategory', 'name')
+                .sort(sortOption)
+                .skip((page - 1) * parseInt(limit))
+                .limit(parseInt(limit));
+    
+            res.json({
+                success: true,
+                search: search || '',
+                category: category || '',
+                currentPage: parseInt(page),
+                totalPages,
+                products
+            });
         } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});
+            res.json({ success: false, message: error.message });
         }
     }
-
+// Hiện tên category và subcategory
     async detailProduct(req, res) {
         try {
             
