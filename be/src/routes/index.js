@@ -7,7 +7,7 @@ const userRouter = require("./users.route");
 const auth = require("../middleware/auth");
 
 function route(app) {
-    app.all("*", auth);
+    //app.all("*", auth);
 
     app.use("/category", require("./categoryR"));
     app.use("order", orderRouter);

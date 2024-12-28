@@ -1,4 +1,5 @@
 const productM = require('../models/productM'); 
+const categoryM = require('../models/categoryM');
 const cloudinary = require('../../config/cloud/clConfig');
 
 class productC {
@@ -44,7 +45,7 @@ class productC {
         }
 
     }
-
+    // 
     async listProduct(req, res) {
         try {
             const { 
@@ -56,9 +57,15 @@ class productC {
                 search 
             } = req.query;
     
-            const query = {};
-            if (category) query.category = category;
-            if (search) query.name = { $regex: search, $options: 'i' };
+            let query = {};
+            if (category) {
+                const categoryDoc = await categoryM.findOne({ name: category });
+                if (categoryDoc) query.category = categoryDoc._id;
+            }
+    
+            if (search) {
+                query.name = { $regex: search, $options: 'i' };
+            }
     
             const sortOption = {};
             sortOption[sortField] = sortOrder === 'asc' ? 1 : -1;
@@ -66,6 +73,8 @@ class productC {
             const total = await productM.countDocuments(query);
             const totalPages = Math.ceil(total / limit);
             const products = await productM.find(query)
+                .populate('category', 'name')
+                .populate('subCategory', 'name')
                 .sort(sortOption)
                 .skip((page - 1) * parseInt(limit))
                 .limit(parseInt(limit));
@@ -83,7 +92,7 @@ class productC {
             res.json({ success: false, message: error.message });
         }
     }
-
+// Hiện tên category và subcategory
     async detailProduct(req, res) {
         try {
             
