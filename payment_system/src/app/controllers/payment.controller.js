@@ -1,6 +1,7 @@
 const Account = require("../models/account.model");
 
 class PaymentController {
+    // [POST] /payment/create-account
     async createAccount(req, res, next) {
         try {
             const { userId } = req.body;
