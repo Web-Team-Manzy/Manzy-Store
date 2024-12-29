@@ -1,97 +1,83 @@
-const { source } = require('../../config/cloud/clConfig');
-const userM = require('../models/userM'); 
+const { source } = require("../../config/cloud/clConfig");
+const userM = require("../models/userM");
 
 class cartC {
-    async getUserCart(req, res) {
-        try {
-            
-            const {userId} = req.body;
+  async getUserCart(req, res) {
+    try {
+      const { userId } = req.body;
 
-            const userData = await userM.findById(userId);
-            let cartData = await userData.cartData;
+      const userData = await userM.findById(userId);
+      let cartData = await userData.cartData;
 
-            res.json({success: true, cartData});
-
-        } catch (error) {
-            console.log(error);
-            res.json({success: false, message: error.message});    
-        }
-
+      res.json({ success: true, cartData });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
+  }
 
-    async addToCart(req, res) {
-        try {
-            
-            const {userId, itemId, size} = req.body;
-            
-            const userData = await userM.findById(userId);
-            let cartData = await userData.cartData;
+  async addToCart(req, res) {
+    try {
+      const { userId, itemId, size } = req.body;
 
-            if (cartData[itemId]) {
-                if (cartData[itemId][size]) {
-                    cartData[itemId][size] += 1;
-                }
-                else {
-                    cartData[itemId][size] = 1;
-                }
-            } else{
-                cartData[itemId] = {};
-                cartData[itemId][size] = 1;
-            }
+      const userData = await userM.findById(userId);
+      let cartData = await userData.cartData;
 
-            await userM.findByIdAndUpdate(userId, {cartData: cartData});
-
-            res.json({success: true, message: "Add to cart successfully"});
-
-        } catch (error) {
-            console.log(error);
-            res.json({success: false, message: error.message});
+      if (cartData[itemId]) {
+        if (cartData[itemId][size]) {
+          cartData[itemId][size] += 1;
+        } else {
+          cartData[itemId][size] = 1;
         }
+      } else {
+        cartData[itemId] = {};
+        cartData[itemId][size] = 1;
+      }
+
+      await userM.findByIdAndUpdate(userId, { cartData: cartData });
+
+      res.json({ success: true, message: "Add to cart successfully" });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
+  }
 
-    async updateCart(req, res) {
-        try {
-            
-            const { userId, itemId, size, quantity } = req.body;
-            
-            const userData = await userM.findById(userId);
-            let cartData = await userData.cartData;
+  async updateCart(req, res) {
+    try {
+      const { userId, itemId, size, quantity } = req.body;
 
-            cartData[itemId][size] = quantity;
+      const userData = await userM.findById(userId);
+      let cartData = await userData.cartData;
 
-            await userM.findByIdAndUpdate(userId, {cartData: cartData});
+      cartData[itemId][size] = quantity;
 
-            res.json({success: true, message: "Update cart successfully"});
+      await userM.findByIdAndUpdate(userId, { cartData: cartData });
 
-        } catch (error) {
-            console.log(error);
-            res.json({success: false, message: error.message});
-        }
+      res.json({ success: true, message: "Update cart successfully" });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
+  }
 
-    async deleteFromCart(req, res) {
-        try {
-            
-            const { userId, itemId, size } = req.body;
-            
-            const userData = await userM.findById(userId);
-            let cartData = await userData.cartData;
+  async deleteFromCart(req, res) {
+    try {
+      const { userId, itemId, size } = req.body;
 
-            delete cartData[itemId][size];
+      const userData = await userM.findById(userId);
+      let cartData = await userData.cartData;
 
-            await userM.findByIdAndUpdate(userId, {cartData: cartData});
+      delete cartData[itemId][size];
 
-            res.json({success: true, message: "Delete from cart successfully"});
+      await userM.findByIdAndUpdate(userId, { cartData: cartData });
 
-        } catch (error) {
-            console.log(error);
-            res.json({success: false, message: error.message});
-        }
-    }   
+      res.json({ success: true, message: "Delete from cart successfully" });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
+    }
+  }
 }
 
 module.exports = new cartC();
-
-
-
-

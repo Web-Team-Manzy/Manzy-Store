@@ -62,11 +62,9 @@ const Collection = () => {
 
   const [totalPages, setTotalPages] = useState(0);
 
-  const collectionList = async (page, filters) => {
-    const { category, subCategory } = filters;
-
+  const collectionList = async (page, category) => {
     try {
-      const res = await getProducts(page, { category, subCategory });
+      const res = await getProducts(page, category);
       setCurrentPage(res.currentPage);
       setTotalPages(res.totalPages);
       setFilterProducts(res.products || []);
@@ -77,8 +75,8 @@ const Collection = () => {
   };
 
   useEffect(() => {
-    collectionList(currentPage, { category, subCategory });
-  }, [currentPage, category, subCategory]);
+    collectionList(currentPage, category);
+  }, [currentPage, category]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
