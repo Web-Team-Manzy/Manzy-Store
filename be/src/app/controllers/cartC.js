@@ -1,13 +1,14 @@
+const { source } = require('../../config/cloud/clConfig');
 const userM = require('../models/userM'); 
 
 class cartC {
     async getUserCart(req, res) {
         try {
             
-            const {userID} = req.body;
+            const {userId} = req.body;
 
-            const userData = await userM.findById(userID);
-            let cartData = await userData.cartDate;
+            const userData = await userM.findById(userId);
+            let cartData = await userData.cartData;
 
             res.json({success: true, cartData});
 
@@ -21,10 +22,10 @@ class cartC {
     async addToCart(req, res) {
         try {
             
-            const {userID, itemId, size} = req.body;
-
-            const userData = await userM.findById(userID);
-            let cartData = await userData.cartDate;
+            const {userId, itemId, size} = req.body;
+            
+            const userData = await userM.findById(userId);
+            let cartData = await userData.cartData;
 
             if (cartData[itemId]) {
                 if (cartData[itemId][size]) {
@@ -38,7 +39,7 @@ class cartC {
                 cartData[itemId][size] = 1;
             }
 
-            await userM.findByIdAndUpdate(userID, {cartData: cartData});
+            await userM.findByIdAndUpdate(userId, {cartData: cartData});
 
             res.json({success: true, message: "Add to cart successfully"});
 
@@ -53,12 +54,12 @@ class cartC {
             
             const { userId, itemId, size, quantity } = req.body;
             
-            const userData = await userM.findById(userID);
-            let cartData = await userData.cartDate;
+            const userData = await userM.findById(userId);
+            let cartData = await userData.cartData;
 
             cartData[itemId][size] = quantity;
 
-            await userM.findByIdAndUpdate(userID, {cartData: cartData});
+            await userM.findByIdAndUpdate(userId, {cartData: cartData});
 
             res.json({success: true, message: "Update cart successfully"});
 
@@ -67,6 +68,26 @@ class cartC {
             res.json({success: false, message: error.message});
         }
     }
+
+    async deleteFromCart(req, res) {
+        try {
+            
+            const { userId, itemId, size } = req.body;
+            
+            const userData = await userM.findById(userId);
+            let cartData = await userData.cartData;
+
+            delete cartData[itemId][size];
+
+            await userM.findByIdAndUpdate(userId, {cartData: cartData});
+
+            res.json({success: true, message: "Delete from cart successfully"});
+
+        } catch (error) {
+            console.log(error);
+            res.json({success: false, message: error.message});
+        }
+    }   
 }
 
 module.exports = new cartC();

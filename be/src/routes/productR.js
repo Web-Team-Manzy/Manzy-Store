@@ -16,7 +16,7 @@ router.post(
   productC.addProduct
 );
 
-router.get("/detail", productC.detailProduct);
+router.get("/detail/:productId", productC.detailProduct);
 
 router.put("/update", productC.updateProduct);
 
