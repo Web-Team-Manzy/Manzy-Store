@@ -165,6 +165,36 @@ class productC {
         }
     }
     
+    async listBestSeller(req, res) {
+        try {
+            const { page = 1, limit = 10 } = req.query;
+            const skip = (page - 1) * limit;
+            const total = await productM.countDocuments({ bestseller: true });
+            const products = await productM.find({ bestseller: true })
+                .skip(parseInt(skip))
+                .limit(parseInt(limit));
+            res.json({
+                success: true,
+                products,
+                total,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / limit)
+            });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    async listNewProduct(req, res) {
+        try {
+            const products = await productM.find().sort({ createdAt: -1 }).limit(10);
+            res.json({ success: true, products });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new productC();

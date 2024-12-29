@@ -16,6 +16,10 @@ router.post(
   productC.addProduct
 );
 
+router.get("listBestSeller", productC.listBestSeller);
+
+router.get("/listNewProduct", productC.listNewProduct);
+
 router.get("/detail/:productId", productC.detailProduct);
 
 router.put("/update", productC.updateProduct);
