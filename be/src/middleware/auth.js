@@ -98,6 +98,7 @@ const auth = async (req, res, next) => {
                 }
 
                 req.user = {
+                    id: decoded.id,
                     email: decoded.email,
                     firstName: decoded.firstName,
                     lastName: decoded.lastName,
