@@ -160,6 +160,7 @@ const loginService = async (email, password) => {
 
         // generate token
         const payload = {
+            id: user._id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -187,6 +188,7 @@ const loginService = async (email, password) => {
                 accessToken,
                 refreshToken,
                 user: {
+                    id: user._id,
                     email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName,
@@ -252,6 +254,7 @@ const loginGoogleService = async (code) => {
 
         // create an access token
         const payload = {
+            id: user._id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -272,6 +275,7 @@ const loginGoogleService = async (code) => {
                 accessToken,
                 refreshToken,
                 user: {
+                    id: user._id,
                     email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName,
@@ -315,6 +319,7 @@ const refreshTokenService = async (refreshToken) => {
         }
 
         const payload = {
+            id: token.user._id,
             email: token.user.email,
             firstName: token.user.firstName,
             lastName: token.user.lastName,
@@ -336,6 +341,7 @@ const refreshTokenService = async (refreshToken) => {
                 refresh_token: newRefreshToken,
                 access_token: accessToken,
                 user: {
+                    id: token.user._id,
                     email: token.user.email,
                     firstName: token.user.firstName,
                     lastName: token.user.lastName,
@@ -355,6 +361,7 @@ const refreshTokenService = async (refreshToken) => {
 module.exports = {
     createUserService,
     loginService,
+
     refreshTokenService,
     loginGoogleService,
 };
