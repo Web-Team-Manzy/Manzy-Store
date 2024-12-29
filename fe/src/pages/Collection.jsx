@@ -3,19 +3,17 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
-import { getCategories, getProducts } from "../service/callAPI";
-import axios from "axios";
+import { getProducts } from "../service/callAPI";
 
 const Collection = () => {
   const { search, showSearch } = useContext(ShopContext);
 
   const [showFilter, setShowFilter] = useState(false);
-  const [products, setProducts] = useState([]);
   const [filterProducts, setFilterProducts] = useState([]);
-  const [category, setCategory] = useState(null); // Category được chọn
+  const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavant");
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [currentPage, setCurrentPage] = useState(1);
 
   const categorySubCategoryMap = {
     Accessories: ["Watches", "Belts", "Hats"],
@@ -25,21 +23,22 @@ const Collection = () => {
     Shoes: ["Sneakers", "Sports", "Boots"],
   };
 
-  const toggleCategory = (e) => {
+  const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
-    setCategory((prev) =>
-      prev === selectedCategory ? null : selectedCategory
-    );
-    setSubCategory([]);
+    if (category === selectedCategory) {
+      setCategory(null);
+    } else {
+      setCategory(selectedCategory);
+    }
   };
 
-  const toggleSubCategory = (e) => {
+  const handleSubCategoryChange = (e) => {
     const selectedSubCategory = e.target.value;
-    setSubCategory((prev) =>
-      prev.includes(selectedSubCategory)
-        ? prev.filter((item) => item !== selectedSubCategory)
-        : [...prev, selectedSubCategory]
-    );
+    if (subCategory.includes(selectedSubCategory)) {
+      setSubCategory(subCategory.filter((sub) => sub !== selectedSubCategory));
+    } else {
+      setSubCategory([...subCategory, selectedSubCategory]);
+    }
   };
 
   const sortProducts = () => {
@@ -57,43 +56,29 @@ const Collection = () => {
     }
   };
 
-  const [totalPages, setTotalPages] = useState(0);
-
-  const collectionList = async (page, catagory) => {
-    try {
-      const res = await getProducts(page, catagory);
-      setCurrentPage(res.currentPage);
-      setTotalPages(res.totalPages);
-      console.log(catagory);
-      console.log(res);
-      setFilterProducts(res.products);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // useEffect(() => {
-  //   setFilterProducts(products);
-  // }, [products]);
-
   useEffect(() => {
     sortProducts();
   }, [sortType]);
 
-  // useEffect(() => {
-  //   const filrer = async () => {
-  //     try {
-  //       const res = await getCategories();
-  //       console.log(res);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  // }, []);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const collectionList = async (page, filters) => {
+    const { category, subCategory } = filters;
+
+    try {
+      const res = await getProducts(page, { category, subCategory });
+      setCurrentPage(res.currentPage);
+      setTotalPages(res.totalPages);
+      setFilterProducts(res.products || []);
+      console.log("API Response:", res);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  };
 
   useEffect(() => {
-    collectionList(currentPage, "67630263c5ade05c56e6a107");
-  }, [currentPage, category]);
+    collectionList(currentPage, { category, subCategory });
+  }, [currentPage, category, subCategory]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -125,8 +110,8 @@ const Collection = () => {
                   type="checkbox"
                   value={cat}
                   checked={category === cat}
-                  onChange={toggleCategory}
-                />{" "}
+                  onChange={handleCategoryChange}
+                />
                 {cat}
               </p>
             ))}
@@ -148,8 +133,9 @@ const Collection = () => {
                     className="w-3"
                     type="checkbox"
                     value={subCat}
-                    onChange={toggleSubCategory}
-                  />{" "}
+                    checked={subCategory.includes(subCat)}
+                    onChange={handleSubCategoryChange} // Gắn sự kiện onChange
+                  />
                   {subCat}
                 </p>
               ))}
