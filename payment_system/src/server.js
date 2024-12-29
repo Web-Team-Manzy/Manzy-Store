@@ -4,15 +4,20 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const https = require("https");
+const http = require("http");
 const fs = require("fs");
+const helmet = require("helmet");
 
 const app = express();
-const port = process.env.PORT || 8082;
+
+// Ports
+const HTTPS_PORT = process.env.PORT || 443; // HTTPS port
+const HTTP_PORT = process.env.HTTP_PORT || 80; // HTTP port
 
 const route = require("./routes");
 const db = require("./config/db");
 
-// Connect to DB
+// Kết nối DB
 db.connect();
 
 // Config cookie
@@ -26,23 +31,51 @@ app.use(
     })
 );
 
+// Config Helmet để bảo mật
+app.use(helmet());
+app.use(
+    helmet.hsts({
+        maxAge: 31536000, // 1 năm
+        includeSubDomains: true,
+        preload: true,
+    })
+);
+
+// Chuyển hướng HTTP sang HTTPS
+app.use((req, res, next) => {
+    if (!req.secure) {
+        return res.redirect(`https://${req.get("Host")}${req.url}`);
+    }
+    next();
+});
+
+// Config body parser
 app.use(
     express.urlencoded({
         extended: true,
     })
 );
-
 app.use(express.json());
 
+// Định tuyến
 route(app);
 
+// Cấu hình HTTPS
 const options = {
     key: fs.readFileSync("./sslkeys/key.pem"),
     cert: fs.readFileSync("./sslkeys/cert.pem"),
 };
+const httpsServer = https.createServer(options, app);
 
-const server = https.createServer(options, app);
+// Bắt đầu server HTTPS
+httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`HTTPS Server is running on port ${HTTPS_PORT}`);
+});
 
-server.listen(port, () => {
-    console.log(`App listening on port ${port}`);
+// Tạo server HTTP để chuyển hướng sang HTTPS
+http.createServer((req, res) => {
+    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+    res.end();
+}).listen(HTTP_PORT, () => {
+    console.log(`HTTP Server is redirecting to HTTPS on port ${HTTP_PORT}`);
 });
