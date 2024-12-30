@@ -7,6 +7,8 @@ class PaymentController {
         try {
             const { userId, options } = req.body;
 
+            console.log(">>> PaymentController.createAccount", userId, options);
+
             if (!userId) {
                 return res.status(400).json({
                     EC: 1,
