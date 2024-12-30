@@ -15,3 +15,14 @@ export const getProducts = async (
     `/product/list?page=${page}&limit=${limit}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`
   );
 };
+
+export const getDetailProduct = async (productId) => {
+  return await axios.get(`/product/detail/${productId}`);
+};
+
+export const addToCart = async (userId, itemId, size) => {
+  console.log("Calling API with userId: ", userId);
+  console.log("Calling API with itemId: ", itemId);
+  console.log("Calling API with size: ", size);
+  return await axios.post("/cart/add", { userId, itemId, size });
+};
