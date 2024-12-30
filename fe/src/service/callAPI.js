@@ -24,3 +24,7 @@ export const addToCart = async (userId, itemId, size) => {
 export const getCart = async (userId) => {
   return await axios.post("/cart/get", { userId });
 };
+
+export const lastProduct = async () => {
+  return await axios.get("/product/listNewProduct");
+};

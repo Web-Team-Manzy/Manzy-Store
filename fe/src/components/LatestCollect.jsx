@@ -4,6 +4,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import { useState, useEffect } from "react";
 import ProductItem from "./ProductItem";
+import { lastProduct } from "../service/callAPI";
 
 const LatestCollect = () => {
   //const { products } = useContext(ShopContext);

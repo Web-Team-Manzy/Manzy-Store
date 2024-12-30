@@ -52,7 +52,7 @@ const Cart = () => {
         <Title text1={"YOUR "} text2={"CART"} />
       </div>
 
-      <div>
+      {/* <div>
         {cartData.map((item, index) => {
           const productData = products.find(
             (product) => product._id === item._id
@@ -111,7 +111,7 @@ const Cart = () => {
             </div>
           );
         })}
-      </div>
+      </div> */}
 
       <div className="flex justify-end my-20">
         <div className="w-full sm:w-[450px]">
