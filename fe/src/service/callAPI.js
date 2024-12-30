@@ -6,10 +6,11 @@ export const getProducts = async (
   limit = 7,
   sortField = "name",
   sortOrder = "asc",
-  search = ""
+  search = "",
+  bestseller = ""
 ) => {
   return await axios.get(
-    `/product/list?page=${page}&limit=${limit}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`
+    `/product/list?page=${page}&limit=${limit}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}&bestseller=${bestseller}`
   );
 };
 

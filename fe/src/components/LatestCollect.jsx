@@ -14,6 +14,20 @@ const LatestCollect = () => {
   //     setLatestProducts(products.slice(0, 10));
   // }, [])
 
+  useEffect(() => {
+    const fetchLatestProducts = async () => {
+      try {
+        const response = await lastProduct();
+        console.log(response);
+        setLatestProducts(response.products);
+      } catch (error) {
+        console.error("Error fetching latest products:", error);
+      }
+    };
+
+    fetchLatestProducts();
+  }, []);
+
   return (
     <div className="my-10">
       <div className="text-center py-8 text-3xl">
@@ -29,7 +43,7 @@ const LatestCollect = () => {
           <ProductItem
             key={index}
             id={item._id}
-            image={item.image}
+            image={item.images}
             name={item.name}
             price={item.price}
           />

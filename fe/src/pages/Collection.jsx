@@ -51,6 +51,9 @@ const Collection = () => {
       case "high-low":
         setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
         break;
+      case "Best Saler":
+        setFilterProducts(fpCopy.sort((a, b) => b.sold - a.sold));
+        break;
       default:
         break;
     }
@@ -153,6 +156,7 @@ const Collection = () => {
             <option value="relavant">Sort by : Relevance</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
+            <option value="Best Saler">Sort by : Best Saler</option>
           </select>
         </div>
 

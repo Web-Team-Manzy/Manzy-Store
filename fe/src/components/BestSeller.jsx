@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
+import { getProducts } from "../service/callAPI";
 
 const BestSeller = () => {
   //const {products} = useContext(ShopContext);
@@ -14,6 +15,20 @@ const BestSeller = () => {
   //     const bestProduct = products.filter((item) => (item.bestseller));
   //     setBestSeller(bestProduct.slice(0,5));
   // },[])
+
+  const collectionList = async (page, category) => {
+    try {
+      const res = await getProducts(page, category);
+      setBestSeller(res.products || []);
+      console.log("API Response:", res);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    collectionList(1);
+  }, []);
 
   return (
     <div className="my-10">
@@ -30,7 +45,7 @@ const BestSeller = () => {
           <ProductItem
             key={index}
             id={item._id}
-            image={item.image}
+            image={item.images}
             name={item.name}
             price={item.price}
           />
