@@ -21,6 +21,8 @@ const generateServiceToken = (serviceId) => {
 const generateSignature = (payload, timestamp) => {
     const dataToSign = `${JSON.stringify(payload)}|${timestamp}|${process.env.SERVICE_API_KEY}`;
 
+    console.log(">>> generateSignature:", dataToSign);
+
     return crypto
         .createHmac("sha256", process.env.SERVICE_API_KEY)
         .update(dataToSign)
@@ -29,6 +31,8 @@ const generateSignature = (payload, timestamp) => {
 
 const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = null) => {
     try {
+        console.log(">>> makeServiceRequest:", baseUrl, serviceId, method, endpoint, data);
+
         const timestamp = Date.now().toString();
         const signature = generateSignature(data, timestamp);
         const token = generateServiceToken(serviceId);
