@@ -17,6 +17,8 @@ class PaymentController {
 
             const newAccount = new Account({
                 userId,
+                balance: 0,
+                isMainAccount: true,
             });
 
             await newAccount.save();
