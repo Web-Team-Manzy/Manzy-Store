@@ -13,9 +13,9 @@ const {
 const saltRounds = 10;
 const createUserService = async (userData) => {
     try {
-        const { email, password, firstName, lastName } = userData;
+        const { email, password, name, phone } = userData;
 
-        if (!email || !password || !firstName || !lastName) {
+        if (!email || !password || !name.displayName) {
             return {
                 EC: 1,
                 EM: "Missing required fields",
@@ -41,8 +41,10 @@ const createUserService = async (userData) => {
         const result = await User.create({
             email,
             password: hashedPassword,
-            firstName,
-            lastName,
+            firstName: name.firstName,
+            lastName: name.lastName,
+            displayName: name.displayName,
+            phone,
         });
 
         if (!result) {
@@ -56,7 +58,16 @@ const createUserService = async (userData) => {
         return {
             EC: 0,
             EM: "Register successfully",
-            DT: { email, firstName, lastName },
+            DT: {
+                id: result._id,
+                email,
+                phone,
+                firstName: name.firstName,
+                lastName: name.lastName,
+                displayName: name.displayName,
+                address: result.address,
+                role: result.role,
+            },
         };
     } catch (error) {
         console.log(error);
@@ -70,9 +81,9 @@ const createUserService = async (userData) => {
 
 const createGoogleUserService = async (userData) => {
     try {
-        const { email, firstName, lastName } = userData;
+        const { email, firstName, lastName, displayName } = userData;
 
-        if (!email || !firstName || !lastName) {
+        if (!email || !displayName) {
             return {
                 EC: 1,
                 EM: "Missing required fields",
@@ -96,9 +107,10 @@ const createGoogleUserService = async (userData) => {
         // save to db
         let result = await User.create({
             email,
-            firstName,
             password: userData.googleId,
+            firstName,
             lastName,
+            displayName,
             source: "google",
             googleId: userData.googleId,
         });
@@ -114,7 +126,7 @@ const createGoogleUserService = async (userData) => {
         return {
             EC: 0,
             EM: "Register successfully",
-            DT: { email, firstName, lastName },
+            DT: { email, phone, firstName, lastName, displayName },
         };
     } catch (error) {
         console.log(error);
@@ -162,8 +174,11 @@ const loginService = async (email, password) => {
         const payload = {
             id: user._id,
             email: user.email,
+            phone: user.phone,
             firstName: user.firstName,
             lastName: user.lastName,
+            displayName: user.displayName,
+            address: user.address,
             role: user.role,
         };
 
@@ -190,8 +205,11 @@ const loginService = async (email, password) => {
                 user: {
                     id: user._id,
                     email: user.email,
+                    phone: user.phone,
                     firstName: user.firstName,
                     lastName: user.lastName,
+                    displayName: user.displayName,
+                    address: user.address,
                     role: user.role,
                 },
             },
@@ -229,6 +247,13 @@ const loginGoogleService = async (code) => {
                 email,
                 firstName: userData?.given_name || userData?.family_name || "Google User",
                 lastName: userData?.family_name || userData?.given_name || "Google User",
+                displayName:
+                    userData?.name ||
+                    userData?.displayName ||
+                    userData?.display_name ||
+                    userData?.given_name ||
+                    userData?.family_name ||
+                    "Google User",
                 googleId: userData?.id || "",
                 source: "google",
             });
@@ -256,8 +281,11 @@ const loginGoogleService = async (code) => {
         const payload = {
             id: user._id,
             email: user.email,
+            phone: user.phone,
             firstName: user.firstName,
             lastName: user.lastName,
+            displayName: user.displayName,
+            address: user.address,
             role: user.role,
         };
 
@@ -277,8 +305,11 @@ const loginGoogleService = async (code) => {
                 user: {
                     id: user._id,
                     email: user.email,
+                    phone: user.phone,
                     firstName: user.firstName,
                     lastName: user.lastName,
+                    displayName: user.displayName,
+                    address: user.address,
                     role: user.role,
                 },
             },
@@ -321,8 +352,11 @@ const refreshTokenService = async (refreshToken) => {
         const payload = {
             id: token.user._id,
             email: token.user.email,
+            phone: token.user.phone,
             firstName: token.user.firstName,
             lastName: token.user.lastName,
+            displayName: token.user.displayName,
+            address: token.user.address,
             role: token.user.role,
         };
 
@@ -343,8 +377,11 @@ const refreshTokenService = async (refreshToken) => {
                 user: {
                     id: token.user._id,
                     email: token.user.email,
+                    phone: token.user.phone,
                     firstName: token.user.firstName,
                     lastName: token.user.lastName,
+                    displayName: token.user.displayName,
+                    address: token.user.address,
                     role: token.user.role,
                 },
             },

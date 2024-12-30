@@ -71,7 +71,7 @@ class UserController {
     async update(req, res, next) {
         try {
             const { id } = req.params;
-            const { name, email, phone, address } = req.body;
+            const { email, phone, address, displayName } = req.body;
 
             if (!id) {
                 return res.status(400).json({
@@ -81,7 +81,7 @@ class UserController {
                 });
             }
 
-            if (!name || !email || !phone || !address) {
+            if (!email || !displayName) {
                 return res.status(400).json({
                     EC: 1,
                     EM: "Missing required fields",
@@ -91,7 +91,7 @@ class UserController {
 
             const user = await User.findByIdAndUpdate(
                 id,
-                { name, email, phone, address },
+                { displayName, email, phone, address },
                 { new: true }
             ).select("-password");
 

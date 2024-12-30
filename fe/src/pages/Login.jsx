@@ -8,180 +8,181 @@ import { doLogin, doLoginGoogle } from "../redux/action/accountAction";
 import { createUserApi } from "../utils/api";
 
 const Login = () => {
-  const [currentState, setCurrentState] = useState("Sign In");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+    const [currentState, setCurrentState] = useState("Sign In");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const message = useSelector((state) => state.account.errorMessage);
-  const userInfo = useSelector((state) => state.account.userInfo);
-  const isDoLogin = useSelector((state) => state.account.isDoLogin);
+    const [phone, setPhone] = useState("");
+    const [name, setName] = useState({ firstName: "", lastName: "", displayName: "" });
 
-  useEffect(() => {
-    if (message) {
-      if (isDoLogin) {
-        toast.error(message);
-      }
-    } else if (userInfo.email) {
-      if (isDoLogin) {
-        toast.success("Login success!");
-      }
-      navigate("/");
-    }
-  }, [message, userInfo]);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const message = useSelector((state) => state.account.errorMessage);
+    const userInfo = useSelector((state) => state.account.userInfo);
+    const isDoLogin = useSelector((state) => state.account.isDoLogin);
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
+    useEffect(() => {
+        if (message) {
+            if (isDoLogin) {
+                toast.error(message);
+            }
+        } else if (userInfo.email) {
+            if (isDoLogin) {
+                toast.success("Login success!");
+            }
+            navigate("/");
+        }
+    }, [message, userInfo]);
 
-    if (currentState === "Sign In") {
-      dispatch(doLogin(email, password));
-    } else {
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match.");
-        return;
-      }
+    const onSubmitHandler = async (event) => {
+        event.preventDefault();
 
-      const res = await createUserApi(email, password, firstName, lastName);
-      if (res && res.EC === 0) {
-        toast.success("Account created successfully!");
-        setCurrentState("Sign In");
-      } else {
-        toast.error(res.EM);
-      }
-    }
-  };
+        if (currentState === "Sign In") {
+            dispatch(doLogin(email, password));
+        } else {
+            if (password !== confirmPassword) {
+                toast.error("Passwords do not match.");
+                return;
+            }
 
-  const handleLoginGoogle = useGoogleLogin({
-    flow: "auth-code",
-    ux_mode: "popup",
-    onSuccess: async (res) => {
-      dispatch(doLoginGoogle(res.code));
-    },
-    onError: (error) => {
-      console.error("Google login error:", error);
-    },
-  });
+            const res = await createUserApi(email, password, phone, name);
+            if (res && res.EC === 0) {
+                toast.success("Account created successfully!");
+                setCurrentState("Sign In");
+            } else {
+                toast.error(res.EM);
+            }
+        }
+    };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-        <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold text-gray-800 text-center">
-            {currentState}
-          </h2>
+    const handleLoginGoogle = useGoogleLogin({
+        flow: "auth-code",
+        ux_mode: "popup",
+        onSuccess: async (res) => {
+            dispatch(doLoginGoogle(res.code));
+        },
+        onError: (error) => {
+            console.error("Google login error:", error);
+        },
+    });
 
-          {/* Email input */}
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+                <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
+                    <h2 className="text-2xl font-semibold text-gray-800 text-center">
+                        {currentState}
+                    </h2>
 
-          {/* Password fields */}
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+                    {/* Email input */}
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
-          {currentState === "Sign Up" && (
-            <>
-              {/* Confirm Password */}
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+                    {/* Password fields */}
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
-              {/* Name */}
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-              />
+                    {currentState === "Sign Up" && (
+                        <>
+                            {/* Confirm Password */}
+                            <input
+                                type="password"
+                                placeholder="Confirm Password"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                            />
 
-              {/* Phone Number */}
-              <input
-                type="text"
-                placeholder="Phone Number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-              />
-            </>
-          )}
+                            {/* Name */}
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                value={name.displayName}
+                                onChange={(e) => setName({ ...name, displayName: e.target.value })}
+                                required
+                            />
 
-          {/* Navigation between Sign In and Sign Up */}
-          <div className="flex justify-between text-sm text-blue-500 mt-[-6px]">
-            {currentState === "Sign In" ? (
-              <>
-                <p className="cursor-pointer hover:underline">
-                  Forgot your password?
-                </p>
-                <p
-                  className="cursor-pointer hover:underline"
-                  onClick={() => setCurrentState("Sign Up")}
-                >
-                  Create an account
-                </p>
-              </>
-            ) : (
-              <p
-                className="cursor-pointer hover:underline"
-                onClick={() => setCurrentState("Sign In")}
-              >
-                Already have an account? Sign In
-              </p>
-            )}
-          </div>
+                            {/* Phone Number */}
+                            <input
+                                type="text"
+                                placeholder="Phone Number"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                required
+                            />
+                        </>
+                    )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-          >
-            {currentState}
-          </button>
-        </form>
+                    {/* Navigation between Sign In and Sign Up */}
+                    <div className="flex justify-between text-sm text-blue-500 mt-[-6px]">
+                        {currentState === "Sign In" ? (
+                            <>
+                                <p className="cursor-pointer hover:underline">
+                                    Forgot your password?
+                                </p>
+                                <p
+                                    className="cursor-pointer hover:underline"
+                                    onClick={() => setCurrentState("Sign Up")}
+                                >
+                                    Create an account
+                                </p>
+                            </>
+                        ) : (
+                            <p
+                                className="cursor-pointer hover:underline"
+                                onClick={() => setCurrentState("Sign In")}
+                            >
+                                Already have an account? Sign In
+                            </p>
+                        )}
+                    </div>
 
-        {/* Sign in with Google */}
-        <div className="flex flex-col items-center mt-4">
-          <p className="text-sm text-gray-500 mb-2">or continue with</p>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleLoginGoogle();
-            }}
-            className="flex items-center justify-center w-64 bg-white text-gray-800 border border-gray-300 rounded-md px-3 py-2 shadow-sm hover:shadow-md transition"
-          >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            <span className="text-sm font-medium">Sign in with Google</span>
-          </button>
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                    >
+                        {currentState}
+                    </button>
+                </form>
+
+                {/* Sign in with Google */}
+                <div className="flex flex-col items-center mt-4">
+                    <p className="text-sm text-gray-500 mb-2">or continue with</p>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleLoginGoogle();
+                        }}
+                        className="flex items-center justify-center w-64 bg-white text-gray-800 border border-gray-300 rounded-md px-3 py-2 shadow-sm hover:shadow-md transition"
+                    >
+                        <img
+                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                            alt="Google"
+                            className="w-5 h-5 mr-2"
+                        />
+                        <span className="text-sm font-medium">Sign in with Google</span>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Login;

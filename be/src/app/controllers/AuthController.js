@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const { processCreateAccount } = require("../../services/paymentService");
 const {
     createUserService,
     loginService,
@@ -35,6 +36,12 @@ class AuthController {
                 });
 
             const result = await createUserService(userData);
+
+            const paymentAccount = await processCreateAccount(result.DT.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
 
             return res.status(200).json(result);
         } catch (error) {
