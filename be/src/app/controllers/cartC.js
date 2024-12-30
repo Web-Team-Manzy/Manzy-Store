@@ -1,28 +1,37 @@
-const { source } = require('../../config/cloud/clConfig');
 const userM = require('../models/userM'); 
+const productM = require('../models/productM');
 
 class cartC {
+
     async getUserCart(req, res) {
         try {
-            
-            const {userId} = req.body;
-
+            const userId = req.user.id;
+    
             const userData = await userM.findById(userId);
             let cartData = await userData.cartData;
-
-            res.json({success: true, cartData});
-
+    
+            const detailedCartData = await Promise.all(Object.keys(cartData).map(async (itemId) => {
+                const product = await productM.findById(itemId);
+                const sizes = cartData[itemId];
+                return {
+                    product,
+                    sizes
+                };
+            }));
+    
+            res.json({ success: true, cartData: detailedCartData });
+    
         } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});    
+            res.json({ success: false, message: error.message });
         }
-
     }
 
     async addToCart(req, res) {
         try {
             
-            const {userId, itemId, size} = req.body;
+            const userId = req.user.id;
+            const { itemId, size} = req.body;
             
             const userData = await userM.findById(userId);
             let cartData = await userData.cartData;
@@ -52,7 +61,9 @@ class cartC {
     async updateCart(req, res) {
         try {
             
-            const { userId, itemId, size, quantity } = req.body;
+            const userId = req.user.id;
+        
+            const { itemId, size, quantity } = req.body;
             
             const userData = await userM.findById(userId);
             let cartData = await userData.cartData;
@@ -71,8 +82,10 @@ class cartC {
 
     async deleteFromCart(req, res) {
         try {
+
+            const userId = req.user.id;
             
-            const { userId, itemId, size } = req.body;
+            const { itemId, size } = req.body;
             
             const userData = await userM.findById(userId);
             let cartData = await userData.cartData;
