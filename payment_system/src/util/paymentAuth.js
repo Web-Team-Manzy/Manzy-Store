@@ -27,7 +27,37 @@ const generateSignature = (payload, timestamp) => {
         .digest("hex");
 };
 
+const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = null) => {
+    try {
+        const timestamp = Date.now().toString();
+        const signature = generateSignature(data, timestamp);
+        const token = generateServiceToken(serviceId);
+
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+            method,
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "X-Timestamp": timestamp,
+                "X-Signature": signature,
+                "X-Service-ID": serviceId,
+            },
+            body: data ? JSON.stringify(data) : undefined,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Service request failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.log(">>> makeServiceRequest");
+        throw error;
+    }
+};
+
 module.exports = {
     generateServiceToken,
     generateSignature,
+    makeServiceRequest,
 };
