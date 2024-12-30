@@ -51,6 +51,9 @@ const Collection = () => {
       case "high-low":
         setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
         break;
+      case "Best Saler":
+        setFilterProducts(fpCopy.sort((a, b) => b.sold - a.sold));
+        break;
       default:
         break;
     }
@@ -62,11 +65,9 @@ const Collection = () => {
 
   const [totalPages, setTotalPages] = useState(0);
 
-  const collectionList = async (page, filters) => {
-    const { category, subCategory } = filters;
-
+  const collectionList = async (page, category) => {
     try {
-      const res = await getProducts(page, { category, subCategory });
+      const res = await getProducts(page, category);
       setCurrentPage(res.currentPage);
       setTotalPages(res.totalPages);
       setFilterProducts(res.products || []);
@@ -77,8 +78,8 @@ const Collection = () => {
   };
 
   useEffect(() => {
-    collectionList(currentPage, { category, subCategory });
-  }, [currentPage, category, subCategory]);
+    collectionList(currentPage, category);
+  }, [currentPage, category]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -155,6 +156,7 @@ const Collection = () => {
             <option value="relavant">Sort by : Relevance</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
+            <option value="Best Saler">Sort by : Best Saler</option>
           </select>
         </div>
 

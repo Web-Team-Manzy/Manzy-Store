@@ -1,27 +1,48 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
-import { getDetailProduct, addToCart } from "../service/callAPI"; // Import API mới
+import { getDetailProduct, addToCart } from "../service/callAPI";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Product = () => {
   const userInfor = useSelector((state) => state.account.userInfo);
-  console.log(userInfor);
   const { productId } = useParams();
   const { currency } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
+  const [message, setMessage] = useState(""); // Thêm state message
 
   const fetchProductData = async (productId) => {
     try {
       const response = await getDetailProduct(productId);
-      setProductData(response.product); // Giả sử response.data chứa dữ liệu sản phẩm
-      setImage(response.product.images[0]); // Chọn hình ảnh đầu tiên
+      setProductData(response.product);
+      setImage(response.product.images[0]);
     } catch (error) {
       console.error("Error fetching product details:", error);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!size) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    try {
+      const response = await addToCart(userInfor.id, productData._id, size);
+      console.log(response);
+      if (response.success) {
+        toast.success("Product added to cart successfully!");
+      } else {
+        toast.error("Failed to add to cart. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      setMessage("An error occurred. Please try again later.");
     }
   };
 
@@ -91,7 +112,7 @@ const Product = () => {
           </div>
 
           <button
-            onClick={() => addToCart(userInfor.id, productData._id, size)}
+            onClick={handleAddToCart}
             className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"
           >
             ADD TO CART
@@ -102,6 +123,9 @@ const Product = () => {
             <p>Cash on delivery is available on this product.</p>
             <p>Easy return and exchange policy within 7 days.</p>
           </div>
+
+          {/* Display message */}
+          {message && <p className="mt-4 text-lg text-green-600">{message}</p>}
         </div>
       </div>
 
