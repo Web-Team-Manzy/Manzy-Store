@@ -7,6 +7,13 @@ import PropTypes from "prop-types";
 
 const User = ({ token }) => {
   const [users, setUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({
+    email: "",
+    phone: "",
+    address: "",
+    displayName: "",
+  });
 
   const fetchUsers = async () => {
     try {
@@ -38,6 +45,39 @@ const User = ({ token }) => {
 
       if (response.data.EC === 0) {
         toast.success(response.data.EM);
+        fetchUsers();
+      } else {
+        toast.error(response.data.EM);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setFormData({
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      displayName: user.displayName,
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      const response = await axios.put(
+        backendUrl + "/users/" + editingUser._id,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.EC === 0) {
+        toast.success(response.data.EM);
+        setEditingUser(null);
         fetchUsers();
       } else {
         toast.error(response.data.EM);
@@ -81,7 +121,7 @@ const User = ({ token }) => {
             <p>{item.phone}</p>
             <div className="flex justify-between md:justify-center gap-3">
               <p
-                onClick={() => removeUser(item._id)}
+                onClick={() => handleEdit(item)}
                 className="text-right md:text-center cursor-pointer text-lg text-amber-300 hover:underline"
               >
                 🔨
@@ -96,6 +136,67 @@ const User = ({ token }) => {
           </div>
         ))}
       </div>
+
+      {/* Edit User Form */}
+      {editingUser && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-5 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Edit User</h2>
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                value={formData.displayName}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
+                placeholder="Display Name"
+                className="border px-3 py-2 rounded"
+              />
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="Email"
+                className="border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="Phone"
+                className="border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                placeholder="Address"
+                className="border px-3 py-2 rounded"
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="px-4 py-2 bg-gray-300 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
