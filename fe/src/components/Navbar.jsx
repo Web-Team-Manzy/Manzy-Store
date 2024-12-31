@@ -95,7 +95,6 @@ const Navbar = () => {
                 </div>
               </div>
             )
-            // >>> End Backend Test
           }
         </div>
 
