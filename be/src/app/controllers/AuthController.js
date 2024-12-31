@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-const { default: mongoose } = require("mongoose");
 const { processCreateAccount } = require("../../services/paymentService");
 const {
     createUserService,
@@ -26,9 +25,6 @@ class AuthController {
 
     // [POST] /register
     async register(req, res) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
         try {
             const userData = req.body;
 
@@ -68,6 +64,12 @@ class AuthController {
             if (result.EC === 1) {
                 return res.status(400).json(result);
             }
+
+            const paymentAccount = await processCreateAccount(result.DT.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
 
             const { user, accessToken, refreshToken } = result.DT;
 
@@ -119,6 +121,12 @@ class AuthController {
             const data = await loginGoogleService(code);
 
             const { user, accessToken, refreshToken } = data.DT;
+
+            const paymentAccount = await processCreateAccount(user.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
