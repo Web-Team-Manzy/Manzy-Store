@@ -65,7 +65,7 @@ class AuthController {
                 return res.status(400).json(result);
             }
 
-            const paymentAccount = await processCreateAccount(result.DT.id, {
+            const paymentAccount = await processCreateAccount(result?.DT?.user?.id, {
                 balance: 500000,
             });
 
@@ -122,7 +122,7 @@ class AuthController {
 
             const { user, accessToken, refreshToken } = data.DT;
 
-            const paymentAccount = await processCreateAccount(user.id, {
+            const paymentAccount = await processCreateAccount(user?.id, {
                 balance: 500000,
             });
 
