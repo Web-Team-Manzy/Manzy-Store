@@ -50,7 +50,9 @@ const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = n
         });
 
         if (!response.ok) {
-            throw new Error(`Service request failed: ${response.statusText}`);
+            const error = await response.json();
+
+            throw new Error(`Service request failed: ${error.EM}`);
         }
 
         return response.json();

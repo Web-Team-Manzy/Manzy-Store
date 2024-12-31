@@ -25,6 +25,30 @@ const processCreateAccount = async (userId, options) => {
     }
 };
 
+const processPayment = async (userId, amount, orderId) => {
+    try {
+        const serviceId = SERVICES.MAIN_SYSTEM;
+        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const endpoint = "/payment/create-transaction";
+
+        const res = await makeServiceRequest(baseUrl, serviceId, "POST", endpoint, {
+            userId,
+            amount,
+            orderId,
+        });
+
+        return res;
+    } catch (error) {
+        console.log(">>> processPayment:", error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
 module.exports = {
     processCreateAccount,
+    processPayment,
 };
