@@ -25,11 +25,27 @@ const User = ({ token }) => {
     }
   };
 
-  const removeUser = async () => {
+  const removeUser = async (id) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this user?"
     );
     if (!confirm) return;
+
+    try {
+      const response = await axios.delete(backendUrl + "/users/" + id, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.EC === 0) {
+        toast.success(response.data.EM);
+        fetchUsers();
+      } else {
+        toast.error(response.data.EM);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
