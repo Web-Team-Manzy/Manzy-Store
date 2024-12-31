@@ -6,4 +6,6 @@ const serviceAuth = require("../middleware/serviceAuth");
 
 router.post("/create-transaction", serviceAuth, transactionController.createTransaction);
 
+router.get("/", serviceAuth, transactionController.getTransactions);
+
 module.exports = router;
