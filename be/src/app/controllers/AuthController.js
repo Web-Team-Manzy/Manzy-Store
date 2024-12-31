@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const { default: mongoose } = require("mongoose");
 const { processCreateAccount } = require("../../services/paymentService");
 const {
     createUserService,
@@ -25,6 +26,9 @@ class AuthController {
 
     // [POST] /register
     async register(req, res) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
         try {
             const userData = req.body;
 
