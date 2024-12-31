@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 const Add = ({ token }) => {
   //usestate for 4 image
@@ -20,9 +21,16 @@ const Add = ({ token }) => {
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [subCategoryData, setSubCategoryData] = useState([]);
 
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
+  const [sizeType, setSizeType] = useState("letter"); // letter or number
+
+  const sizeOptions = {
+    letter: ["S", "M", "L", "XL", "XXL"],
+    number: [37, 38, 39, 40, 41, 42, 43],
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -34,7 +42,7 @@ const Add = ({ token }) => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      // formData.append("subCategory", subCategory);
+      formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
 
@@ -43,11 +51,11 @@ const Add = ({ token }) => {
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
 
-      const response = await axios.post(
-        backendUrl + "/product/add",
-        formData,
-        { headers: {"Authorization" : `Bearer ${token}`}}
-      );
+      console.log(formData.name)
+
+      const response = await axios.post(backendUrl + "/product/add", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -67,14 +75,38 @@ const Add = ({ token }) => {
       toast.error(error.message);
     }
   };
-
+  const categorySubCategoryMap = {
+    Accessories: ["Watches", "Belts", "Hats"],
+    Bags: ["Handbags", "Backpacks", "Travel Bags"],
+    Pants: ["Jeans", "Shorts", "Trousers"],
+    Shirt: ["Casual", "Formal", "T-Shirts"],
+    Shoes: ["Sneakers", "Sports", "Boots"],
+  };
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/category/list`, { headers: {"Authorization" : `Bearer ${token}`}});
-        setCategories(response.data.data);
-        // setSubCategories(response.data.subCategories);
+        const response = await axios.get(`${backendUrl}/category/list`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        const validCategories = Object.keys(categorySubCategoryMap);
+        const categoryData = response.data.data.filter((cat) =>
+          validCategories.includes(cat.name)
+        );
+        const subCategoryData = response.data.data.filter(
+          (cat) => !validCategories.includes(cat.name)
+        );
+        
+        // Lưu dữ liệu vào state
+        setCategories(categoryData);
+        setSubCategoryData(subCategoryData);
+
+        // Lấy subcategory từ category đầu tiên cho lần render đầu
+        const firstCategory = categoryData[0].name;
+        const subCategory = categorySubCategoryMap[firstCategory];
+        setSubCategories(
+          subCategoryData.filter((subCat) => subCategory.includes(subCat.name))
+        );
       } catch (error) {
         console.log(error);
         toast.error(error.message);
@@ -83,8 +115,19 @@ const Add = ({ token }) => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const categoryName = categories.find((cat) => cat._id === category)?.name;
+    const subCategory = categorySubCategoryMap[categoryName];
+    setSubCategories(
+      subCategoryData.filter((subCat) => subCategory.includes(subCat.name))
+    );
+  }, [category]);
+
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-3">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col w-full items-start gap-3"
+    >
       <div>
         <p className="mb-2">Upload Image</p>
       </div>
@@ -179,10 +222,9 @@ const Add = ({ token }) => {
                 {cat.name}
               </option>
             ))}
-            
           </select>
         </div>
-{/* 
+
         <div>
           <p className="mb-2">Sub Category</p>
           <select
@@ -195,7 +237,7 @@ const Add = ({ token }) => {
               </option>
             ))}
           </select>
-        </div> */}
+        </div>
 
         <div>
           <p className="mb-2">Product price</p>
@@ -209,97 +251,58 @@ const Add = ({ token }) => {
       </div>
 
       <div>
-        <p className="mb-2">Product Sizes</p>
+        <p className="mb-2">Product Size Type</p>
+        <div className="flex flex-row gap-3">
+          <div className="flex gap-3 mb-3">
+            <label>
+              <input
+                type="radio"
+                name="sizeType"
+                value="letter"
+                checked={sizeType === "letter"}
+                onChange={() => setSizeType("letter")}
+              />
+              <span className="ml-2">Letter Sizes</span>
+            </label>
+          </div>
+          <div className="flex gap-3 mb-3">
+            <label>
+              <input
+                type="radio"
+                name="sizeType"
+                value="number"
+                checked={sizeType === "number"}
+                onChange={() => {
+                  setSizeType("number");
+                  setSizes([]);
+                }}
+              />
+              <span className="ml-2">Number Sizes</span>
+            </label>
+          </div>
+        </div>
+
         <div className="flex gap-3">
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("S")
-                  ? prev.filter((item) => item !== "S")
-                  : [...prev, "S"]
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("S") ? "bg-pink-100" : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
+          {sizeOptions[sizeType].map((size) => (
+            <div
+              key={size}
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((item) => item !== size)
+                    : [...prev, size]
+                )
+              }
             >
-              S
-            </p>
-          </div>
-
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("M")
-                  ? prev.filter((item) => item !== "M")
-                  : [...prev, "M"]
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("M") ? "bg-pink-100" : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              M
-            </p>
-          </div>
-
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("L")
-                  ? prev.filter((item) => item !== "L")
-                  : [...prev, "L"]
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("L") ? "bg-pink-100" : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              L
-            </p>
-          </div>
-
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("XL")
-                  ? prev.filter((item) => item !== "XL")
-                  : [...prev, "XL"]
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("XL") ? "bg-pink-100" : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              XL
-            </p>
-          </div>
-
-          <div
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes("XXL")
-                  ? prev.filter((item) => item !== "XXL")
-                  : [...prev, "XXL"]
-              )
-            }
-          >
-            <p
-              className={`${
-                sizes.includes("XXL") ? "bg-pink-100" : "bg-slate-200"
-              } px-3 py-1 cursor-pointer`}
-            >
-              XXL
-            </p>
-          </div>
+              <p
+                className={`${
+                  sizes.includes(size) ? "bg-pink-100" : "bg-slate-200"
+                } px-3 pty-1 cursor-pointer`}
+              >
+                {size}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -320,6 +323,10 @@ const Add = ({ token }) => {
       </button>
     </form>
   );
+};
+
+Add.propTypes = {
+  token: PropTypes.string.isRequired,
 };
 
 export default Add;
