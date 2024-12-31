@@ -24,10 +24,11 @@ const List = ({ token }) => {
 
   const removeProduct = async (id) => {
     try {
-      const response = await axios.post(
-        backendUrl + "/product/remove",
-        { id },
-        { headers: { token } }
+      const response = await axios.delete(
+        backendUrl + "/product/delete",{
+        params: { id },
+        headers: {"Authorization" : `Bearer ${token}`},
+      }
       );
 
       if (response.data.success) {
@@ -68,7 +69,7 @@ const List = ({ token }) => {
           >
             <img className="w-12" src={item.images[0]} alt="" />
             <p>{item.name}</p>
-            <p>{item.category}</p>
+            <p>{item.category.name}</p>
             <p>
               {currency}
               {item.price}

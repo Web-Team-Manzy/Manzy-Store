@@ -12,7 +12,7 @@ const Order = ({ token }) => {
     if (!token) return null;
 
     try {
-      const response = await axios.post(
+      const response = await axios.delete(
         backendUrl + 
         "/order/list",
         {},
