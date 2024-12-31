@@ -4,15 +4,23 @@ import axios from "axios";
 import { backendUrl, currency } from "../App";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
+import ReactPaginate from "react-paginate";
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchList = async () => {
+  const fetchList = async (page = 1) => {
     try {
-      const response = await axios.get(backendUrl + "/product/list", { headers: {"Authorization" : `Bearer ${token}`}});
+      const response = await axios.get(backendUrl + "/product/list", {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { page, limit: 10 },
+      });
       if (response.data.success) {
         setList(response.data.products);
+        setTotalPages(response.data.totalPages);
+        setCurrentPage(page);
       } else {
         toast.error(response.data.message);
       }
@@ -22,18 +30,21 @@ const List = ({ token }) => {
     }
   };
 
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1; // + 1 because react-paginate starts from 0
+    fetchList(selectedPage);
+  };
+
   const removeProduct = async (id) => {
     try {
-      const response = await axios.delete(
-        backendUrl + "/product/delete",{
+      const response = await axios.delete(backendUrl + "/product/delete", {
         params: { id },
-        headers: {"Authorization" : `Bearer ${token}`},
-      }
-      );
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
-        fetchList();
+        fetchList(currentPage);
       } else {
         toast.error(response.data.message);
       }
@@ -83,6 +94,19 @@ const List = ({ token }) => {
           </div>
         ))}
       </div>
+
+      <ReactPaginate
+        className="flex justify-center my-5 gap-3"
+        previousLabel={"Previous"}
+        nextLabel={"Next"}
+        breakLabel={"..."}
+        pageCount={totalPages} // Số lượng trang
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={3}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"} // Lớp CSS cho container
+        activeClassName={"active px-3"} // Lớp CSS cho trang hiện tại
+      />
     </>
   );
 };
