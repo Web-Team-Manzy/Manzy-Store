@@ -94,7 +94,7 @@ const User = ({ token }) => {
 
   return (
     <>
-      <p className="mb-2 font-bold text-lg">Management User</p>
+      <p className="mb-2">Management User</p>
       <div className="flex flex-col gap-2">
         {/* List Table Title */}
         <div className="hidden md:grid grid-cols-[1fr_1fr_2fr_1fr_2fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm font-bold">
