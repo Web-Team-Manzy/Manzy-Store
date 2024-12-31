@@ -1,16 +1,13 @@
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useContext } from "react";
-import { ShopContext } from "../context/ShopContext";
 import { useDispatch, useSelector } from "react-redux";
 
 import { doLogout } from "../redux/action/accountAction";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-
-  const { setShowSearch, getCartCount } = useContext(ShopContext);
+  const totalItems = useSelector((state) => state.cart?.totalItems || 0);
 
   // >>> Backend Test
   const dispatch = useDispatch();
@@ -51,7 +48,6 @@ const Navbar = () => {
 
       <div className="flex items-center gap-6">
         <img
-          onClick={() => setShowSearch(true)}
           src={assets.search_icon}
           alt="search"
           className="w-5 cursor-pointer"
@@ -107,7 +103,7 @@ const Navbar = () => {
           <img src={assets.cart_icon} alt="cart" className="w-5 min-w-5" />
 
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-            {getCartCount()}
+            {totalItems}
           </p>
         </Link>
         <img
