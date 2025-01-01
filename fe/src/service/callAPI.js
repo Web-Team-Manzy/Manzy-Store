@@ -3,10 +3,10 @@ import axios from "../customize/axios";
 export const getProducts = async (
   page = 1,
   category = "",
+  search = "",
   limit = 7,
   sortField = "name",
   sortOrder = "asc",
-  search = "",
   bestseller = ""
 ) => {
   return await axios.get(

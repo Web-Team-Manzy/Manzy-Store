@@ -2,12 +2,21 @@ import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { doLogout } from "../redux/action/accountAction";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const totalItems = useSelector((state) => state.cart?.totalItems || 0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" || e.type === "click") {
+      navigate(`/collection?search=${encodeURIComponent(searchTerm)}`);
+    }
+  };
 
   // >>> Backend Test
   const dispatch = useDispatch();
@@ -46,13 +55,36 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      <div className="flex items-center gap-6">
+      <div className="relative w-64 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={handleSearch}
+          className="w-full px-4 py-2 border border-gray-300 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
         <img
           src={assets.search_icon}
           alt="search"
-          className="w-5 cursor-pointer"
+          className="absolute top-1/2 right-3 w-5 h-5 -translate-y-1/2 cursor-pointer"
+          onClick={handleSearch}
         />
+      </div>
 
+      {/* <div className="relative w-64 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="w-full px-4 py-2 border border-gray-300 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <img
+          src={assets.search_icon}
+          alt="search"
+          className="absolute top-1/2 right-3 w-5 h-5 -translate-y-1/2 cursor-pointer"
+        />
+      </div> */}
+      <div className="flex items-center gap-6 relative">
         <div className="group relative">
           {
             // >>> Backend Test
