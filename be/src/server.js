@@ -6,6 +6,7 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 8081;
 
@@ -25,6 +26,13 @@ app.use(
         credentials: true,
     })
 );
+
+app.use(session({
+    secret: process.env.JWT_ACCESS_TOKEN_SECRET, 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } 
+}));
 
 app.use(
     express.urlencoded({
