@@ -31,6 +31,8 @@ class cartC {
     try {
       const userId = req.user.id;
       const { itemId, size } = req.body;
+      console.log(itemId);
+      console.log(size);
 
       const userData = await userM.findById(userId);
       let cartData = await userData.cartData;
@@ -80,6 +82,8 @@ class cartC {
       const userId = req.user.id;
 
       const { itemId, size } = req.body;
+      console.log(itemId);
+      console.log(size);
 
       const userData = await userM.findById(userId);
       let cartData = await userData.cartData;
