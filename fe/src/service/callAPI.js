@@ -18,14 +18,18 @@ export const getDetailProduct = async (productId) => {
   return await axios.get(`/product/detail/${productId}`);
 };
 
-export const addToCart = async (userId, itemId, size) => {
-  return await axios.post("/cart/add", { userId, itemId, size });
+export const addToCart = async (itemId, size) => {
+  return await axios.post("/cart/add", { itemId, size });
 };
 
-export const getCart = async (userId) => {
-  return await axios.post("/cart/get", { userId });
+export const getCart = async () => {
+  return await axios.post("/cart/get");
 };
 
 export const lastProduct = async () => {
   return await axios.get("/product/listNewProduct");
+};
+
+export const deleteCartItem = async (itemId, size) => {
+  return await axios.post("/cart/delete", { itemId, size });
 };

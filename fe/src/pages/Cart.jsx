@@ -6,6 +6,7 @@ import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
 import { ShopContext } from "../context/ShopContext";
+import { fetchCart, deleteCart } from "../redux/action/cartAction";
 
 const Cart = () => {
   const { currency } = useContext(ShopContext);
@@ -14,17 +15,7 @@ const Cart = () => {
   const { navigate } = useContext(ShopContext);
 
   useEffect(() => {
-    const fetchCartData = async () => {
-      try {
-        const response = await getCart();
-        console.log("Cart data:", response.cartData);
-        dispatch(setCart(response.cartData));
-      } catch (error) {
-        console.error("Error fetching cart data:", error);
-      }
-    };
-
-    fetchCartData();
+    dispatch(fetchCart());
   }, [dispatch]);
 
   return (
@@ -73,6 +64,9 @@ const Cart = () => {
               src={assets.bin_icon}
               alt="delete"
               className="w-4 mr-4 sm:w-5 cursor-pointer"
+              onClick={() => {
+                dispatch(deleteCart(item.product._id, item.sizes));
+              }}
             />
           </div>
         ))}

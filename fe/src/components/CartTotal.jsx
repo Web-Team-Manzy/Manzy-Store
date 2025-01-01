@@ -2,10 +2,20 @@ import React from "react";
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
+import { useSelector, useDispatch } from "react-redux";
 
 const CartTotal = () => {
   const { delivery_fee, currency } = useContext(ShopContext);
-  const getCartAmount = () => {};
+  const cartData = useSelector((state) => state.cart?.cartData || []);
+
+  const getCartAmount = () => {
+    let total = 0;
+    cartData.forEach((item) => {
+      total += item.product.price * Object.values(item.sizes)[0];
+    });
+    console.log(total);
+    return total;
+  };
 
   return (
     <div className="w-full">

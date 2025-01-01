@@ -1,20 +1,22 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { getDetailProduct, addToCart } from "../service/callAPI";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { fetchCart } from "../redux/action/cartAction";
 
 const Product = () => {
-  const userInfor = useSelector((state) => state.account.userInfo);
   const { productId } = useParams();
   const { currency } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
   const [message, setMessage] = useState(""); // Thêm state message
+  const dispatch = useDispatch();
 
   const fetchProductData = async (productId) => {
     try {
@@ -33,10 +35,13 @@ const Product = () => {
     }
 
     try {
-      const response = await addToCart(userInfor.id, productData._id, size);
-      console.log(response);
+      const response = await addToCart(productData._id, size);
       if (response.success) {
         toast.success("Product added to cart successfully!");
+
+        // Gọi API cập nhật giỏ hàng
+
+        dispatch(fetchCart());
       } else {
         toast.error("Failed to add to cart. Please try again.");
       }
