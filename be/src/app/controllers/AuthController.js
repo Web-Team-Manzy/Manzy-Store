@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const { processCreateAccount } = require("../../services/paymentService");
 const {
     createUserService,
     loginService,
@@ -36,6 +37,12 @@ class AuthController {
 
             const result = await createUserService(userData);
 
+            const paymentAccount = await processCreateAccount(result.DT.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
+
             return res.status(200).json(result);
         } catch (error) {
             console.log(error);
@@ -57,6 +64,12 @@ class AuthController {
             if (result.EC === 1) {
                 return res.status(400).json(result);
             }
+
+            const paymentAccount = await processCreateAccount(result?.DT?.user?.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
 
             const { user, accessToken, refreshToken } = result.DT;
 
@@ -108,6 +121,12 @@ class AuthController {
             const data = await loginGoogleService(code);
 
             const { user, accessToken, refreshToken } = data.DT;
+
+            const paymentAccount = await processCreateAccount(user?.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,

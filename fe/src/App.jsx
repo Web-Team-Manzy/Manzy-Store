@@ -20,6 +20,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import SearchBar from "./components/SearchBar";
 import { doGetAccount } from "./redux/action/accountAction";
+import { fetchCart } from "./redux/action/cartAction";
 
 const App = () => {
   // >>> Backend Test
@@ -32,6 +33,12 @@ const App = () => {
       dispatch(doGetAccount());
     }
   }, []);
+
+  useEffect(() => {
+    if (userInfo && userInfo.email) {
+      dispatch(fetchCart());
+    }
+  }, [userInfo]);
 
   // >>> End Backend Test
 

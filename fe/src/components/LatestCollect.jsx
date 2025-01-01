@@ -4,6 +4,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import { useState, useEffect } from "react";
 import ProductItem from "./ProductItem";
+import { lastProduct } from "../service/callAPI";
 
 const LatestCollect = () => {
   //const { products } = useContext(ShopContext);
@@ -12,6 +13,20 @@ const LatestCollect = () => {
   // useEffect(() => {
   //     setLatestProducts(products.slice(0, 10));
   // }, [])
+
+  useEffect(() => {
+    const fetchLatestProducts = async () => {
+      try {
+        const response = await lastProduct();
+        console.log(response);
+        setLatestProducts(response.products);
+      } catch (error) {
+        console.error("Error fetching latest products:", error);
+      }
+    };
+
+    fetchLatestProducts();
+  }, []);
 
   return (
     <div className="my-10">
@@ -28,7 +43,7 @@ const LatestCollect = () => {
           <ProductItem
             key={index}
             id={item._id}
-            image={item.image}
+            image={item.images}
             name={item.name}
             price={item.price}
           />
