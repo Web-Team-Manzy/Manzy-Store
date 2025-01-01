@@ -3,10 +3,10 @@ import axios from "../customize/axios";
 export const getProducts = async (
   page = 1,
   category = "",
+  search = "",
   limit = 7,
   sortField = "name",
   sortOrder = "asc",
-  search = "",
   bestseller = ""
 ) => {
   return await axios.get(
@@ -30,6 +30,6 @@ export const lastProduct = async () => {
   return await axios.get("/product/listNewProduct");
 };
 
-export const deleteCartItem = async (itemId, size) => {
-  return await axios.post("/cart/delete", { itemId, size });
+export const updateCart = async (itemId, size) => {
+  return await axios.post("/cart/update", { itemId, size, quantity: 0 });
 };

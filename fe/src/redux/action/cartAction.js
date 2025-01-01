@@ -1,5 +1,5 @@
 // actions/cartActions.js
-import { getCart, deleteCartItem } from "../../service/callAPI";
+import { getCart, updateCart } from "../../service/callAPI";
 
 export const SET_CART = "SET_CART";
 export const setCart = (cartData) => ({
@@ -20,9 +20,9 @@ export const fetchCart = () => async (dispatch) => {
   }
 };
 
-export const deleteCart = (productId, size) => async (dispatch) => {
+export const updateCart1 = (productId, size, quantity) => async (dispatch) => {
   try {
-    const response = await deleteCartItem(productId, size);
+    const response = await updateCart(productId, size, quantity);
     if (response.success) {
       dispatch(setCart([]));
     } else {

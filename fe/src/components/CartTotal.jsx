@@ -2,18 +2,22 @@ import React from "react";
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 const CartTotal = () => {
   const { delivery_fee, currency } = useContext(ShopContext);
   const cartData = useSelector((state) => state.cart?.cartData || []);
 
+  // Tính tổng tiền từ dữ liệu đã xử lý
   const getCartAmount = () => {
     let total = 0;
+
     cartData.forEach((item) => {
-      total += item.product.price * Object.values(item.sizes)[0];
+      Object.entries(item.sizes).forEach(([size, quantity]) => {
+        total += item.product.price * quantity;
+      });
     });
-    console.log(total);
+
     return total;
   };
 
@@ -27,21 +31,20 @@ const CartTotal = () => {
         <div className="flex justify-between">
           <p>Subtotal</p>
           <p>
-            {currency} {getCartAmount()}.00
+            {currency} {getCartAmount().toFixed(2)}
           </p>
         </div>
         <hr />
         <div className="flex justify-between">
           <p>Shipping Fee</p>
           <p>
-            {currency} {delivery_fee}.00{" "}
+            {currency} {delivery_fee.toFixed(2)}
           </p>
         </div>
         <div className="flex justify-between">
           <p>Total</p>
           <p>
-            {currency}{" "}
-            {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00
+            {currency} {(getCartAmount() + delivery_fee).toFixed(2)}
           </p>
         </div>
       </div>

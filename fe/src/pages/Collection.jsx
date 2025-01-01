@@ -1,13 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
-import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import { getProducts } from "../service/callAPI";
+import { useLocation } from "react-router-dom";
 
 const Collection = () => {
-  const { search, showSearch } = useContext(ShopContext);
-
+  const location = useLocation();
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState(null);
@@ -65,9 +64,13 @@ const Collection = () => {
 
   const [totalPages, setTotalPages] = useState(0);
 
-  const collectionList = async (page, category) => {
+  const searchParams = new URLSearchParams(location.search);
+  const search = searchParams.get("search") || "";
+  console.log("Search:", search);
+
+  const collectionList = async (page, category, find) => {
     try {
-      const res = await getProducts(page, category);
+      const res = await getProducts(page, category, find);
       setCurrentPage(res.currentPage);
       setTotalPages(res.totalPages);
       setFilterProducts(res.products || []);
@@ -78,8 +81,26 @@ const Collection = () => {
   };
 
   useEffect(() => {
-    collectionList(currentPage, category);
-  }, [currentPage, category]);
+    collectionList(currentPage, category, search);
+  }, [currentPage, category, search]);
+
+  // useEffect(() => {
+  //   const searchParams = new URLSearchParams(location.search);
+  //   const search = searchParams.get("search") || "";
+
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const res = await getProducts(currentPage, category, search);
+  //       setCurrentPage(res.data.currentPage);
+  //       setTotalPages(res.data.totalPages);
+  //       setFilterProducts(res.data.products || []);
+  //     } catch (error) {
+  //       console.error("API Error:", error);
+  //     }
+  //   };
+
+  //   fetchProducts();
+  // }, [location.search, currentPage, category]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
