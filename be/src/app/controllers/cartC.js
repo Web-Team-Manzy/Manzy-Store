@@ -57,70 +57,49 @@ class cartC {
     }
   }
 
-    async updateCart(req, res) {
-        try {
-            const userId = req.user.id;
-            const { itemId, size, quantity } = req.body;
-            
-            const userData = await userM.findById(userId);
-            let cartData = userData.cartData || {};
-    
-            if (quantity === 0) {
-                // Xóa kích thước cụ thể khỏi sản phẩm
-                if (cartData[itemId] && cartData[itemId][size] !== undefined) {
-                    delete cartData[itemId][size];
-                    
-                    // Kiểm tra nếu không còn kích thước nào, xóa sản phẩm khỏi giỏ hàng
-                    if (Object.keys(cartData[itemId]).length === 0) {
-                        delete cartData[itemId];
-                    }
-                } else {
-                    return res.json({ success: false, message: "Sản phẩm hoặc kích thước không tồn tại trong giỏ hàng" });
-                }
-            } else {
-                // Cập nhật số lượng sản phẩm
-                if (cartData[itemId] && cartData[itemId][size] !== undefined) {
-                    cartData[itemId][size] = quantity;
-                } else {
-                    return res.json({ success: false, message: "Sản phẩm hoặc kích thước không tồn tại trong giỏ hàng" });
-                }
-            }
-    
-            await userM.findByIdAndUpdate(userId, { cartData: cartData });
-    
-            res.json({ success: true, message: "Cập nhật giỏ hàng thành công" });
-    
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
-        }
-    }
-<<<<<<< HEAD
-  }
-
-  async deleteFromCart(req, res) {
+  async updateCart(req, res) {
     try {
       const userId = req.user.id;
-
-      const { itemId, size } = req.body;
-      console.log(itemId);
-      console.log(size);
+      const { itemId, size, quantity } = req.body;
 
       const userData = await userM.findById(userId);
-      let cartData = await userData.cartData;
+      let cartData = userData.cartData || {};
 
-      delete cartData[itemId][size];
+      if (quantity === 0) {
+        // Xóa kích thước cụ thể khỏi sản phẩm
+        if (cartData[itemId] && cartData[itemId][size] !== undefined) {
+          delete cartData[itemId][size];
+
+          // Kiểm tra nếu không còn kích thước nào, xóa sản phẩm khỏi giỏ hàng
+          if (Object.keys(cartData[itemId]).length === 0) {
+            delete cartData[itemId];
+          }
+        } else {
+          return res.json({
+            success: false,
+            message: "Sản phẩm hoặc kích thước không tồn tại trong giỏ hàng",
+          });
+        }
+      } else {
+        // Cập nhật số lượng sản phẩm
+        if (cartData[itemId] && cartData[itemId][size] !== undefined) {
+          cartData[itemId][size] = quantity;
+        } else {
+          return res.json({
+            success: false,
+            message: "Sản phẩm hoặc kích thước không tồn tại trong giỏ hàng",
+          });
+        }
+      }
 
       await userM.findByIdAndUpdate(userId, { cartData: cartData });
 
-      res.json({ success: true, message: "Delete from cart successfully" });
+      res.json({ success: true, message: "Cập nhật giỏ hàng thành công" });
     } catch (error) {
       console.log(error);
       res.json({ success: false, message: error.message });
     }
   }
-=======
->>>>>>> 656f30ed712d1ee325e50ef9eb86745b4a390a9d
 }
 
 module.exports = new cartC();

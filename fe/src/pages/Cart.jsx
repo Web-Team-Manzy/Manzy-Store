@@ -74,9 +74,7 @@ const Cart = () => {
               alt="delete"
               className="w-4 mr-4 sm:w-5 cursor-pointer"
               onClick={() => {
-                dispatch(
-                  updateCart1(item.product._id, { [item.size]: item.quantity })
-                );
+                dispatch(updateCart1(item.product._id, item.size, 0));
               }}
             />
           </div>

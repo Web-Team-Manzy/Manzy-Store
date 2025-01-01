@@ -20,9 +20,9 @@ export const fetchCart = () => async (dispatch) => {
   }
 };
 
-export const updateCart1 = (productId, size) => async (dispatch) => {
+export const updateCart1 = (productId, size, quantity) => async (dispatch) => {
   try {
-    const response = await updateCart(productId, size);
+    const response = await updateCart(productId, size, quantity);
     if (response.success) {
       dispatch(setCart([]));
     } else {
