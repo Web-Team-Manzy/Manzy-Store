@@ -43,7 +43,6 @@ class productC {
             console.log(error);
             res.json({success: false, message: error.message});
         }
-
     }
     // 
     async listProduct(req, res) {
@@ -52,6 +51,7 @@ class productC {
                 page = 1, 
                 limit = 10, 
                 category, 
+                subCategory,
                 sortField, 
                 sortOrder = 'asc', 
                 search,
@@ -62,6 +62,10 @@ class productC {
             if (category) {
                 const categoryDoc = await categoryM.findOne({ name: category });
                 if (categoryDoc) query.category = categoryDoc._id;
+            }
+
+            if (subCategory) {
+                query.subCategory = subCategory;
             }
     
             if (search) {
@@ -81,7 +85,6 @@ class productC {
             const totalPages = Math.ceil(total / limit);
             const products = await productM.find(query)
                 .populate('category', 'name')
-                .populate('subCategory', 'name')
                 .sort(sortOption)
                 .skip((page - 1) * parseInt(limit))
                 .limit(parseInt(limit));
@@ -210,6 +213,39 @@ class productC {
             res.json({ success: false, message: error.message });
         }
     }
+
+    async getRelatedProducts(req, res) {
+        try {
+            const { productId } = req.params;
+
+            // Kiểm tra productId có được cung cấp
+            if (!productId) {
+                return res.status(400).json({ success: false, message: "Thiếu productId" });
+            }
+
+            // Tìm sản phẩm chính
+            const product = await productM.findById(productId);
+            if (!product) {
+                return res.status(404).json({ success: false, message: "Sản phẩm không tồn tại" });
+            }
+
+            const categoryId = product.category; 
+
+            const relatedProducts = await productM.find({
+                category: categoryId,
+                _id: { $ne: productId } 
+            })
+            .limit(10) 
+            .sort({ createdAt: -1 }) 
+            .select('name price image'); 
+
+            res.json({ success: true, relatedProducts });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
 }
 
 module.exports = new productC();
