@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { USER_LOGIN_SUCCESS } from "../redux/action/accountAction";
+import { doUpdateAccount } from "../redux/action/accountAction";
 const Profile = () => {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.account.userInfo);
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: userInfo.displayName,
+    displayName: userInfo.displayName,
     email: userInfo.email,
     role: userInfo.role,
     address: userInfo.address,
@@ -22,6 +22,7 @@ const Profile = () => {
   const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleSave = () => {
+    dispatch(doUpdateAccount(userInfo.id ,formData));
     setIsEditing(false);
     // Logic lưu dữ liệu
     console.log("Saved data:", formData);
@@ -40,7 +41,7 @@ const Profile = () => {
         </h1>
 
         <div className="space-y-4">
-          {["name", "email", "role", "address", "phone"].map((field) => (
+          {["displayName", "email", "role", "address", "phone"].map((field) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-600 capitalize">
                 {field}
