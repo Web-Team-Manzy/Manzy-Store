@@ -15,6 +15,7 @@ const initialState = {
         lastName: "",
         displayName: "",
         role: "",
+        address: "",
     },
     accessToken: "",
     refreshToken: "",

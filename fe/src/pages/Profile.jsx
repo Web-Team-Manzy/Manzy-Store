@@ -1,11 +1,17 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { USER_LOGIN_SUCCESS } from "../redux/action/accountAction";
 const Profile = () => {
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state) => state.account.userInfo);
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: "John Doe",
-    phone: "0123456789",
-    password: "********",
+    name: userInfo.displayName,
+    email: userInfo.email,
+    role: userInfo.role,
+    address: userInfo.address,
+    phone: userInfo.phone,
   });
 
   const handleInputChange = (e) => {
@@ -34,7 +40,7 @@ const Profile = () => {
         </h1>
 
         <div className="space-y-4">
-          {["name", "phone", "password"].map((field) => (
+          {["name", "email", "role", "address", "phone"].map((field) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-600 capitalize">
                 {field}
