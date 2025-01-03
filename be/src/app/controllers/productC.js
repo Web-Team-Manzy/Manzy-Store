@@ -265,9 +265,7 @@ class productC {
           category: categoryId,
           _id: { $ne: productId },
         })
-        .limit(10)
-        .sort({ createdAt: -1 })
-        .select("name price image");
+        .limit(10);
 
       res.json({ success: true, relatedProducts });
     } catch (error) {

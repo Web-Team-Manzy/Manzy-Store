@@ -2,6 +2,27 @@ const userM = require("../models/userM");
 const productM = require("../models/productM");
 
 class cartC {
+  constructor() {
+    this.getUserCart = this.getUserCart.bind(this);
+  }
+  // Hàm hợp nhất hai giỏ hàng
+  mergeCarts(cart1, cart2) {
+    for (const itemId in cart2) {
+      if (cart1[itemId]) {
+        for (const size in cart2[itemId]) {
+          if (cart1[itemId][size]) {
+            cart1[itemId][size] += cart2[itemId][size];
+          } else {
+            cart1[itemId][size] = cart2[itemId][size];
+          }
+        }
+      } else {
+        cart1[itemId] = cart2[itemId];
+      }
+    }
+    return cart1;
+  }
+
   async getUserCart(req, res) {
     try {
       const userId = req.user ? req.user.id : null;
@@ -15,8 +36,8 @@ class cartC {
         // Hợp nhất giỏ hàng trong session nếu có
         if (req.session.cartData) {
           cartData = this.mergeCarts(cartData, req.session.cartData);
-          req.session.cartData = null; 
-          await userM.findByIdAndUpdate(userId, { cartData: cartData }); 
+          req.session.cartData = null;
+          await userM.findByIdAndUpdate(userId, { cartData: cartData });
         }
       } else {
         cartData = req.session.cartData || {};
@@ -127,24 +148,6 @@ class cartC {
       console.log(error);
       res.json({ success: false, message: error.message });
     }
-  }
-
-  // Hàm hợp nhất hai giỏ hàng
-  mergeCarts(cart1, cart2) {
-    for (const itemId in cart2) {
-      if (cart1[itemId]) {
-        for (const size in cart2[itemId]) {
-          if (cart1[itemId][size]) {
-            cart1[itemId][size] += cart2[itemId][size];
-          } else {
-            cart1[itemId][size] = cart2[itemId][size];
-          }
-        }
-      } else {
-        cart1[itemId] = cart2[itemId];
-      }
-    }
-    return cart1;
   }
 }
 

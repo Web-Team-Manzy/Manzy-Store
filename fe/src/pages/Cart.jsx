@@ -11,6 +11,11 @@ const Cart = () => {
   const dispatch = useDispatch();
   const cartData = useSelector((state) => state.cart?.cartData || []);
   const { navigate } = useContext(ShopContext);
+  const account = useSelector((state) => state.account);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [account, dispatch]);
 
   useEffect(() => {
     dispatch(fetchCart());
