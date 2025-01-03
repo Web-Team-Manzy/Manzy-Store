@@ -3,19 +3,24 @@ import axios from "../customize/axios";
 export const getProducts = async (
   page = 1,
   category = "",
+  subCategory = "",
   search = "",
-  limit = 7,
   sortField = "name",
   sortOrder = "asc",
+  limit = 7,
   bestseller = ""
 ) => {
   return await axios.get(
-    `/product/list?page=${page}&limit=${limit}&category=${category}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}&bestseller=${bestseller}`
+    `/product/list?page=${page}&limit=${limit}&category=${category}&subCategory=${subCategory}&search=${search}&sortField=${sortField}&sortOrder=${sortOrder}&bestseller=${bestseller}`
   );
 };
 
 export const getDetailProduct = async (productId) => {
   return await axios.get(`/product/detail/${productId}`);
+};
+
+export const getRelatedProducts = async (productId) => {
+  return await axios.get(`/product/related/${productId}`);
 };
 
 export const addToCart = async (itemId, size) => {

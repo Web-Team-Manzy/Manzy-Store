@@ -9,16 +9,16 @@ router.get("/list", productC.listProduct);
 
 router.post(
   "/add",
+  auth,
+  admin,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
-  ]),  auth, admin,
+  ]),
   productC.addProduct
 );
-
-router.get("/Related/:productId", productC.getRelatedProducts);
 
 router.get("listBestSeller", productC.listBestSeller);
 
@@ -29,5 +29,7 @@ router.get("/detail/:productId", productC.detailProduct);
 router.put("/update", auth, admin, productC.updateProduct);
 
 router.delete("/delete", auth, admin, productC.deleteProduct);
+
+router.get("/related/:productId", productC.getRelatedProducts);
 
 module.exports = router;
