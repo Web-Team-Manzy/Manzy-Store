@@ -25,6 +25,29 @@ const processCreateAccount = async (userId, options) => {
     }
 };
 
+const processGetAccountBalance = async (userId) => {
+    try {
+        const serviceId = SERVICES.MAIN_SYSTEM;
+        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const endpoint = `/payment/get-account-balance?userId=${userId}`;
+
+        const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint, {
+            userId,
+        });
+
+        console.log(">>> processGetAccountBalance:", res);
+
+        return res;
+    } catch (error) {
+        console.log(">>> processGetAccountBalance:", error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
 const processPayment = async (userId, amount, orderId) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
@@ -51,4 +74,5 @@ const processPayment = async (userId, amount, orderId) => {
 module.exports = {
     processCreateAccount,
     processPayment,
+    processGetAccountBalance,
 };
