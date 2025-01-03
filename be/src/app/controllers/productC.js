@@ -103,7 +103,6 @@ class productC {
         success: true,
         search: search || "",
         category: category || "",
-        subCategory: subCategory || "",
         currentPage: parseInt(page),
         totalPages,
         sortField: sortField || null,
@@ -266,7 +265,9 @@ class productC {
           category: categoryId,
           _id: { $ne: productId },
         })
-        .limit(10);
+        .limit(10)
+        .sort({ createdAt: -1 })
+        .select("name price image");
 
       res.json({ success: true, relatedProducts });
     } catch (error) {

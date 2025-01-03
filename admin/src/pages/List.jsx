@@ -80,7 +80,7 @@ const List = ({ token }) => {
           >
             <img className="w-12" src={item.images[0]} alt="" />
             <p>{item.name}</p>
-            <p>{item.category.name}</p>
+            <p>{item.category?.name || "No Category"}</p>
             <p>
               {currency}
               {item.price}
