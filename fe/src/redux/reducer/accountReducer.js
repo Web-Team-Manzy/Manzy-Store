@@ -5,6 +5,9 @@ import {
     USER_LOGOUT_REQUEST,
     USER_LOGOUT_SUCCESS,
     USER_LOGOUT_FAIL,
+    USER_UPDATE_REQUEST,
+    USER_UPDATE_SUCCESS,
+    USER_UPDATE_FAIL,
 } from "../action/accountAction";
 
 const initialState = {
@@ -84,6 +87,25 @@ const accountReducer = (state = initialState, action) => {
                 isLoading: false,
                 errorMessage: action.error,
                 isDoLogin: false,
+            };
+        case USER_UPDATE_REQUEST:
+            return {
+                ...state,
+                isLoading: true,
+                errorMessage: "",
+            };
+        case USER_UPDATE_SUCCESS:
+            return {
+                ...state,
+                userInfo: action.user, // Cập nhật userInfo với dữ liệu mới
+                isLoading: false,
+                errorMessage: "",
+            };
+        case USER_UPDATE_FAIL:
+            return {
+                ...state,
+                isLoading: false,
+                errorMessage: action.error, // Lưu thông báo lỗi
             };
         default:
             return state;

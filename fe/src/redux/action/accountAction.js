@@ -4,6 +4,54 @@ export const USER_LOGIN_REQUEST = "USER_LOGIN_REQUEST";
 export const USER_LOGIN_SUCCESS = "USER_LOGIN_SUCCESS";
 export const USER_LOGIN_FAIL = "USER_LOGIN_FAIL";
 
+export const USER_UPDATE_REQUEST = "USER_UPDATE_REQUEST";
+export const USER_UPDATE_SUCCESS = "USER_UPDATE_SUCCESS";
+export const USER_UPDATE_FAIL = "USER_UPDATE_FAIL";
+
+export const doUpdateAccount = (userId, updatedUserData) => {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: USER_UPDATE_REQUEST,
+    });
+
+    try {
+      const response = await axios.put(
+        "http://localhost:8080/users/" + userId,
+        updatedUserData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response && +response.EC === 0) {
+        const filteredData = {
+          id: response.DT._id,
+          email: response.DT.email,
+          displayName: response.DT.displayName,
+          role: response.DT.role,
+          address: response.DT.address,
+          phone: response.DT.phone,
+        };
+        dispatch({
+          type: USER_UPDATE_SUCCESS,
+          user: filteredData, 
+        });
+      } else {
+        dispatch({
+          type: USER_UPDATE_FAIL,
+          error: response.EM,
+        });
+      }
+
+    } catch (error) {
+      console.log(">>> error: ", error);
+      dispatch({
+        type: USER_UPDATE_FAIL,
+        error: error.message,
+      });
+    }
+  }
+}
+
 export const doLogin = (email, password) => {
   return async (dispatch, getState) => {
     dispatch({
