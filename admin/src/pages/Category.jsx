@@ -79,6 +79,7 @@ const Category = ({ token }) => {
     setFormData({
       name: category.name,
       description: category.description,
+      subcategories: category.subcategories || [],
     });
   };
 
@@ -111,7 +112,10 @@ const Category = ({ token }) => {
     <>
       <p className="mb-2">Categories</p>
       <button
-        onClick={() => setIsAdding(true)}
+        onClick={() => {
+          setFormData({ name: "", description: "", subcategories: [] });
+          setIsAdding(true);
+        }}
         className="mb-4 px-4 py-2 bg-green-500 text-white rounded"
       >
         +
@@ -185,23 +189,52 @@ const Category = ({ token }) => {
                 placeholder="Description"
                 className="border px-3 py-2 rounded"
               />
-              <label>Subcategories (comma-separated)</label>
+              <label>Subcategories</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.subcategories.map((subcategory, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-gray-200 px-2 py-1 rounded"
+                  >
+                    <span>{subcategory}</span>
+                    <button
+                      onClick={() => {
+                        const updatedSubcategories =
+                          formData.subcategories.filter((_, i) => i !== index);
+                        setFormData({
+                          ...formData,
+                          subcategories: updatedSubcategories,
+                        });
+                      }}
+                      className="text-red-500 font-bold"
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
               <input
                 type="text"
-                value={
-                  formData.subcategories && formData.subcategories.length > 0
-                    ? formData.subcategories.join(", ")
-                    : ""
-                }
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    subcategories: e.target.value
-                      .split(",")
-                      .map((s) => s.trim()),
-                  })
-                }
-                placeholder="Subcategories"
+                placeholder="Type a subcategory and press Enter"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    const newSubcategory = e.target.value.trim();
+                    if (
+                      newSubcategory &&
+                      !formData.subcategories.includes(newSubcategory)
+                    ) {
+                      setFormData({
+                        ...formData,
+                        subcategories: [
+                          ...formData.subcategories,
+                          newSubcategory,
+                        ],
+                      });
+                      e.target.value = ""; // Clear input after adding
+                    }
+                  }
+                }}
                 className="border px-3 py-2 rounded"
               />
 
@@ -248,19 +281,52 @@ const Category = ({ token }) => {
                 placeholder="Description"
                 className="border px-3 py-2 rounded"
               />
-              <label>Subcategories (comma-separated)</label>
+              <label>Subcategories</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.subcategories.map((subcategory, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-gray-200 px-2 py-1 rounded"
+                  >
+                    <span>{subcategory}</span>
+                    <button
+                      onClick={() => {
+                        const updatedSubcategories =
+                          formData.subcategories.filter((_, i) => i !== index);
+                        setFormData({
+                          ...formData,
+                          subcategories: updatedSubcategories,
+                        });
+                      }}
+                      className="text-red-500 font-bold"
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
               <input
                 type="text"
-                value={formData.subcategories.join(", ")}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    subcategories: e.target.value
-                      .split(",")
-                      .map((s) => s.trim()),
-                  })
-                }
-                placeholder="Subcategories"
+                placeholder="Type a subcategory and press Enter"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    const newSubcategory = e.target.value.trim();
+                    if (
+                      newSubcategory &&
+                      !formData.subcategories.includes(newSubcategory)
+                    ) {
+                      setFormData({
+                        ...formData,
+                        subcategories: [
+                          ...formData.subcategories,
+                          newSubcategory,
+                        ],
+                      });
+                      e.target.value = ""; // Clear input after adding
+                    }
+                  }
+                }}
                 className="border px-3 py-2 rounded"
               />
 
