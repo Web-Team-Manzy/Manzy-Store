@@ -21,7 +21,6 @@ const Add = ({ token }) => {
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [subCategoryData, setSubCategoryData] = useState([]);
 
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
@@ -51,7 +50,7 @@ const Add = ({ token }) => {
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
 
-      console.log(formData.name)
+      console.log(formData.name);
 
       const response = await axios.post(backendUrl + "/product/add", formData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -75,13 +74,7 @@ const Add = ({ token }) => {
       toast.error(error.message);
     }
   };
-  const categorySubCategoryMap = {
-    Accessories: ["Watches", "Belts", "Hats"],
-    Bags: ["Handbags", "Backpacks", "Travel Bags"],
-    Pants: ["Jeans", "Shorts", "Trousers"],
-    Shirt: ["Casual", "Formal", "T-Shirts"],
-    Shoes: ["Sneakers", "Sports", "Boots"],
-  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -89,24 +82,19 @@ const Add = ({ token }) => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const validCategories = Object.keys(categorySubCategoryMap);
-        const categoryData = response.data.data.filter((cat) =>
-          validCategories.includes(cat.name)
-        );
-        const subCategoryData = response.data.data.filter(
-          (cat) => !validCategories.includes(cat.name)
-        );
-        
-        // Lưu dữ liệu vào state
-        setCategories(categoryData);
-        setSubCategoryData(subCategoryData);
+        if (response.data.success) {
+          const data = response.data.data;
+          setCategories(data);
 
-        // Lấy subcategory từ category đầu tiên cho lần render đầu
-        const firstCategory = categoryData[0].name;
-        const subCategory = categorySubCategoryMap[firstCategory];
-        setSubCategories(
-          subCategoryData.filter((subCat) => subCategory.includes(subCat.name))
-        );
+          // Lấy subcategories từ category đầu tiên để render mặc định
+          const firstCategory = data[0];
+          if (firstCategory) {
+            setCategory(firstCategory._id);
+            setSubCategories(firstCategory.subcategories || []);
+          }
+        } else {
+          toast.error(response.data.message);
+        }
       } catch (error) {
         console.log(error);
         toast.error(error.message);
@@ -116,12 +104,11 @@ const Add = ({ token }) => {
   }, []);
 
   useEffect(() => {
-    const categoryName = categories.find((cat) => cat._id === category)?.name;
-    const subCategory = categorySubCategoryMap[categoryName];
-    setSubCategories(
-      subCategoryData.filter((subCat) => subCategory.includes(subCat.name))
-    );
-  }, [category]);
+    const selectedCategory = categories.find((cat) => cat._id === category);
+    if (selectedCategory) {
+      setSubCategories(selectedCategory.subcategories || []);
+    }
+  }, [category, categories]);
 
   return (
     <form
@@ -214,6 +201,7 @@ const Add = ({ token }) => {
         <div>
           <p className="mb-2">Product Category</p>
           <select
+            value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full px-3 py-2 "
           >
@@ -228,12 +216,16 @@ const Add = ({ token }) => {
         <div>
           <p className="mb-2">Sub Category</p>
           <select
+            value={subCategory}
             onChange={(e) => setSubCategory(e.target.value)}
             className="w-full px-3 py-2 "
           >
-            {subCategories.map((subCat) => (
-              <option key={subCat._id} value={subCat._id}>
-                {subCat.name}
+            <option value="" disabled>
+              Select a subcategory
+            </option>
+            {subCategories.map((subCat, index) => (
+              <option key={index} value={subCat}>
+                {subCat}
               </option>
             ))}
           </select>
