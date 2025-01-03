@@ -220,9 +220,12 @@ const Add = ({ token }) => {
             onChange={(e) => setSubCategory(e.target.value)}
             className="w-full px-3 py-2 "
           >
-            {subCategories.map((subCat) => (
-              <option key={subCat._id} value={subCat._id}>
-                {subCat.name}
+            <option value="" disabled>
+              Select a subcategory
+            </option>
+            {subCategories.map((subCat, index) => (
+              <option key={index} value={subCat}>
+                {subCat}
               </option>
             ))}
           </select>
