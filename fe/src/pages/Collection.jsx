@@ -13,6 +13,8 @@ const Collection = () => {
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavant");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState(null);
+  const [sortOrder, setSortOrder] = useState(null);
 
   const categorySubCategoryMap = {
     Accessories: ["Watches", "Belts", "Hats"],
@@ -40,37 +42,50 @@ const Collection = () => {
     }
   };
 
-  const sortProducts = () => {
-    let fpCopy = filterProducts.slice();
-
-    switch (sortType) {
+  const handleSortChange = (e) => {
+    const value = e.target.value;
+    switch (value) {
       case "low-high":
-        setFilterProducts(fpCopy.sort((a, b) => a.price - b.price));
+        setSortField("price");
+        setSortOrder("asc");
         break;
       case "high-low":
-        setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
+        setSortField("price");
+        setSortOrder("desc");
         break;
-      case "best-seller":
-        setFilterProducts(fpCopy.filter((product) => product.bestseller));
-
+      case "dated":
+        setSortField("dated");
+        setSortOrder("desc");
         break;
       default:
+        setSortField(null);
+        setSortOrder(null);
         break;
     }
   };
-
-  useEffect(() => {
-    sortProducts();
-  }, [sortType]);
 
   const [totalPages, setTotalPages] = useState(0);
 
   const searchParams = new URLSearchParams(location.search);
   const search = searchParams.get("search") || "";
 
-  const collectionList = async (page, category, subcategory, find) => {
+  const collectionList = async (
+    page,
+    category,
+    subcategory,
+    find,
+    field,
+    type
+  ) => {
     try {
-      const res = await getProducts(page, category, subcategory, find);
+      const res = await getProducts(
+        page,
+        category,
+        subcategory,
+        find,
+        field,
+        type
+      );
       setCurrentPage(res.currentPage);
       setTotalPages(res.totalPages);
       setFilterProducts(res.products || []);
@@ -81,9 +96,16 @@ const Collection = () => {
   };
 
   useEffect(() => {
-    console.log("subCategory:", subCategory);
-    collectionList(currentPage, category, subCategory, search);
-  }, [currentPage, category, subCategory, search]);
+    console.log("subCategory:", sortField, sortOrder);
+    collectionList(
+      currentPage,
+      category,
+      subCategory,
+      search,
+      sortField,
+      sortOrder
+    );
+  }, [currentPage, category, subCategory, search, sortField, sortOrder]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -154,13 +176,13 @@ const Collection = () => {
         <div className="flex justify-between text-base sm:text-2xl mb-4">
           <Title text1={"ALL "} text2={"COLLECTIONS"} />
           <select
-            onChange={(e) => setSortType(e.target.value)}
             className="border-2 border-gray-300 text-sm px-2"
+            onChange={handleSortChange}
           >
-            <option value="relavant">Sort by : Relevance</option>
+            <option value="">Sort</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
-            <option value="best-seller">Sort by : Best Seller</option>
+            <option value="dated">Sort by : Dated</option>
           </select>
         </div>
 

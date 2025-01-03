@@ -38,9 +38,6 @@ const Product = () => {
       const response = await addToCart(productData._id, size);
       if (response.success) {
         toast.success("Product added to cart successfully!");
-
-        // Gọi API cập nhật giỏ hàng
-
         dispatch(fetchCart());
       } else {
         toast.error("Failed to add to cart. Please try again.");
@@ -162,10 +159,7 @@ const Product = () => {
       </div>
 
       {/* related products */}
-      {/* <RelatedProducts
-        category={productData.category}
-        subCategory={productData.subCategory}
-      /> */}
+      <RelatedProducts />
     </div>
   ) : (
     <div className="opacity-0"></div>
