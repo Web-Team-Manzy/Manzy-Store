@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { doLogout } from "../redux/action/accountAction";
+import { fetchCart } from "../redux/action/cartAction";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);

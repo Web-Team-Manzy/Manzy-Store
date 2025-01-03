@@ -1,6 +1,3 @@
-import React from "react";
-import { ShopContext } from "../context/ShopContext";
-import { useContext } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import Title from "./Title";
