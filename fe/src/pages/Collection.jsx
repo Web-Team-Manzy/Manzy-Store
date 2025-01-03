@@ -33,10 +33,10 @@ const Collection = () => {
 
   const handleSubCategoryChange = (e) => {
     const selectedSubCategory = e.target.value;
-    if (subCategory.includes(selectedSubCategory)) {
-      setSubCategory(subCategory.filter((sub) => sub !== selectedSubCategory));
+    if (subCategory === selectedSubCategory) {
+      setSubCategory(null);
     } else {
-      setSubCategory([...subCategory, selectedSubCategory]);
+      setSubCategory(selectedSubCategory);
     }
   };
 
@@ -50,8 +50,9 @@ const Collection = () => {
       case "high-low":
         setFilterProducts(fpCopy.sort((a, b) => b.price - a.price));
         break;
-      case "Best Saler":
-        setFilterProducts(fpCopy.sort((a, b) => b.sold - a.sold));
+      case "best-seller":
+        setFilterProducts(fpCopy.filter((product) => product.bestseller));
+
         break;
       default:
         break;
@@ -66,11 +67,10 @@ const Collection = () => {
 
   const searchParams = new URLSearchParams(location.search);
   const search = searchParams.get("search") || "";
-  console.log("Search:", search);
 
-  const collectionList = async (page, category, find) => {
+  const collectionList = async (page, category, subcategory, find) => {
     try {
-      const res = await getProducts(page, category, find);
+      const res = await getProducts(page, category, subcategory, find);
       setCurrentPage(res.currentPage);
       setTotalPages(res.totalPages);
       setFilterProducts(res.products || []);
@@ -81,26 +81,9 @@ const Collection = () => {
   };
 
   useEffect(() => {
-    collectionList(currentPage, category, search);
-  }, [currentPage, category, search]);
-
-  // useEffect(() => {
-  //   const searchParams = new URLSearchParams(location.search);
-  //   const search = searchParams.get("search") || "";
-
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const res = await getProducts(currentPage, category, search);
-  //       setCurrentPage(res.data.currentPage);
-  //       setTotalPages(res.data.totalPages);
-  //       setFilterProducts(res.data.products || []);
-  //     } catch (error) {
-  //       console.error("API Error:", error);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, [location.search, currentPage, category]);
+    console.log("subCategory:", subCategory);
+    collectionList(currentPage, category, subCategory, search);
+  }, [currentPage, category, subCategory, search]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -153,10 +136,10 @@ const Collection = () => {
                 <p className="flex gap-2" key={subCat}>
                   <input
                     className="w-3"
-                    type="checkbox"
+                    type="radio"
                     value={subCat}
-                    checked={subCategory.includes(subCat)}
-                    onChange={handleSubCategoryChange} // Gắn sự kiện onChange
+                    checked={subCategory === subCat}
+                    onChange={handleSubCategoryChange}
                   />
                   {subCat}
                 </p>
@@ -177,7 +160,7 @@ const Collection = () => {
             <option value="relavant">Sort by : Relevance</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
-            <option value="Best Saler">Sort by : Best Saler</option>
+            <option value="best-seller">Sort by : Best Seller</option>
           </select>
         </div>
 
