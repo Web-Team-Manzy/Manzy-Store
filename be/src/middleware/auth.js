@@ -120,6 +120,8 @@ const auth = async (req, res, next) => {
                     DT: {},
                 });
             }
+        } else if (req.originalUrl.includes("/cart")) {
+            return next();
         } else {
             // return exception
             const refreshToken = req?.cookies?.refreshToken || "";
