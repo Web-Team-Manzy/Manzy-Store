@@ -182,7 +182,7 @@ const Collection = () => {
             <option value="">Sort</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
-            <option value="dated">Sort by : Dated</option>
+            <option value="dated">Sort by : New Products</option>
           </select>
         </div>
 

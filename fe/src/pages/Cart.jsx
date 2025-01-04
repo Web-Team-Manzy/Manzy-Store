@@ -21,7 +21,6 @@ const Cart = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  // Tách sizes ra thành từng sản phẩm riêng biệt
   const processedCartData = useMemo(() => {
     return cartData.flatMap((item) =>
       Object.entries(item.sizes).map(([size, quantity]) => ({
@@ -31,6 +30,11 @@ const Cart = () => {
       }))
     );
   }, [cartData]);
+
+  const handleDelete = async (productId, size) => {
+    dispatch(updateCart1(productId, size, 0));
+    window.location.reload();
+  };
 
   return (
     <div className="border-t pt-14">
@@ -78,9 +82,7 @@ const Cart = () => {
               src={assets.bin_icon}
               alt="delete"
               className="w-4 mr-4 sm:w-5 cursor-pointer"
-              onClick={() => {
-                dispatch(updateCart1(item.product._id, item.size, 0));
-              }}
+              onClick={() => handleDelete(item.product._id, item.size)}
             />
           </div>
         ))}
