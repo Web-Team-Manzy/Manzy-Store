@@ -90,9 +90,29 @@ const processGetTransactions = async () => {
     }
 };
 
+const processGetMainAccount = async () => {
+    try {
+        const serviceId = SERVICES.MAIN_SYSTEM;
+        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const endpoint = "/payment/get-main-account";
+
+        const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
+
+        return res;
+    } catch (error) {
+        console.log(">>> processGetMainAccount:", error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
 module.exports = {
     processCreateAccount,
     processPayment,
     processGetAccountBalance,
     processGetTransactions,
+    processGetMainAccount,
 };

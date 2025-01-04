@@ -70,6 +70,32 @@ class AccountController {
             });
         }
     }
+
+    // [GET] /payment/get-main-account
+    async getMainAccount(req, res, next) {
+        try {
+            const mainAccount = await Account.findOne({ type: "MAIN" });
+
+            if (!mainAccount) {
+                return res.status(404).json({
+                    EC: 1,
+                    EM: "Main account not found",
+                });
+            }
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Success",
+                DT: mainAccount,
+            });
+        } catch (error) {
+            console.log(">>> AccountController.getMainAccount", error);
+            return res.status(500).json({
+                EC: 1,
+                EM: "Internal Server Error",
+            });
+        }
+    }
 }
 
 module.exports = new AccountController();
