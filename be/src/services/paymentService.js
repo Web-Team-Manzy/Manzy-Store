@@ -72,11 +72,11 @@ const processPayment = async (userId, amount, orderId) => {
     }
 };
 
-const processGetTransactions = async () => {
+const processGetTransactions = async (page = 1, limit = 10) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
         const baseUrl = process.env.PAYMENT_SERVICE_URL;
-        const endpoint = "/payment/transaction";
+        const endpoint = `/payment/transaction?page=${page}&limit=${limit}`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
 

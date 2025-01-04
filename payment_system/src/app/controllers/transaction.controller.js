@@ -142,10 +142,8 @@ class TransactionController {
                 .skip(skip)
                 .limit(limit);
 
-            // Đếm tổng số bản ghi
             const totalTransactions = await Transaction.countDocuments();
 
-            // Trả về kết quả với thông tin phân trang
             res.status(200).json({
                 EC: 0,
                 EM: "Success",
