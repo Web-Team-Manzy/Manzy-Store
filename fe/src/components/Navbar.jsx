@@ -33,7 +33,7 @@ const Navbar = () => {
     if (userInfo?.id) {
       dispatch(doGetAccountBalance(userInfo.id));
     }
-  }, [userInfo, dispatch]);
+  }, []);
   
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -99,7 +99,7 @@ const Navbar = () => {
             userInfo && userInfo.email ? (
               <div className="flex items-center gap-2">
                 <p className="text-gray-500 text-sm">
-                  Balance: ${userInfo.balance}
+                  {userInfo.balance} VNĐ
                 </p>
                 <img
                   src={assets.profile_icon}

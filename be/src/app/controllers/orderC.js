@@ -1,4 +1,6 @@
+const { processPayment } = require('../../services/paymentService');
 const orderM = require('../models/orderM'); 
+const userModels = require('../models/userM');
 
 class orderC {
 
@@ -19,6 +21,14 @@ class orderC {
 
             const newOrder = new orderM(orderData);
             await newOrder.save();
+
+            const orderId = newOrder._id;
+
+            // Call processPayment
+            const response = await processPayment(userId, amount, orderId);
+
+            console.log(">>> processPayment response: ", response);
+
 
             await userModels.findByIdAndUpdate(userId, {cartData: {}});
 

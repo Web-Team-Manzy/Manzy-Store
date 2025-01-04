@@ -20,7 +20,7 @@ class TransactionController {
                 });
             }
 
-            const adminAccount = await Account.findOne({ type: "ADMIN" });
+            const adminAccount = await Account.findOne({ type: "MAIN" });
 
             if (!adminAccount) {
                 return res.status(404).json({

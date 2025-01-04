@@ -58,7 +58,7 @@ class AccountController {
             return res.status(200).json({
                 EC: 0,
                 EM: "Success",
-                data: {
+                DT: {
                     balance: account.balance,
                 },
             });
