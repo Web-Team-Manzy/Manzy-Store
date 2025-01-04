@@ -4,10 +4,13 @@ import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
+import ReactPaginate from "react-paginate";
 
 const User = ({ token }) => {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -18,14 +21,16 @@ const User = ({ token }) => {
     displayName: "",
   });
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get(backendUrl + "/users", {
+      const response = await axios.get(backendUrl + `/users?page=${page}&limit=${limit}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data.EC === 0) {
-        setUsers(response.data.DT);
+        setUsers(response.data.DT.users);
+        setTotalPages(response.data.DT.totalPages);
+        setCurrentPage(page);
       } else {
         toast.error(response.data.EM);
       }
@@ -34,6 +39,11 @@ const User = ({ token }) => {
       toast.error(error.message);
     }
   };
+
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1; // + 1 because react-paginate starts from 0
+    fetchUsers(selectedPage);
+  }
 
   const removeUser = async (id) => {
     const confirm = window.confirm(
@@ -240,6 +250,18 @@ const User = ({ token }) => {
           </div>
         </div>
       )}
+      <ReactPaginate
+        className="flex justify-center my-5 gap-3"
+        previousLabel={"Previous"}
+        nextLabel={"Next"}
+        breakLabel={"..."}
+        pageCount={totalPages} // Số lượng trang
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={3}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"} // Lớp CSS cho container
+        activeClassName={"active px-3"} // Lớp CSS cho trang hiện tại
+      />
     </>
   );
 };

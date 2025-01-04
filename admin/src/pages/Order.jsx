@@ -4,16 +4,19 @@ import { backendUrl, currency } from "../App";
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
 import PropTypes from "prop-types";
+import ReactPaginate from "react-paginate";
 
 const Order = ({ token }) => {
   const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const fetchAllOrders = async () => {
+  const fetchAllOrders = async (page = 1, limit = 5) => {
     if (!token) return null;
 
     try {
       const response = await axios.post(
-        backendUrl + "/order/list",
+        backendUrl + `/order/list?page=${page}&limit=${limit}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -21,12 +24,19 @@ const Order = ({ token }) => {
       if (response.data.success) {
         toast.success(response.data.message);
         setOrders(response.data.orders);
+        setTotalPages(response.data.totalPages);
+        setCurrentPage(response.data.currentPage);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       toast.error(error.message);
     }
+  };
+
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1;
+    fetchAllOrders(selectedPage); 
   };
 
   const statusHandler = async (event, orderId) => {
@@ -118,6 +128,18 @@ const Order = ({ token }) => {
           </div>
         ))}
       </div>
+      <ReactPaginate
+        className="flex justify-center my-5 gap-3"
+        previousLabel={"Previous"}
+        nextLabel={"Next"}
+        breakLabel={"..."}
+        pageCount={totalPages} // Số lượng trang
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={3}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"} // Lớp CSS cho container
+        activeClassName={"active px-3"} // Lớp CSS cho trang hiện tại
+      />
     </div>
   );
 };
