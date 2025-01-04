@@ -8,6 +8,9 @@ import {
     USER_UPDATE_REQUEST,
     USER_UPDATE_SUCCESS,
     USER_UPDATE_FAIL,
+    GET_ACCOUNT_BALANCE_REQUEST,
+    GET_ACCOUNT_BALANCE_SUCCESS,
+    GET_ACCOUNT_BALANCE_FAIL,
 } from "../action/accountAction";
 
 const initialState = {
@@ -19,6 +22,7 @@ const initialState = {
         displayName: "",
         role: "",
         address: "",
+        balance: 0,
     },
     accessToken: "",
     refreshToken: "",
@@ -106,6 +110,24 @@ const accountReducer = (state = initialState, action) => {
                 ...state,
                 isLoading: false,
                 errorMessage: action.error, // Lưu thông báo lỗi
+            };
+
+        case GET_ACCOUNT_BALANCE_REQUEST:
+            return {
+                ...state,
+                loading: true,
+            };
+        case GET_ACCOUNT_BALANCE_SUCCESS:
+            return {
+                ...state,
+                balance: action.balance,
+                loading: false,
+            };
+        case GET_ACCOUNT_BALANCE_FAIL:
+            return {
+                ...state,
+                error: action.error,
+                loading: false,
             };
         default:
             return state;

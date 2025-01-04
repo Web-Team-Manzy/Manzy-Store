@@ -11,6 +11,9 @@ router.get("/", auth, isAdmin, userController.index);
 // Get user by id
 router.get("/:id", auth, userController.show);
 
+// Get user balance
+router.get("/:id/balance", auth, userController.getBalance);
+
 // Update user by id
 router.put("/:id", auth, userController.update);
 

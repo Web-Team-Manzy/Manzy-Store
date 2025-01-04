@@ -1,3 +1,4 @@
+const { processGetAccountBalance } = require("../../services/paymentService");
 const User = require("../models/userM");
 
 class UserController {
@@ -153,6 +154,45 @@ class UserController {
                 EM: "Internal server error",
                 DT: [],
             });
+        }
+    }
+
+    // [GET] /users/:id/balance
+    async getBalance(req, res, next) {
+        try {
+            let { id } = req.params || req.user;
+            if(!id){
+                return res.status(400).json({
+                    EC: 1,
+                    EM: "Invalid id",
+                    DT: {},
+                });
+            }
+
+            const response = await processGetAccountBalance(id);
+            console.log(">>> response: ", response);
+
+            if (response && +response.EC === 0) {
+                return res.status(200).json({
+                    EC: 0,
+                    EM: "Success",
+                    DT: response.DT,
+                });
+            } else {
+                return res.status(400).json({
+                    EC: 1,
+                    EM: response.EM,
+                    DT: {},
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 1,
+                EM: "Internal server error",
+                DT: {},
+            });
+            
         }
     }
 }
