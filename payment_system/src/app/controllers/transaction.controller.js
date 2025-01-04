@@ -20,7 +20,7 @@ class TransactionController {
                 });
             }
 
-            const adminAccount = await Account.findOne({ type: "ADMIN" });
+            const adminAccount = await Account.findOne({ type: "MAIN" });
 
             if (!adminAccount) {
                 return res.status(404).json({
@@ -120,6 +120,35 @@ class TransactionController {
             });
         } catch (error) {
             console.log(">>> TransactionController.getTransactions", error);
+
+            res.status(500).json({
+                EC: 1,
+                EM: "Internal Server Error",
+            });
+        }
+    }
+
+    async getAllTransactions(req, res, next) {
+        try {
+            const transactions = await Transaction.find({})
+                .populate("fromAccountId")
+                .populate("toAccountId")
+                .sort({ createdAt: -1 });
+
+            if (!transactions) {
+                return res.status(404).json({
+                    EC: 1,
+                    EM: "Transactions not found",
+                });
+            }
+
+            res.status(200).json({
+                EC: 0,
+                EM: "Success",
+                DT: transactions,
+            });
+        } catch (error) {
+            console.log(">>> TransactionController.getAllTransactions", error);
 
             res.status(500).json({
                 EC: 1,

@@ -77,6 +77,8 @@ const accountReducer = (state = initialState, action) => {
                     firstName: "",
                     lastName: "",
                     role: "",
+                    address: "",
+                    balance: 0,
                 },
                 accessToken: "",
                 refreshToken: "",
@@ -120,8 +122,12 @@ const accountReducer = (state = initialState, action) => {
         case GET_ACCOUNT_BALANCE_SUCCESS:
             return {
                 ...state,
-                balance: action.balance,
-                loading: false,
+                userInfo: {
+                    ...state.userInfo,
+                    balance: action.balance,
+                },
+                isLoading: false,
+                errorMessage: "",
             };
         case GET_ACCOUNT_BALANCE_FAIL:
             return {

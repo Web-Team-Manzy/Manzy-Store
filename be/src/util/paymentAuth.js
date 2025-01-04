@@ -18,7 +18,7 @@ const generateServiceToken = (serviceId) => {
     );
 };
 
-const generateSignature = (payload, timestamp) => {
+const generateSignature = (payload = "genSignature", timestamp) => {
     const dataToSign = `${JSON.stringify(payload)}|${timestamp}|${process.env.SERVICE_API_KEY}`;
 
     console.log(">>> generateSignature:", dataToSign);
