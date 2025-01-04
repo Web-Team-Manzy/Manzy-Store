@@ -12,6 +12,9 @@ const User = ({ token }) => {
     email: "",
     phone: "",
     address: "",
+    firstName: "",
+    lastName: "",
+    role: "",
     displayName: "",
   });
 
@@ -62,6 +65,9 @@ const User = ({ token }) => {
       phone: user.phone,
       address: user.address,
       displayName: user.displayName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
     });
   };
 
@@ -179,6 +185,43 @@ const User = ({ token }) => {
                 placeholder="Address"
                 className="border px-3 py-2 rounded"
               />
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) =>
+                  setFormData({ ...formData, firstName: e.target.value })
+                }
+                placeholder="First Name"
+                className="border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) =>
+                  setFormData({ ...formData, lastName: e.target.value })
+                }
+                placeholder="Last Name"
+                className="border px-3 py-2 rounded"
+
+              />
+              {/* <input
+                type="text"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+                placeholder="Role"
+                className="border px-3 py-2 rounded"
+              /> */}
+
+              <select className="p-2 font-semibold" value={formData.role} onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              
+              
               <div className="flex justify-end gap-3 mt-4">
                 <button
                   onClick={() => setEditingUser(null)}
