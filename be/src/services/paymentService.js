@@ -29,9 +29,9 @@ const processGetAccountBalance = async (userId) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
         const baseUrl = process.env.PAYMENT_SERVICE_URL;
-        const endpoint = `/payment/get-account-balance?userId=${userId}`;
+        const endpoint = `/payment/get-account-balance`;
 
-        const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint, {
+        const res = await makeServiceRequest(baseUrl, serviceId, "POST", endpoint, {
             userId,
         });
 

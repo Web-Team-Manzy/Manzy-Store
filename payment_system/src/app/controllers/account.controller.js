@@ -35,7 +35,7 @@ class AccountController {
     // [GET] /payment/get-balance
     async getBalance(req, res, next) {
         try {
-            const { userId } = req.query;
+            const { userId } = req.body;
 
             console.log(">>> AccountController.getBalance", userId);
 
