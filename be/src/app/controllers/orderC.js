@@ -38,7 +38,12 @@ class orderC {
     // All ordes data for admin panel
     async allOrders(req, res) {
         try {
-            const orders = await orderM.find({}).lean();
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+
+            const skip = (page - 1) * limit;
+
+            const orders = await orderM.find({}).skip(skip).limit(limit).lean();
 
             const userIds = orders.map((order) => order.userId).filter(Boolean);
 
@@ -51,15 +56,19 @@ class orderC {
 
             const enrichedOrders = orders.map((order) => {
                 const userId = order.userId;
-
                 order.displayName = userMap[userId] || "Unknown";
-
-                console.log(">>> order: ", order);
-
                 return order;
             });
 
-            res.json({ success: true, orders: enrichedOrders });
+            const totalOrders = await orderM.countDocuments();
+
+            res.json({
+                success: true,
+                totalOrders,
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                orders: enrichedOrders,
+            });
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });
