@@ -12,7 +12,7 @@ const Order = ({ token }) => {
     if (!token) return null;
 
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         backendUrl + "/order/list",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
