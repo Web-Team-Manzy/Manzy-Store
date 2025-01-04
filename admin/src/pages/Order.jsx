@@ -12,7 +12,7 @@ const Order = ({ token }) => {
     if (!token) return null;
 
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         backendUrl + "/order/list",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
@@ -63,38 +63,32 @@ const Order = ({ token }) => {
             <img src={assets.parcel_icon} alt="" />
             <div>
               <div>
-                {order.items.map((item, index) => {
-                  if (index === order.items.length - 1) {
-                    return (
-                      <p className="py-0.5" key={index}>
-                        {item.name} x {item.quantity} <span> {item.size} </span>
+                {order.items.map((item, itemIndex) => {
+                  return (
+                  <div key={itemIndex}>
+                    <p className="py-0.5 font-medium">{item.product.name}</p>
+                    {Object.entries(item.sizes).map(([size, quantity], sizeIndex) => (
+                      <p key={sizeIndex} className="text-gray-500">
+                        Size: {size} x {quantity}
                       </p>
-                    );
-                  } else {
-                    return (
-                      <p className="py-0.5" key={index}>
-                        {item.name} x {item.quantity} <span> {item.size} </span>
-                        ,{" "}
-                      </p>
-                    );
-                  }
+                    ))}
+                  </div>
+                )
                 })}
               </div>
 
               <p className="mt-3 mb-2 font-medium">
-                {order.address.firstName + " " + order.address.lastName}{" "}
+                Customer: {order.displayName}{" "}
               </p>
 
               <div>
-                <p>{order.address.street + ","}</p>
+                <p>{order.address.stress + ","}</p>
                 <p>
                   {order.address.city +
                     "," +
-                    order.address.state +
+                    order.address.district +
                     "," +
-                    order.address.country +
-                    "," +
-                    order.address.zipcode}
+                    order.address.ward }
                 </p>
               </div>
               <p>{order.address.phone}</p>
@@ -105,19 +99,17 @@ const Order = ({ token }) => {
               </p>
               <p className="mt-3">Method : {order.paymentMethod}</p>
               <p>Payment : {order.payment ? "Done" : "Pending"}</p>
-              <p>Date : {new Date(order.date).toLocaleDateString()}</p>
+              <p>Date : {new Date(order.createdAt).toLocaleDateString()}</p>
             </div>
             <p className="text-sm sm:text-[15px]">
               {currency}
               {order.amount}
             </p>
-            <select className="p-2 font-semibold" value={order.status}>
+            <select className="p-2 font-semibold" value={order.status} onChange={(event) => statusHandler(event, order._id)}>
               <option value="Order Placed">Order Placed</option>
               <option value="Packing">Packing</option>
               <option value="Shipped">Shipped</option>
-              <option
-                value="Out for Delivery"
-                onChange={(event) => statusHandler(event, order._id)}
+              <option value="Out for Delivery"
               >
                 Out for Delivery
               </option>
