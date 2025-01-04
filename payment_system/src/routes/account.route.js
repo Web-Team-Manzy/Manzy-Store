@@ -8,4 +8,6 @@ router.post("/create-account", serviceAuth, accountController.createAccount);
 
 router.post("/get-balance", serviceAuth, accountController.getBalance);
 
+router.get("/get-main-account", serviceAuth, accountController.getMainAccount);
+
 module.exports = router;
