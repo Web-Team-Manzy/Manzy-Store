@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const { SERVICES } = require("../config/constants");
 const { makeServiceRequest } = require("../util/paymentAuth");
+const userModels = require("../app/models/userM");
 
 const processCreateAccount = async (userId, options) => {
     try {
@@ -71,13 +72,35 @@ const processPayment = async (userId, amount, orderId) => {
     }
 };
 
-const processGetTransactions = async () => {
+const processGetTransactions = async (page = 1, limit = 10) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
         const baseUrl = process.env.PAYMENT_SERVICE_URL;
-        const endpoint = "/payment/transaction";
+        const endpoint = `/payment/transaction?page=${page}&limit=${limit}`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
+
+        if (res.EC === 0 && res.DT.transactions) {
+            const userIds = res.DT.transactions
+                .map((transaction) => transaction?.fromAccountId?.userId)
+                .filter(Boolean);
+
+            const users = await userModels.find({ _id: { $in: userIds } }).lean();
+            const userMap = users.reduce((map, user) => {
+                map[user._id] = user.displayName;
+                return map;
+            }, {});
+
+            res.DT.transactions = res.DT.transactions.map((transaction) => {
+                const userId = transaction?.fromAccountId?.userId ?? null;
+                if (userId) {
+                    transaction.fromAccountId.userName = userMap[userId] ?? "Unknown";
+                }
+                return transaction;
+            });
+        }
+
+        console.log(">>> processGetTransactions:", res.DT.transactions);
 
         return res;
     } catch (error) {
