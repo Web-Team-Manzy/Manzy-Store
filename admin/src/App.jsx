@@ -10,6 +10,7 @@ import Login from "./components/Login";
 import "react-toastify/dist/ReactToastify.css";
 import User from "./pages/User";
 import Category from "./pages/Category";
+import Transaction from "./pages/Transaction";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "$";
@@ -43,6 +44,10 @@ const App = () => {
                 <Route
                   path="/categories"
                   element={<Category token={token} />}
+                />
+                <Route
+                  path="/transactions"
+                  element={<Transaction token={token} />}
                 />
               </Routes>
             </div>

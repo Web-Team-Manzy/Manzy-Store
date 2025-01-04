@@ -21,13 +21,13 @@ const PlaceOrder = () => {
     district: "",
     ward: "",
     stress: "",
-    payment: "COD",
+    paymentMethod: "COD",
   });
 
   const handlePaymentMethodChange = (method) => {
     setFormData((prevData) => ({
       ...prevData,
-      payment: method,
+      paymentMethod: method,
     }));
   };
   
@@ -48,7 +48,7 @@ const PlaceOrder = () => {
   };
 
   const handlePlaceOrder = () => {
-    const { city, district, ward, stress, payment } = formData;
+    const { city, district, ward, stress, paymentMethod } = formData;
     const address = { city, district, ward, stress };
     const items = cartData;
     const amount = getCartAmount();
@@ -58,7 +58,7 @@ const PlaceOrder = () => {
       items,
       amount,
       address,
-      payment,
+      paymentMethod,
     };
 
     console.log(">>>> Order Data: ", orderData);
@@ -69,7 +69,7 @@ const PlaceOrder = () => {
     console.log(">>>> response: ", response);
 
     if(response.data.success){
-      navigate("/order-success");
+      navigate("/orders");
     }
 
   }
@@ -159,7 +159,7 @@ const PlaceOrder = () => {
             >
               <p
                 className={`w-3.5 h-3.5 border rounded-full ${
-                  formData.payment === "PAYMENT" ? "bg-green-400" : ""
+                  formData.paymentMethod === "PAYMENT" ? "bg-green-400" : ""
                 }`}
               ></p>
 
@@ -172,7 +172,7 @@ const PlaceOrder = () => {
             >
               <p
                 className={`w-3.5 h-3.5 border rounded-full ${
-                  formData.payment === "COD" ? "bg-green-400" : ""
+                  formData.paymentMethod === "COD" ? "bg-green-400" : ""
                 }`}
               ></p>
 
