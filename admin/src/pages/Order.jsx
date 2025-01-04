@@ -99,19 +99,17 @@ const Order = ({ token }) => {
               </p>
               <p className="mt-3">Method : {order.paymentMethod}</p>
               <p>Payment : {order.payment ? "Done" : "Pending"}</p>
-              <p>Date : {new Date(order.date).toLocaleDateString()}</p>
+              <p>Date : {new Date(order.createdAt).toLocaleDateString()}</p>
             </div>
             <p className="text-sm sm:text-[15px]">
               {currency}
               {order.amount}
             </p>
-            <select className="p-2 font-semibold" value={order.status}>
+            <select className="p-2 font-semibold" value={order.status} onChange={(event) => statusHandler(event, order._id)}>
               <option value="Order Placed">Order Placed</option>
               <option value="Packing">Packing</option>
               <option value="Shipped">Shipped</option>
-              <option
-                value="Out for Delivery"
-                onChange={(event) => statusHandler(event, order._id)}
+              <option value="Out for Delivery"
               >
                 Out for Delivery
               </option>
