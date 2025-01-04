@@ -77,9 +77,9 @@ const Order = ({ token }) => {
                 })}
               </div>
 
-              {/* <p className="mt-3 mb-2 font-medium">
-                {order.address.firstName + " " + order.address.lastName}{" "}
-              </p> */}
+              <p className="mt-3 mb-2 font-medium">
+                Customer: {order.displayName}{" "}
+              </p>
 
               <div>
                 <p>{order.address.stress + ","}</p>
