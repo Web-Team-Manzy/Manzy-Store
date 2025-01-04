@@ -130,22 +130,34 @@ class TransactionController {
 
     async getAllTransactions(req, res, next) {
         try {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+
+            const skip = (page - 1) * limit;
+
             const transactions = await Transaction.find({})
                 .populate("fromAccountId")
                 .populate("toAccountId")
-                .sort({ createdAt: -1 });
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
 
-            if (!transactions) {
-                return res.status(404).json({
-                    EC: 1,
-                    EM: "Transactions not found",
-                });
-            }
+            // Đếm tổng số bản ghi
+            const totalTransactions = await Transaction.countDocuments();
 
+            // Trả về kết quả với thông tin phân trang
             res.status(200).json({
                 EC: 0,
                 EM: "Success",
-                DT: transactions,
+                DT: {
+                    transactions,
+                    pagination: {
+                        totalTransactions,
+                        totalPages: Math.ceil(totalTransactions / limit),
+                        currentPage: page,
+                        pageSize: limit,
+                    },
+                },
             });
         } catch (error) {
             console.log(">>> TransactionController.getAllTransactions", error);
