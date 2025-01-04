@@ -1,10 +1,10 @@
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { doLogout } from "../redux/action/accountAction";
+import { doGetAccountBalance, doLogout } from "../redux/action/accountAction";
 import { fetchCart } from "../redux/action/cartAction";
 
 const Navbar = () => {
@@ -19,6 +19,7 @@ const Navbar = () => {
     }
   };
 
+
   // >>> Backend Test
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.account.userInfo);
@@ -28,6 +29,12 @@ const Navbar = () => {
   };
   // >>> End Backend Test
 
+  useEffect(() => {
+    if (userInfo?.id) {
+      dispatch(doGetAccountBalance(userInfo.id));
+    }
+  }, [userInfo, dispatch]);
+  
   return (
     <div className="flex items-center justify-between py-5 font-medium">
       <Link to="/">
@@ -90,11 +97,17 @@ const Navbar = () => {
           {
             // >>> Backend Test
             userInfo && userInfo.email ? (
-              <img
-                src={assets.profile_icon}
-                alt="profile"
-                className="w-5 cursor-pointer"
-              />
+              <div className="flex items-center gap-2">
+                <p className="text-gray-500 text-sm">
+                  Balance: ${userInfo.balance}
+                </p>
+                <img
+                  src={assets.profile_icon}
+                  alt="profile"
+                  className="w-5 cursor-pointer"
+                />
+                
+              </div>
             ) : (
               <Link to="/login">
                 <img

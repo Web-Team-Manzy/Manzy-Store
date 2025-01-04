@@ -8,6 +8,44 @@ export const USER_UPDATE_REQUEST = "USER_UPDATE_REQUEST";
 export const USER_UPDATE_SUCCESS = "USER_UPDATE_SUCCESS";
 export const USER_UPDATE_FAIL = "USER_UPDATE_FAIL";
 
+export const GET_ACCOUNT_BALANCE_REQUEST = "GET_ACCOUNT_BALANCE_REQUEST";
+export const GET_ACCOUNT_BALANCE_SUCCESS = "GET_ACCOUNT_BALANCE_SUCCESS";
+export const GET_ACCOUNT_BALANCE_FAIL = "GET_ACCOUNT_BALANCE_FAIL";
+
+export const doGetAccountBalance = (userId) => {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: GET_ACCOUNT_BALANCE_REQUEST,
+    });
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/users/${userId}/balance`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response && +response.EC === 0) {
+        dispatch({
+          type: GET_ACCOUNT_BALANCE_SUCCESS,
+          balance: response.DT.balance,
+        });
+      } else {
+        dispatch({
+          type: GET_ACCOUNT_BALANCE_FAIL,
+          error: response.EM,
+        });
+      }
+    } catch (error) {
+      dispatch({
+        type: GET_ACCOUNT_BALANCE_FAIL,
+        error: error.message,
+      });
+    }
+  };
+};
+
 export const doUpdateAccount = (userId, updatedUserData) => {
   return async (dispatch, getState) => {
     dispatch({
