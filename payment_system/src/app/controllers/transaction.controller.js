@@ -127,6 +127,35 @@ class TransactionController {
             });
         }
     }
+
+    async getAllTransactions(req, res, next) {
+        try {
+            const transactions = await Transaction.find({})
+                .populate("fromAccountId")
+                .populate("toAccountId")
+                .sort({ createdAt: -1 });
+
+            if (!transactions) {
+                return res.status(404).json({
+                    EC: 1,
+                    EM: "Transactions not found",
+                });
+            }
+
+            res.status(200).json({
+                EC: 0,
+                EM: "Success",
+                DT: transactions,
+            });
+        } catch (error) {
+            console.log(">>> TransactionController.getAllTransactions", error);
+
+            res.status(500).json({
+                EC: 1,
+                EM: "Internal Server Error",
+            });
+        }
+    }
 }
 
 module.exports = new TransactionController();
