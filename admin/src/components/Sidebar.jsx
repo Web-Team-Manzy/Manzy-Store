@@ -15,7 +15,7 @@ const Sidebar = () => {
           className="flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l"
           to="/list"
         >
-          <img className="w-5 h-5 " src={assets.order_icon} alt="add" />
+          <img className="w-5 h-5 " src={assets.item_icon} alt="add" />
           <p className="hidden md:block">List Items</p>
         </NavLink>
         <NavLink
@@ -45,6 +45,17 @@ const Sidebar = () => {
         >
           <img className="w-5 h-5 " src={assets.transaction_icon} alt="user" />
           <p className="hidden md:block">Transactions</p>
+        </NavLink>
+        <NavLink
+          className="flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l"
+          to="/statistics"
+        >
+          <img
+            className="w-5 h-5 "
+            src={assets.statistic_icon}
+            alt="statistic"
+          />
+          <p className="hidden md:block">Statistics</p>
         </NavLink>
       </div>
     </div>
