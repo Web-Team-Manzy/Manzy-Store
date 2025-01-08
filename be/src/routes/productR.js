@@ -32,4 +32,6 @@ router.delete("/delete", auth, admin, productC.deleteProduct);
 
 router.get("/related/:productId", productC.getRelatedProducts);
 
+router.post("/updateBestSeller", auth, admin, productC.updateBestSeller);
+
 module.exports = router;
