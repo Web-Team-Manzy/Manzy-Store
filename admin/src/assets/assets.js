@@ -6,6 +6,8 @@ import parcel_icon from "./parcel_icon.svg";
 import user_icon from "./user_icon.png";
 import category_icon from "./category_icon.png";
 import transaction_icon from "./transaction_icon.png";
+import item_icon from "./item_icon.png";
+import statistic_icon from "./statistic_icon.png";
 
 export const assets = {
   logo,
@@ -16,4 +18,6 @@ export const assets = {
   user_icon,
   category_icon,
   transaction_icon,
+  item_icon,
+  statistic_icon,
 };
