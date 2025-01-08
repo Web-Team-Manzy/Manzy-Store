@@ -5,6 +5,7 @@ const orderRouter = require("./orderR");
 const userRouter = require("./users.route");
 const categoryRouter = require("./categoryR");
 const transactionRoute = require("./transactionR");
+const statisticRoute = require("./statisticR");
 
 const auth = require("../middleware/auth");
 
@@ -17,7 +18,7 @@ function route(app) {
     app.use("/product", productRouter);
     app.use("/users", userRouter);
     app.use("/transaction", transactionRoute);
-
+    app.use("/statistic", statisticRoute);
     app.use("/", authRouter);
 }
 
