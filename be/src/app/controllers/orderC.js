@@ -12,7 +12,7 @@ class orderC {
                 items,
                 amount,
                 address,
-                paymentMethod, // Cash on delivery
+                paymentMethod, 
                 payment: false,
             };
 
@@ -32,6 +32,13 @@ class orderC {
             console.log(">>> processPayment response: ", response);
 
             await userModels.findByIdAndUpdate(userId, { cartData: {} });
+
+            // Get user email
+            const user = await userModels.findById(userId);
+            const userEmail = user.email;
+
+            // Send order confirmation email
+            await sendOrderConfirmationEmail(userEmail, orderData);
 
             res.json({ success: true, message: "Order placed successfully" });
         } catch (error) {
@@ -89,7 +96,6 @@ class orderC {
 
             const skip = (page - 1) * limit;
 
-
             const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
 
             const totalOrders = await orderM.countDocuments({ userId });
@@ -126,8 +132,6 @@ class orderC {
     async updateStatus(req, res) {
         try {
             const { orderId, status } = req.body;
-            
-
             await orderM.findByIdAndUpdate(orderId, { status });
             res.json({ success: true, message: "Order status updated successfully" });
         } catch (error) {
