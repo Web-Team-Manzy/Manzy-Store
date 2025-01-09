@@ -1,4 +1,5 @@
 const { processPayment } = require("../../services/paymentService");
+const { sendOrderConfirmationEmail } = require("../../services/emailService");
 const orderM = require("../models/orderM");
 const userModels = require("../models/userM");
 

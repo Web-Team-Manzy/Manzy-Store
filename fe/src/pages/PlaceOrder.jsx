@@ -47,7 +47,7 @@ const PlaceOrder = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const { city, district, ward, stress, paymentMethod } = formData;
     const address = { city, district, ward, stress };
     const items = cartData;
@@ -64,7 +64,7 @@ const PlaceOrder = () => {
     console.log(">>>> Order Data: ", orderData);
     
     // Call API to place order
-    const response = axios.post("http://localhost:8080/order/place", orderData, {withCredentials: true});
+    const response = await axios.post("http://localhost:8080/order/place", orderData, {withCredentials: true});
     
     console.log(">>>> response: ", response);
 
