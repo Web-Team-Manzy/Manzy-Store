@@ -24,26 +24,97 @@ class AuthController {
     }
 
     // [POST] /register
-    async register(req, res) {
+    async sendEmailConfirmationPin(req, res) {
         try {
-            const userData = req.body;
+            const { email } = req.body;
 
-            if (!userData)
+            if (!email)
                 return res.status(400).json({
                     EC: 1,
                     EM: "Missing required fields",
                     DT: {},
                 });
 
-            const result = await createUserService(userData);
+            // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chính thức hay chưa
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({
+                    EC: 1,
+                    EM: "Email already exists",
+                    DT: {},
+                });
+            }
 
-            const paymentAccount = await processCreateAccount(result.DT.id, {
-                balance: 500000,
+            // Generate a random PIN for email confirmation
+            const transactionPin = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Hash the PIN
+            const hashedPin = await bcrypt.hash(transactionPin, 10);
+
+            // Ensure only one PIN record per email and purpose
+            await pinM.deleteMany({ email, purpose: "email_confirmation" });
+
+            // Save the hashed PIN and expiration time to the pin collection
+            const expirationTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+            const pinData = {
+                email,
+                pin: hashedPin,
+                purpose: "email_confirmation",
+                expirationTime,
+            };
+            const newPin = new pinM(pinData);
+            await newPin.save();
+
+            // Send email confirmation PIN
+            await sendTransactionPinEmail(email, transactionPin, "email_confirmation");
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Please check your email for the confirmation PIN.",
+                DT: { email },
             });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 1,
+                EM: error.message,
+                DT: {},
+            });
+        }
+    }
 
-            console.log(">>> paymentAccount:", paymentAccount);
+    // [POST] /register
+    async register(req, res) {
+        try {
+            const { email, transactionPin, password, ...otherData } = req.body;
 
-            return res.status(200).json(result);
+            // Find the pin by email and purpose
+            const pinData = await pinM.findOne({ email, purpose: "email_confirmation" });
+            if (!pinData || new Date() > pinData.expirationTime) {
+                return res.status(400).json({ EC: 1, EM: "Invalid or expired transaction PIN" });
+            }
+
+            // Compare the provided PIN with the hashed PIN
+            const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
+            if (!isMatch) {
+                return res.status(400).json({ EC: 1, EM: "Invalid transaction PIN" });
+            }
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Lưu thông tin người dùng vào cơ sở dữ liệu chính thức
+            const newUser = new User({
+                email,
+                password: hashedPassword,
+                ...otherData
+            });
+            await newUser.save();
+
+            // Xóa mã PIN sau khi xác nhận
+            await pinM.findByIdAndDelete(pinData._id);
+
+            return res.status(200).json({ EC: 0, EM: "Email confirmed and user registered successfully" });
         } catch (error) {
             console.log(error);
             return res.status(500).json({

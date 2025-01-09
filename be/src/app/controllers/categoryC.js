@@ -42,11 +42,25 @@ class categoryC{
     // User Features
     async listCategory(req, res) {
         try {
-            const data = await categoryM.find({});
-            res.json({success: true, data});
+            const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
+            const limit = parseInt(req.query.limit) || 10; // Số lượng mục trên mỗi trang, mặc định là 10
+            const skip = (page - 1) * limit; // Số lượng mục cần bỏ qua
+    
+            const data = await categoryM.find({}).skip(skip).limit(limit);
+            const total = await categoryM.countDocuments({}); // Tổng số lượng mục
+    
+            res.json({
+                success: true,
+                data,
+                pagination: {
+                    total,
+                    page,
+                    pages: Math.ceil(total / limit)
+                }
+            });
         } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});
+            res.json({ success: false, message: error.message });
         }
     }
 

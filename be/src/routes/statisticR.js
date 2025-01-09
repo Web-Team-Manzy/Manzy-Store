@@ -8,5 +8,6 @@ const isAdmin = require("../middleware/isAdmin");
 router.get("/total", orderC.getStatistic);
 router.get("/product", orderC.getProductStatistic);
 router.get("/chart", orderC.getChartStatistic);
+router.get("/bestseller", orderC.getBestSeller);
 
 module.exports = router;
