@@ -47,11 +47,14 @@ class TransactionController {
       userAccount.balance -= amount;
       adminAccount.balance += amount;
 
-      await Promise.all([
-        newTransaction.save({ session }),
-        userAccount.save({ session }),
-        adminAccount.save({ session }),
-      ]);
+      // await Promise.all([
+      //   newTransaction.save({ session }),
+      //   userAccount.save({ session }),
+      //   adminAccount.save({ session }),
+      // ]);
+      await newTransaction.save({ session });
+      await userAccount.save({ session });
+      await adminAccount.save({ session });
 
       newTransaction.status = "COMPLETED";
       await newTransaction.save({ session });
