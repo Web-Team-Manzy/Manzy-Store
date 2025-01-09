@@ -13,7 +13,7 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(0);
   const userInfo = useSelector((state) => state.account.userInfo);
 
-  const fetchOrder = async (page = 1, limit = 2) => {
+  const fetchOrder = async (page = 1, limit = 5) => {
     try {
       const response = await axios.post(
         `/order/userOrders?page=${page}&limit=${limit}`,
