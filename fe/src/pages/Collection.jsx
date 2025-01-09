@@ -11,7 +11,6 @@ const Collection = () => {
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState([]);
-  const [sortType, setSortType] = useState("relavant");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState(null);
@@ -28,15 +27,17 @@ const Collection = () => {
     const selectedCategory = e.target.value;
     if (category === selectedCategory) {
       setCategory(null);
+      setSubCategory("");
     } else {
       setCategory(selectedCategory);
+      setSubCategory("");
     }
   };
 
   const handleSubCategoryChange = (e) => {
     const selectedSubCategory = e.target.value;
     if (subCategory === selectedSubCategory) {
-      setSubCategory(null);
+      setSubCategory("");
     } else {
       setSubCategory(selectedSubCategory);
     }
@@ -158,7 +159,7 @@ const Collection = () => {
                 <p className="flex gap-2" key={subCat}>
                   <input
                     className="w-3"
-                    type="radio"
+                    type="checkbox"
                     value={subCat}
                     checked={subCategory === subCat}
                     onChange={handleSubCategoryChange}

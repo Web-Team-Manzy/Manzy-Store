@@ -35,6 +35,6 @@ export const lastProduct = async () => {
   return await axios.get("/product/listNewProduct");
 };
 
-export const updateCart = async (itemId, size) => {
-  return await axios.post("/cart/update", { itemId, size, quantity: 0 });
+export const updateCartQuantity = async (itemId, size, quantity) => {
+  return await axios.post("/cart/update", { itemId, size, quantity });
 };

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCart, updateCart1 } from "../redux/action/cartAction";
+import { fetchCart, updateQuantity } from "../redux/action/cartAction";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
@@ -31,9 +31,13 @@ const Cart = () => {
     );
   }, [cartData]);
 
-  const handleDelete = async (productId, size) => {
-    dispatch(updateCart1(productId, size, 0));
-    window.location.reload();
+  // const handleDelete = async (productId, size) => {
+  //   dispatch(updateQuantity(productId, size, quantity));
+  //   window.location.reload();
+  // };
+
+  const handleUpdateQuantity = async (productId, size, quantity) => {
+    dispatch(updateQuantity(productId, size, quantity));
   };
 
   return (
@@ -73,6 +77,13 @@ const Cart = () => {
             </div>
 
             <input
+              onChange={(e) =>
+                handleUpdateQuantity(
+                  item.product._id,
+                  item.size,
+                  Number(e.target.value)
+                )
+              }
               type="number"
               min={1}
               defaultValue={item.quantity}
@@ -82,7 +93,9 @@ const Cart = () => {
               src={assets.bin_icon}
               alt="delete"
               className="w-4 mr-4 sm:w-5 cursor-pointer"
-              onClick={() => handleDelete(item.product._id, item.size)}
+              onClick={() =>
+                handleUpdateQuantity(item.product._id, item.size, 0)
+              }
             />
           </div>
         ))}

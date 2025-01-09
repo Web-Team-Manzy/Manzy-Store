@@ -1,5 +1,5 @@
 // actions/cartActions.js
-import { getCart, updateCart } from "../../service/callAPI";
+import { getCart, updateCartQuantity } from "../../service/callAPI";
 
 export const SET_CART = "SET_CART";
 export const setCart = (cartData) => ({
@@ -20,15 +20,15 @@ export const fetchCart = () => async (dispatch) => {
   }
 };
 
-export const updateCart1 = (productId, size, quantity) => async (dispatch) => {
+export const updateQuantity = (itemId, size, quantity) => async (dispatch) => {
   try {
-    const response = await updateCart(productId, size, quantity);
+    const response = await updateCartQuantity(itemId, size, quantity);
     if (response.success) {
-      dispatch(setCart([]));
+      dispatch(fetchCart());
     } else {
-      console.error("Failed to fetch cart data.");
+      console.error("Failed to update cart data.");
     }
   } catch (error) {
-    console.error("Error fetching cart data:", error);
+    console.error("Error updating cart data:", error);
   }
 };

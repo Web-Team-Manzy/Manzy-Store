@@ -104,6 +104,7 @@ class productC {
         success: true,
         search: search || "",
         category: category || "",
+        subCategory: subCategory || "",
         currentPage: parseInt(page),
         totalPages,
         sortField: sortField || null,
@@ -211,44 +212,52 @@ class productC {
   // Hiện sản phẩm bán chạy nhất update bestseller
   async updateBestSeller(req, res) {
     try {
-        const { startDate, endDate } = req.query;
+      const { startDate, endDate } = req.query;
 
-        const orders = await orderM.find({
-            createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
-        }).lean();
+      const orders = await orderM
+        .find({
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        })
+        .lean();
 
-        const productSales = orders.reduce((total, order) => {
-            order.items.forEach(item => {
-                const productId = item.product._id;
-                const productQuantity = Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
+      const productSales = orders.reduce((total, order) => {
+        order.items.forEach((item) => {
+          const productId = item.product._id;
+          const productQuantity = Object.values(item.sizes).reduce(
+            (sum, qty) => sum + qty,
+            0
+          );
 
-                if (!total[productId]) {
-                    total[productId] = productQuantity;
-                } else {
-                    total[productId] += productQuantity;
-                }
-            });
-            return total;
-        }, {});
+          if (!total[productId]) {
+            total[productId] = productQuantity;
+          } else {
+            total[productId] += productQuantity;
+          }
+        });
+        return total;
+      }, {});
 
-        const bestSellingProducts = Object.entries(productSales)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 10)
-            .map(([productId]) => productId);
+      const bestSellingProducts = Object.entries(productSales)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([productId]) => productId);
 
-        await productM.updateMany({}, { $set: { bestseller: false } });
+      await productM.updateMany({}, { $set: { bestseller: false } });
 
-        await productM.updateMany(
-            { _id: { $in: bestSellingProducts } },
-            { $set: { bestseller: true } }
-        );
+      await productM.updateMany(
+        { _id: { $in: bestSellingProducts } },
+        { $set: { bestseller: true } }
+      );
 
-        res.json({ success: true, message: "Bestseller list updated successfully" });
+      res.json({
+        success: true,
+        message: "Bestseller list updated successfully",
+      });
     } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
-}
+  }
 
   async listBestSeller(req, res) {
     try {

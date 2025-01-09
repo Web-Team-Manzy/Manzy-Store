@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import ReactPaginate from "react-paginate";
 
 const Orders = () => {
-  const { products, currency } = useContext(ShopContext);
+  const { currency } = useContext(ShopContext);
   const [orders, setOrders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
