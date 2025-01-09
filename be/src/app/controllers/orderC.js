@@ -35,7 +35,7 @@ class orderC {
             await newPin.save();
 
             // Send transaction PIN email
-            await sendTransactionPinEmail(userEmail, transactionPin, "order_confirmation");
+            await sendPinEmail(userEmail, transactionPin, "order_confirmation");
 
             res.json({ success: true, 
                 message: "Please check your email for the transaction PIN to confirm the payment.",
