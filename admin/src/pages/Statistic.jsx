@@ -49,17 +49,13 @@ const Statistic = () => {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [averageRevenueOrder, setAverageRevenueOrder] = useState(0);
-  const [orderStatus, setOrderStatus] = useState();
-  const [orderPayment, setOrderPayment] = useState();
   const [statistics, setStatistics] = useState([]);
+
+  const [showStatistic, setShowStatistic] = useState(false);
 
   const labels = statistics.map((stat) => stat.date);
   const revenueData = statistics.map((stat) => stat.totalRevenue);
   const ordersData = statistics.map((stat) => stat.totalOrders);
-
-  const orderStatusLabels = orderStatus ? Object.keys(orderStatus) : [];
-  const orderStatusData = orderStatus ? Object.values(orderStatus) : [];
 
   const getDateInputType = () => {
     switch (tag) {
@@ -154,6 +150,8 @@ const Statistic = () => {
     let adjustedEndDate = endDate;
     const today = new Date();
 
+    setShowStatistic(true);
+
     if (tag === "month") {
       // Điều chỉnh startDate và endDate theo tháng
       const start = new Date(`${startDate}-01`);
@@ -244,8 +242,7 @@ const Statistic = () => {
           Tìm kiếm
         </button>
       </div>
-
-      {/* Thống kê tổng quát */}
+      {showStatistic ? (<>{/* Thống kê tổng quát */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div className="p-4 bg-gray-100 rounded shadow">
           <h3 className="text-lg font-bold"> Total Orders</h3>
@@ -349,7 +346,8 @@ const Statistic = () => {
             },
           }}
         />
-      </div>
+      </div></>) : (<h3 className="text-lg font-bold text-center">Trang thống kê nhập các trường dữ liệu để bắt đầu thống kê</h3>)}
+      
     </div>
   );
 };
