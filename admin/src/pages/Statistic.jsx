@@ -181,10 +181,6 @@ const Statistic = () => {
       adjustedEndDate = end.toISOString().split("T")[0];
     }
 
-    // Cập nhật lại startDate và endDate
-    setStartDate(adjustedStartDate);
-    setEndDate(adjustedEndDate);
-
     // Gọi fetchData với giá trị mới
     await fetchData(adjustedStartDate, adjustedEndDate, currentPage);
   };
