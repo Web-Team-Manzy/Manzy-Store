@@ -17,10 +17,10 @@ export const fetchSummaryStatistic = async (tag, startDate, endDate) => {
   }
 };
 
-export const fetchProductsStatistic = async (tag, startDate, endDate) => {
+export const fetchProductsStatistic = async (tag, startDate, endDate, page, limit) => {
   try {
     const response = await axios.get(`${backendUrl}/statistic/product`, {
-      params: { tag, startDate, endDate },
+      params: { tag, startDate, endDate, page, limit },
     });
     if (response.status === 200) {
       return response.data;
