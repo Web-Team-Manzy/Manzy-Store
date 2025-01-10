@@ -4,6 +4,8 @@ const authController = require("../app/controllers/AuthController");
 
 const auth = require("../middleware/auth");
 
+router.post("/comfirmation-pin", authController.sendEmailConfirmationPin);
+
 router.post("/register", authController.register);
 
 router.post("/login", authController.handleLogin);

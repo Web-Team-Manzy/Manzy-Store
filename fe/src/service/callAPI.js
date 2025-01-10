@@ -7,7 +7,7 @@ export const getProducts = async (
   search = "",
   sortField = "name",
   sortOrder = "asc",
-  limit = 7,
+  limit = 8,
   bestseller = ""
 ) => {
   return await axios.get(
@@ -37,4 +37,24 @@ export const lastProduct = async () => {
 
 export const updateCartQuantity = async (itemId, size, quantity) => {
   return await axios.post("/cart/update", { itemId, size, quantity });
+};
+
+export const requireOrderConfirmationPin = async () => {
+  return await axios.post("/order/confirmation-pin");
+};
+
+export const confirmEmail = async (
+  transactionPin,
+  items,
+  amount,
+  address,
+  paymentMethod
+) => {
+  return await axios.post("/order/place", {
+    transactionPin,
+    items,
+    amount,
+    address,
+    paymentMethod,
+  });
 };
