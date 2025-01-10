@@ -10,7 +10,7 @@ router.post("/status", auth, isAdmin, orderC.updateStatus);
 router.post("/list", auth, isAdmin, orderC.allOrders);
 
 // Payment features
-router.post("/confirmation-pin", auth, isAdmin, orderC.sendOrderConfirmationPin);
+router.post("/confirmation-pin", auth, orderC.sendOrderConfirmationPin);
 router.post("/place", auth, orderC.placeOrder);
 
 // User Features
