@@ -33,12 +33,17 @@ import {
   fetchSummaryStatistic,
   fetchProductsStatistic,
   fetchChartStatistic,
+  fetchBestSellerProducts,
+  updateBestSellerProducts,
 } from "../util/statisticsApiCall";
+import ReactPaginate from "react-paginate";
 
-const Statistic = () => {
+const Statistic = ({ token }) => {
   const [tag, setTag] = useState("day");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [adjustStartDate, setAdjustStartDate] = useState("");
+  const [adjustEndDate, setAdjustEndDate] = useState("");
 
   const [totalOrders, setTotalOrders] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -47,19 +52,19 @@ const Statistic = () => {
   const [paymentOrders, setPaymentOrders] = useState(0);
   const [paymentRevenue, setPaymentRevenue] = useState(0);
 
+  // Phân trang cho products sold
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [averageRevenueOrder, setAverageRevenueOrder] = useState(0);
-  const [orderStatus, setOrderStatus] = useState();
-  const [orderPayment, setOrderPayment] = useState();
   const [statistics, setStatistics] = useState([]);
+  const [bestSellerProducts, setBestSellerProducts] = useState([]);
+
+  const [showStatistic, setShowStatistic] = useState(false);
 
   const labels = statistics.map((stat) => stat.date);
   const revenueData = statistics.map((stat) => stat.totalRevenue);
   const ordersData = statistics.map((stat) => stat.totalOrders);
-
-  const orderStatusLabels = orderStatus ? Object.keys(orderStatus) : [];
-  const orderStatusData = orderStatus ? Object.values(orderStatus) : [];
 
   const getDateInputType = () => {
     switch (tag) {
@@ -89,7 +94,7 @@ const Statistic = () => {
       setDate(value);
     }
   };
-  const fetchData = async (startDate, endDate) => {
+  const fetchData = async (startDate, endDate, selectedPage) => {
     const summeryStatisticData = await fetchSummaryStatistic(
       tag,
       startDate,
@@ -109,22 +114,30 @@ const Statistic = () => {
     const productsStatisticData = await fetchProductsStatistic(
       tag,
       startDate,
-      endDate
+      endDate,
+      selectedPage
     );
 
     console.log("productsStatisticData", productsStatisticData);
 
     if (productsStatisticData) {
-      setProducts(productsStatisticData);
-
-      const categories = productsStatisticData.reduce((total, product) => {
-        if (!total.includes(product.category)) {
-          total.push(product.category);
-        }
-        return total;
-      }, []);
-      setCategories(categories);
+      setProducts(productsStatisticData.data);
+      setTotalPages(productsStatisticData.pagination.pages);
+      setCurrentPage(productsStatisticData.pagination.page);
     }
+
+    const bestSellerProductsData = await fetchBestSellerProducts(
+      tag,
+      startDate,
+      endDate
+    );
+
+    console.log("bestSellerProductsData", bestSellerProductsData);
+
+    if (bestSellerProductsData) {
+      setBestSellerProducts(bestSellerProductsData.data);
+    }
+    console.log("bestSellerProductsData", bestSellerProducts);
 
     const chartStatisticData = await fetchChartStatistic(
       tag,
@@ -153,6 +166,8 @@ const Statistic = () => {
     let adjustedStartDate = startDate;
     let adjustedEndDate = endDate;
     const today = new Date();
+
+    setShowStatistic(true);
 
     if (tag === "month") {
       // Điều chỉnh startDate và endDate theo tháng
@@ -183,13 +198,24 @@ const Statistic = () => {
       adjustedStartDate = start.toISOString().split("T")[0];
       adjustedEndDate = end.toISOString().split("T")[0];
     }
-
-    // Cập nhật lại startDate và endDate
-    setStartDate(adjustedStartDate);
-    setEndDate(adjustedEndDate);
-
+    setAdjustStartDate(adjustedStartDate);
+    setAdjustEndDate(adjustedEndDate);
     // Gọi fetchData với giá trị mới
-    await fetchData(adjustedStartDate, adjustedEndDate);
+    await fetchData(adjustedStartDate, adjustedEndDate, currentPage);
+  };
+
+  const handleUpdateBestSellerProducts = async () => {
+    console.log("start date", adjustStartDate);
+    console.log("end date", adjustEndDate);
+    await updateBestSellerProducts(adjustStartDate, adjustEndDate, token);
+  };
+
+  const handlePageClick = async (event) => {
+    const selectedPage = event.selected + 1;
+    setCurrentPage(selectedPage);
+    console.log("start date", startDate);
+    console.log("end date", endDate);
+    fetchData(startDate, endDate, selectedPage);
   };
 
   return (
@@ -241,115 +267,188 @@ const Statistic = () => {
           onClick={handleSearch}
           className="bg-blue-500 text-white px-4 rounded hover:bg-blue-600"
         >
-          Tìm kiếm
+          Thống kê
         </button>
       </div>
+      {showStatistic ? (
+        <>
+          {/* Thống kê tổng quát */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="p-4 bg-gray-100 rounded shadow">
+              <h3 className="text-lg font-bold"> Total Orders</h3>
+              <p>{totalOrders}</p>
+            </div>
+            <div className="p-4 bg-gray-100 rounded shadow">
+              <h3 className="text-lg font-bold">Total Revenue</h3>
+              <p>${totalRevenue}</p>
+            </div>
+          </div>
 
-      {/* Thống kê tổng quát */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="p-4 bg-gray-100 rounded shadow">
-          <h3 className="text-lg font-bold"> Total Orders</h3>
-          <p>{totalOrders}</p>
-        </div>
-        <div className="p-4 bg-gray-100 rounded shadow">
-          <h3 className="text-lg font-bold">Total Revenue</h3>
-          <p>${totalRevenue}</p>
-        </div>
-      </div>
+          {/* Biểu đồ tròn */}
+          <div className="flex justify-center my-10">
+            <div className="w-64 h-64">
+              <h3 className="text-xl font-bold mb-4 ">Order Types</h3>
+              <Pie data={pieData} />
+            </div>
+          </div>
+          {/* Biểu đồ thống kê doanh thu và đơn hàng */}
+          <div className="container mx-auto p-4">
+            <h2 className="text-xl font-bold mb-4">
+              Revenue and Orders Statistics
+            </h2>
+            <Bar
+              data={{
+                labels,
+                datasets: [
+                  {
+                    type: "bar",
+                    label: "Revenue",
+                    data: revenueData,
+                    backgroundColor: "rgba(75, 192, 192, 0.6)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1,
+                    yAxisID: "y1",
+                  },
+                  {
+                    type: "line",
+                    label: "Total Orders",
+                    data: ordersData,
+                    backgroundColor: "rgba(255, 99, 132, 0.6)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    fill: false,
+                    tension: 0.3,
+                    yAxisID: "y2",
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
+                },
+                scales: {
+                  y1: {
+                    type: "linear",
+                    display: true,
+                    position: "left",
+                    title: {
+                      display: true,
+                      text: "Revenue",
+                    },
+                  },
+                  y2: {
+                    type: "linear",
+                    display: true,
+                    position: "right",
+                    title: {
+                      display: true,
+                      text: "Total Orders",
+                    },
+                    grid: {
+                      drawOnChartArea: false,
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+          {/* Thống kê bestseller products */}
+          <div className="flex flex-col container mx-auto p-4">
+            <h2 className="text-xl font-bold mb-4">Best Seller Products</h2>
+            <div className="flex flex-col gap-2">
+              {/* List Table Title */}
+              <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr] items-center px-1 py-2 border bg-gray-100 text-sm">
+                <b>Image</b>
+                <b>Product</b>
+                <b>Price</b>
+                <b>Sold</b>
+              </div>
 
-      {/* Thống kê theo sản phẩm */}
-      <h2 className="text-xl font-bold mb-4">Products Sold</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-        {products.map((product, index) => (
-          <div key={index} className="p-4 bg-white rounded shadow">
-            <div className="flex justify-center items-center h-32">
-              <img
-                src={
-                  product.product.images && product.product.images.length > 0
-                    ? product.product.images[0]
-                    : "/no-image.jpg"
-                }
-                alt={product.product.name || "No image available"}
-                className="max-w-full max-h-full object-contain rounded"
+              {/* Product sold list */}
+              {bestSellerProducts.map((product, index) => (
+                <div
+                  className="grid grid-cols-[1fr_3fr_1fr_1fr] md:grid-cols-[1fr_3fr-1fr_1fr] border items-center gap-3 px-2 py-1 text-sm"
+                  key={index}
+                >
+                  <img
+                    className="w-12"
+                    src={
+                      product.product.images &&
+                      product.product.images.length > 0
+                        ? product.product.images[0]
+                        : "/no-image.jpg"
+                    }
+                    alt={product.product.name || "No image available"}
+                  />
+                  <p>{product.product.name}</p>
+                  <p>${product.product.price}</p>
+                  <p>{product.sold}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleUpdateBestSellerProducts}
+              className="bg-blue-500 text-white px-4 rounded py-2 hover:bg-blue-600 mt-2 ml-auto"
+            >
+              Cập nhật Bestseller
+            </button>
+          </div>
+          {/* Thống kê theo sản phẩm */}
+
+          <div className="container mx-auto p-4">
+            <h2 className="text-xl font-bold mb-4">Products Sold</h2>
+            <div className="flex flex-col gap-2">
+              {/* List Table Title */}
+              <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr] items-center px-1 py-2 border bg-gray-100 text-sm">
+                <b>Image</b>
+                <b>Product</b>
+                <b>Price</b>
+                <b>Sold</b>
+              </div>
+
+              {/* Product sold list */}
+              {products.map((product, index) => (
+                <div
+                  className="grid grid-cols-[1fr_3fr_1fr_1fr] md:grid-cols-[1fr_3fr-1fr_1fr] border items-center gap-3 px-2 py-1 text-sm"
+                  key={index}
+                >
+                  <img
+                    className="w-12"
+                    src={
+                      product.product.images &&
+                      product.product.images.length > 0
+                        ? product.product.images[0]
+                        : "/no-image.jpg"
+                    }
+                    alt={product.product.name || "No image available"}
+                  />
+                  <p>{product.product.name}</p>
+                  <p>${product.product.price}</p>
+                  <p>{product.sold}</p>
+                </div>
+              ))}
+              <ReactPaginate
+                className="flex justify-center my-5 gap-3"
+                previousLabel={"Previous"}
+                nextLabel={"Next"}
+                breakLabel={"..."}
+                pageCount={totalPages} // Số lượng trang
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={3}
+                onPageChange={handlePageClick}
+                containerClassName={"pagination"} // Lớp CSS cho container
+                activeClassName={"active px-3"} // Lớp CSS cho trang hiện tại
               />
             </div>
-            <h3 className="font-bold mt-2">{product.product.name}</h3>
-            <p>Price: ${product.product.price}</p>
-            <p>Sold: {product.sold}</p>
           </div>
-        ))}
-      </div>
-
-      {/* Biểu đồ tròn */}
-      <div className="flex justify-center my-8">
-        <div className="w-64 h-64">
-          <h3 className="text-xl font-bold mb-4 text-center">Order Types</h3>
-          <Pie data={pieData} />
-        </div>
-      </div>
-
-      <div className="container mx-auto p-4">
-        <h2 className="text-xl font-bold mb-4">
-          Revenue and Orders Statistics
-        </h2>
-        <Bar
-          data={{
-            labels,
-            datasets: [
-              {
-                type: "bar",
-                label: "Revenue",
-                data: revenueData,
-                backgroundColor: "rgba(75, 192, 192, 0.6)",
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 1,
-                yAxisID: "y1",
-              },
-              {
-                type: "line",
-                label: "Total Orders",
-                data: ordersData,
-                backgroundColor: "rgba(255, 99, 132, 0.6)",
-                borderColor: "rgba(255, 99, 132, 1)",
-                fill: false,
-                tension: 0.3,
-                yAxisID: "y2",
-              },
-            ],
-          }}
-          options={{
-            responsive: true,
-            plugins: {
-              legend: {
-                position: "top",
-              },
-            },
-            scales: {
-              y1: {
-                type: "linear",
-                display: true,
-                position: "left",
-                title: {
-                  display: true,
-                  text: "Revenue",
-                },
-              },
-              y2: {
-                type: "linear",
-                display: true,
-                position: "right",
-                title: {
-                  display: true,
-                  text: "Total Orders",
-                },
-                grid: {
-                  drawOnChartArea: false,
-                },
-              },
-            },
-          }}
-        />
-      </div>
+        </>
+      ) : (
+        <h3 className="text-lg font-bold text-center">
+          Trang thống kê nhập các trường dữ liệu để bắt đầu thống kê
+        </h3>
+      )}
     </div>
   );
 };
