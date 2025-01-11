@@ -4,7 +4,7 @@ const pinSchema = new mongoose.Schema(
   {
     email: { type: String },
     pin: { type: String, required: true },
-    purpose: { type: String, required: true }, // Purpose of the PIN (e.g., "order_confirmation", "email_verification")
+    purpose: { type: String, required: true }, 
     expirationTime: { type: Date, required: true },
   },
   {

@@ -53,87 +53,76 @@ class orderC {
       console.log(error);
       res.json({ success: false, message: error.message });
     }
-  }
+    
+    // [POST] /confirm-order
+    async placeOrder(req, res) {
+        try {
+            const { transactionPin, items, amount, address, paymentMethod } = req.body;
+            const { userId } = req.user.id;
 
-  // [POST] /confirm-order
-  async placeOrder(req, res) {
-    try {
-      const { transactionPin, items, amount, address, paymentMethod } =
-        req.body;
-      const userId = req.user.id;
+            // Get user email
+            const user = await userModels.findById(userId);
+            const userEmail = user.email;
 
-      // Get user email
-      const user = await userModels.findById(userId);
-      const userEmail = user.email;
+            if (paymentMethod !== "COD") {
+                // Find the pin by email and purpose
+                const pinData = await pinM.findOne({ email: userEmail, purpose: "order_confirmation" });
+                if (!pinData || new Date() > pinData.expirationTime) {
+                    return res.json({ success: false, message: "Invalid or expired transaction PIN" });
+                }
 
-      // Find the pin by email and purpose
-      const pinData = await pinM.findOne({
-        email: userEmail,
-        purpose: "order_confirmation",
-      });
-      if (!pinData || new Date() > pinData.expirationTime) {
-        return res.json({
-          success: false,
-          message: "Invalid or expired transaction PIN",
-        });
-      }
+                // Compare the provided PIN with the hashed PIN
+                const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
+                if (!isMatch) {
+                    return res.json({ success: false, message: "Invalid transaction PIN" });
+                }
 
-      // Compare the provided PIN with the hashed PIN
-      const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
-      if (!isMatch) {
-        return res.json({ success: false, message: "Invalid transaction PIN" });
-      }
+                // Remove the pin data after confirmation
+                await pinM.findByIdAndDelete(pinData._id);
+            }
 
-      // Create order data
-      const orderData = {
-        userId,
-        items,
-        amount,
-        address,
-        paymentMethod,
-        payment: false,
-      };
+            // Create order data
+            const orderData = {
+                userId,
+                items,
+                amount,
+                address,
+                paymentMethod, 
+                payment: paymentMethod === "COD" ? false : true,
+            };
 
-      const newOrder = new orderM(orderData);
-      await newOrder.save();
+            const newOrder = new orderM(orderData);
+            await newOrder.save();
 
-      const orderId = newOrder._id;
+            const orderId = newOrder._id;
 
-      // Call processPayment
-      const response = await processPayment(userId, amount, orderId);
+            if (paymentMethod !== "COD") {
+                // Call processPayment
+                const response = await processPayment(userId, amount, orderId);
 
-      if (
-        response &&
-        +response.EC === 0 &&
-        response.DT.status === "COMPLETED"
-      ) {
-        await orderM.findByIdAndUpdate(orderId, { payment: true });
-        await userModels.findByIdAndUpdate(userId, { cartData: {} });
+                if (response && +response.EC === 0 && response.DT.status === "COMPLETED") {
+                    await orderM.findByIdAndUpdate(orderId, { payment: true });
+                    await userModels.findByIdAndUpdate(userId, { cartData: {} });
 
-        // Send order confirmation email
-        await sendOrderConfirmationEmail(userEmail, orderData);
+                    // Send order confirmation email
+                    await sendOrderConfirmationEmail(userEmail, orderData);
 
-        await pinM.deleteMany({
-          email: userEmail,
-          purpose: "order_confirmation",
-        });
+                    res.json({ success: true, message: "Payment confirmed and order placed successfully" });
+                } else {
+                    res.json({ success: false, message: "Payment failed" });
+                }
+            } else {
+                // Send order confirmation email for COD
+                await sendOrderConfirmationEmail(userEmail, orderData);
 
-        res.json({
-          success: true,
-          message: "Payment confirmed and order placed successfully",
-        });
-      } else {
-        res.json({ success: false, message: "Payment failed" });
-      }
-
-      // Remove the pin data after confirmation
-      await pinM.findByIdAndDelete(pinData._id);
-    } catch (error) {
-      console.log(error);
-      res.json({ success: false, message: error.message });
+                res.json({ success: true, message: "Order placed successfully with Cash on Delivery" });
+            }
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
     }
-  }
-
+    
   // All ordes data for admin panel
   async allOrders(req, res) {
     try {
