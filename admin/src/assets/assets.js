@@ -8,6 +8,7 @@ import category_icon from "./category_icon.png";
 import transaction_icon from "./transaction_icon.png";
 import item_icon from "./item_icon.png";
 import statistic_icon from "./statistic_icon.png";
+import profile_icon from "./profile_icon.png";
 
 export const assets = {
   logo,
@@ -20,4 +21,5 @@ export const assets = {
   transaction_icon,
   item_icon,
   statistic_icon,
+  profile_icon,
 };

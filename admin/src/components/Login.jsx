@@ -2,11 +2,13 @@ import { toast } from "react-toastify";
 import { backendUrl } from "../App";
 import axios from "axios";
 import { useState } from "react";
+import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
 
 const Login = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const login = useAuthStore((state) => state.login);
 
   const onSubmitHandler = async (e) => {
     try {
@@ -17,10 +19,11 @@ const Login = ({ setToken }) => {
         password,
       });
       console.log(response);
-      if (response.data.EC === 0) {
+      if (response.data.EC === 0 && response.data.DT.user.role === "admin") {
+        login(response.data.DT.user);
         setToken(response.data.DT.accessToken);
       } else {
-        toast.error(response.data.EM);
+        toast.error("Invalid email or password || Not an admin account");
       }
     } catch (error) {
       console.log(error);
