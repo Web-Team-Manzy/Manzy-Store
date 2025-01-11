@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { useState } from "react";
-import axios from "axios";
-import { backendUrl } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 
@@ -19,12 +19,10 @@ const Category = ({ token }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/category/list`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`/category/list`);
 
       // Lưu dữ liệu vào state
-      setCategories(response.data.data);
+      setCategories(response.data);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
@@ -33,18 +31,17 @@ const Category = ({ token }) => {
   const handleSaveNewCategory = async () => {
     try {
       const response = await axios.post(
-        `${backendUrl}/category/add`,
+        `/category/add`,
         formData,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success("Category added successfully!");
         fetchCategories();
         setIsAdding(false);
         setFormData({ name: "", description: "", subcategories: [] });
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);
@@ -54,20 +51,16 @@ const Category = ({ token }) => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        backendUrl + "/category/update",
+      const response = await axios.put("/category/update",
         { categoryId: editingCategory._id, ...formData },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
 
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (response.success) {
+        toast.success(response.message);
         setEditingCategory(null);
         fetchCategories();
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);
@@ -86,17 +79,14 @@ const Category = ({ token }) => {
   const handleDelete = async (category) => {
     try {
       const response = await axios.delete(
-        `${backendUrl}/category/delete/${category._id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `/category/delete/${category._id}`,
       );
 
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (response.success) {
+        toast.success(response.message);
         fetchCategories();
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);

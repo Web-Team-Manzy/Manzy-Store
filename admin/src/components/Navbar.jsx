@@ -1,12 +1,13 @@
 import { assets } from "../assets/assets";
-import axios from "axios";
+import axios from "../customize/axios";
 import useAuthStore from "../stores/authStore";
+import PropTypes from "prop-types";
 
 const doLogout = async () => {
   const response = await axios.get("http://localhost:8080/account", {
     withCredentials: true,
   });
-  const res = response.data;
+  const res = response;
   if (res && +res.EC === 0) {
     await axios
       .post(
@@ -39,7 +40,7 @@ const Navbar = ({ setToken }) => {
             src={assets.profile_icon}
             alt="user"
           />
-          <p className="text-lg font-bold">{user && user.displayName}</p>
+          <p>{user && user.displayName}</p>
         </div>
         <button
           onClick={() => {
@@ -53,6 +54,10 @@ const Navbar = ({ setToken }) => {
       </div>
     </div>
   );
+};
+
+Navbar.propTypes = {
+  setToken: PropTypes.func.isRequired,
 };
 
 export default Navbar;

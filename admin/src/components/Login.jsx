@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { toast } from "react-toastify";
 import { backendUrl } from "../App";
-import axios from "axios";
+import axios from "../customize/axios";
 import { useState } from "react";
 import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
@@ -14,14 +15,14 @@ const Login = ({ setToken }) => {
     try {
       e.preventDefault();
 
-      const response = await axios.post(backendUrl + "/login", {
+      const response = await axios.post("/login", {
         email,
         password,
       });
       console.log(response);
-      if (response.data.EC === 0 && response.data.DT.user.role === "admin") {
-        login(response.data.DT.user);
-        setToken(response.data.DT.accessToken);
+      if (response.EC === 0 && response.DT.user.role === "admin") {
+        login(response.DT.user);
+        setToken(response.DT.accessToken);
       } else {
         toast.error("Invalid email or password || Not an admin account");
       }

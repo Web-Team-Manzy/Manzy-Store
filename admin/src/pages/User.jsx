@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { useState } from "react";
-import axios from "axios";
-import { backendUrl } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
+import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
 import ReactPaginate from "react-paginate";
 
@@ -11,6 +12,9 @@ const User = ({ token }) => {
   const [editingUser, setEditingUser] = useState(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const updatedUser = useAuthStore((state) => state.updateUser);
+  const user = useAuthStore((state) => state.user);
+
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -23,19 +27,14 @@ const User = ({ token }) => {
 
   const fetchUsers = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get(
-        backendUrl + `/users?page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`/users?page=${page}&limit=${limit}`);
 
-      if (response.data.EC === 0) {
-        setUsers(response.data.DT.users);
-        setTotalPages(response.data.DT.totalPages);
+      if (response.EC === 0) {
+        setUsers(response.DT.users);
+        setTotalPages(response.DT.totalPages);
         setCurrentPage(page);
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);
@@ -55,15 +54,13 @@ const User = ({ token }) => {
     if (!confirm) return;
 
     try {
-      const response = await axios.delete(backendUrl + "/users/" + id, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.delete("/users/" + id);
 
-      if (response.data.EC === 0) {
-        toast.success(response.data.EM);
+      if (response.EC === 0) {
+        toast.success(response.EM);
         fetchUsers();
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);
@@ -86,20 +83,20 @@ const User = ({ token }) => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        backendUrl + "/users/" + editingUser._id,
-        formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.put("/users/" + editingUser._id, formData);
 
-      if (response.data.EC === 0) {
-        toast.success(response.data.EM);
+      if (response.EC === 0) {
+        toast.success(response.EM);
+
+        if (response.DT.role === "admin") {
+          console.log(">>>> user: ", user);
+          updatedUser({ displayName: response.DT.displayName });
+        }
+
         setEditingUser(null);
         fetchUsers();
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);

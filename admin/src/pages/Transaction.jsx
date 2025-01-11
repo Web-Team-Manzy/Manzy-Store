@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { useState } from "react";
-import axios from "axios";
-import { backendUrl } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import formatDate from "../util/formateDate";
@@ -54,19 +54,16 @@ const Transaction = ({ token }) => {
   const fetchTransactions = async (page = 1, limit = 5) => {
     try {
       const response = await axios.get(
-        `${backendUrl}/transaction?page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `/transaction?page=${page}&limit=${limit}`,
       );
 
       // Lưu dữ liệu vào state
-      setTransactions(response.data.DT.transactions);
-      setTotalPages(response.data.DT.pagination.totalPages);
-      setCurrentPage(response.data.DT.pagination.currentPage);
+      setTransactions(response.DT.transactions);
+      setTotalPages(response.DT.pagination.totalPages);
+      setCurrentPage(response.DT.pagination.currentPage);
 
       // Lấy số dư của admin
-      setAdminBalance(response.data.DT.transactions[0].toAccountId.balance);
+      setAdminBalance(response.DT.transactions[0].toAccountId.balance);
 
       console.log(transactions);
     } catch (error) {
