@@ -23,8 +23,8 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
             <p>Here are the details:</p>
             <ul>
                 <li><strong>Order ID:</strong> ${orderDetails._id}</li>
-                <li><strong>Amount:</strong> ${orderDetails.amount}</li>
-                <li><strong>Address:</strong> ${orderDetails.address}</li>
+                <li><strong>Amount:</strong> ${orderDetails.amount} $</li>
+                <li><strong>Address:</strong> ${orderDetails.address.ward}, ${orderDetails.address.district}, ${orderDetails.address.city} </li>
                 <li><strong>Payment Method:</strong> ${
                   orderDetails.paymentMethod
                 }</li>
