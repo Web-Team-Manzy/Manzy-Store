@@ -180,7 +180,7 @@ const PlaceOrder = () => {
             }
 
             const { city, district, ward, street, paymentMethod } = formData;
-            const address = { city, district, ward, stress };
+            const address = { city, district, ward, street };
             const items = cartData;
             const amount = getCartAmount();
 
