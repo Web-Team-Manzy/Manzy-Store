@@ -22,8 +22,9 @@ const App = () => {
     localStorage.getItem("token") ? localStorage.getItem("token") : ""
   );
   const doGetAccount = useAuthStore((state) => state.doGetAccount);
-  
+
   useEffect(() => {
+    document.title = "Manzy Store Admin Panel";
     doGetAccount();
   }, []);
 
