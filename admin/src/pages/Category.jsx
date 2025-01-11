@@ -4,6 +4,8 @@ import { useState } from "react";
 import axios from "../customize/axios";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
+import formatDate from "../util/formateDate";
+import ReactPaginate from "react-paginate";
 
 const Category = ({ token }) => {
   const [categories, setCategories] = useState([]);
@@ -14,26 +16,31 @@ const Category = ({ token }) => {
     description: "",
     subcategories: [],
   });
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isAdding, setIsAdding] = useState(false);
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get(`/category/list`);
+      const response = await axios.get(
+        `/category/list?page=${page}&limit=${limit}`
+      );
 
       // Lưu dữ liệu vào state
       setCategories(response.data);
+
+      setTotalPages(response.pagination.pages);
+      setCurrentPage(response.pagination.page);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
     }
   };
+
   const handleSaveNewCategory = async () => {
     try {
-      const response = await axios.post(
-        `/category/add`,
-        formData,
-      );
+      const response = await axios.post(`/category/add`, formData);
 
       if (response.success) {
         toast.success("Category added successfully!");
@@ -49,11 +56,17 @@ const Category = ({ token }) => {
     }
   };
 
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1;
+    fetchCategories(selectedPage);
+  };
+
   const handleSave = async () => {
     try {
-      const response = await axios.put("/category/update",
-        { categoryId: editingCategory._id, ...formData },
-      );
+      const response = await axios.put("/category/update", {
+        categoryId: editingCategory._id,
+        ...formData,
+      });
 
       if (response.success) {
         toast.success(response.message);
@@ -78,9 +91,7 @@ const Category = ({ token }) => {
 
   const handleDelete = async (category) => {
     try {
-      const response = await axios.delete(
-        `/category/delete/${category._id}`,
-      );
+      const response = await axios.delete(`/category/delete/${category._id}`);
 
       if (response.success) {
         toast.success(response.message);
@@ -134,8 +145,8 @@ const Category = ({ token }) => {
                 : item.subcategories}
             </p>
             <p>{item.description}</p>
-            <p>{item.createdAt}</p>
-            <p>{item.updatedAt}</p>
+            <p>{formatDate(item.createdAt)}</p>
+            <p>{formatDate(item.updatedAt)}</p>
             <div className="flex justify-between md:justify-center gap-3">
               <p
                 onClick={() => handleEdit(item)}
@@ -152,6 +163,18 @@ const Category = ({ token }) => {
             </div>
           </div>
         ))}
+        <ReactPaginate
+          className="flex justify-center my-5 gap-3"
+          previousLabel={"Previous"}
+          nextLabel={"Next"}
+          breakLabel={"..."}
+          pageCount={totalPages} // Số lượng trang
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"} // Lớp CSS cho container
+          activeClassName={"active px-3"} // Lớp CSS cho trang hiện tại
+        />
       </div>
       {/* Edit Category Form */}
       {editingCategory && (

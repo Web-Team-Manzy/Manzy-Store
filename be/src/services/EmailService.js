@@ -13,6 +13,7 @@ const transporter = nodemailer.createTransport({
 
 // Hàm gửi email mã xác nhận đơn hàng
 const sendOrderConfirmationEmail = async (to, orderDetails) => {
+  console.log("orderDetails", orderDetails);
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: to,
@@ -22,8 +23,8 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
             <p>Here are the details:</p>
             <ul>
                 <li><strong>Order ID:</strong> ${orderDetails._id}</li>
-                <li><strong>Amount:</strong> ${orderDetails.amount}</li>
-                <li><strong>Address:</strong> ${orderDetails.address}</li>
+                <li><strong>Amount:</strong> ${orderDetails.amount} $</li>
+                <li><strong>Address:</strong> ${orderDetails.address.ward}, ${orderDetails.address.district}, ${orderDetails.address.city} </li>
                 <li><strong>Payment Method:</strong> ${
                   orderDetails.paymentMethod
                 }</li>
@@ -44,7 +45,7 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                         (item) => `
                         <tr>
                             <td style="border: 1px solid #ddd; padding: 8px;">
-                                <img src="${item.product.image}" alt="${
+                                <img src="${item.product.images[0]}" alt="${
                           item.product.name
                         }" style="width: 50px; height: 50px;">
                             </td>
