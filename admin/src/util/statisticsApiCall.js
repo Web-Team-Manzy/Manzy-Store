@@ -1,15 +1,12 @@
-import axios from "axios";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
-import { backendUrl } from "../App";
 
 export const fetchSummaryStatistic = async (tag, startDate, endDate) => {
   try {
-    const response = await axios.get(`${backendUrl}/statistic/total`, {
+    const response = await axios.get(`/statistic/total`, {
       params: { tag, startDate, endDate },
     });
-    if (response.status === 200) {
-      return response.data;
-    }
+    return response;
   } catch (error) {
     console.error(error);
     toast.error("Failed to fetch total orders");
@@ -25,11 +22,11 @@ export const fetchProductsStatistic = async (
   limit
 ) => {
   try {
-    const response = await axios.get(`${backendUrl}/statistic/product`, {
+    const response = await axios.get(`/statistic/product`, {
       params: { tag, startDate, endDate, page, limit },
     });
-    if (response.status === 200) {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error) {
     console.error(error);
@@ -40,11 +37,11 @@ export const fetchProductsStatistic = async (
 
 export const fetchBestSellerProducts = async (tag, startDate, endDate) => {
   try {
-    const response = await axios.get(`${backendUrl}/statistic/bestSeller`, {
+    const response = await axios.get(`/statistic/bestSeller`, {
       params: { tag, startDate, endDate },
     });
-    if (response.status === 200) {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error) {
     console.error(error);
@@ -55,12 +52,10 @@ export const fetchBestSellerProducts = async (tag, startDate, endDate) => {
 
 export const fetchChartStatistic = async (tag, startDate, endDate) => {
   try {
-    const response = await axios.get(`${backendUrl}/statistic/chart`, {
+    const response = await axios.get(`/statistic/chart`, {
       params: { tag, startDate, endDate },
     });
-    if (response.status === 200) {
-      return response.data;
-    }
+    return response;
   } catch (error) {
     console.error(error);
     toast.error("Failed to fetch chart statistics");
@@ -72,16 +67,13 @@ export const updateBestSellerProducts = async (startDate, endDate, token) => {
   console.log("token", token);
   try {
     const response = await axios.post(
-      `${backendUrl}/product/updateBestSeller?startDate=${startDate}&endDate=${endDate}`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+      `/product/updateBestSeller?startDate=${startDate}&endDate=${endDate}`,
+      {}
     );
 
-    if (response.data.success) {
-      toast.success(response.data.message);
-      return response.data.message;
+    if (response.success) {
+      toast.success(response.message);
+      return response.message;
     }
   } catch (error) {
     console.error(error);

@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
-import axios from "axios";
-import { backendUrl } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 
@@ -52,12 +52,10 @@ const Add = ({ token }) => {
 
       console.log(formData.name);
 
-      const response = await axios.post(backendUrl + "/product/add", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post("/product/add", formData);
 
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (response.success) {
+        toast.success(response.message);
         setName("");
         setDescription("");
         setPrice("");
@@ -67,7 +65,7 @@ const Add = ({ token }) => {
         setImage4(false);
         setPrice("");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);
@@ -78,12 +76,10 @@ const Add = ({ token }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/category/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get('/category/list');
 
-        if (response.data.success) {
-          const data = response.data.data;
+        if (response.success) {
+          const data = response.data;
           setCategories(data);
 
           // Lấy subcategories từ category đầu tiên để render mặc định
@@ -93,7 +89,7 @@ const Add = ({ token }) => {
             setSubCategories(firstCategory.subcategories || []);
           }
         } else {
-          toast.error(response.data.message);
+          toast.error(response.message);
         }
       } catch (error) {
         console.log(error);

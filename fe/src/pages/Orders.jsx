@@ -3,22 +3,51 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import axios from "../customize/axios";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { doGetAccountBalance } from "../redux/action/accountAction";
+import { useSelector, useDispatch } from "react-redux";
 import ReactPaginate from "react-paginate";
 
 const Orders = () => {
-    const { currency } = useContext(ShopContext);
-    const [orders, setOrders] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-    const userInfo = useSelector((state) => state.account.userInfo);
+  const { currency } = useContext(ShopContext);
+  const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const userInfo = useSelector((state) => state.account.userInfo);
+  const dispatch = useDispatch();
 
-    const fetchOrder = async (page = 1, limit = 5) => {
-        try {
-            const response = await axios.post(`/order/userOrders?page=${page}&limit=${limit}`, {
-                userId: userInfo.id,
-            });
+  const fetchOrder = async (page = 1, limit = 5) => {
+    try {
+      const response = await axios.post(
+        `/order/userOrders?page=${page}&limit=${limit}`,
+        {
+          userId: userInfo.id,
+        }
+      );
 
+      if (response.success) {
+        toast.success(response.message);
+        setOrders(response.orders);
+        setTotalPages(response.totalPages);
+        setCurrentPage(response.currentPage);
+        console.log(">>>>> Order response: ", response);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (userInfo?.id) {
+      dispatch(doGetAccountBalance(userInfo.id));
+    }
+  }, [userInfo?.id, userInfo.balance, dispatch]);
+
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1;
+    fetchOrder(selectedPage);
+  };
             if (response.success) {
                 toast.success(response.message);
                 setOrders(response.orders);

@@ -1,10 +1,11 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { useState } from "react";
-import axios from "axios";
-import { backendUrl, currency } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import ReactPaginate from "react-paginate";
+import { currency } from "../App";
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
@@ -13,16 +14,15 @@ const List = ({ token }) => {
 
   const fetchList = async (page = 1) => {
     try {
-      const response = await axios.get(backendUrl + "/product/list", {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get("/product/list", {
         params: { page, limit: 10 },
       });
-      if (response.data.success) {
-        setList(response.data.products);
-        setTotalPages(response.data.totalPages);
+      if (response.success) {
+        setList(response.products);
+        setTotalPages(response.totalPages);
         setCurrentPage(page);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);
@@ -37,16 +37,15 @@ const List = ({ token }) => {
 
   const removeProduct = async (id) => {
     try {
-      const response = await axios.delete(backendUrl + "/product/delete", {
+      const response = await axios.delete("/product/delete", {
         params: { id },
-        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (response.success) {
+        toast.success(response.message);
         fetchList(currentPage);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.log(error);

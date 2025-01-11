@@ -19,7 +19,6 @@ const Navbar = () => {
     }
   };
 
-
   // >>> Backend Test
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.account.userInfo);
@@ -33,8 +32,8 @@ const Navbar = () => {
     if (userInfo?.id) {
       dispatch(doGetAccountBalance(userInfo.id));
     }
-  }, [userInfo?.id, dispatch]);
-  
+  }, [userInfo?.id, userInfo.balance, dispatch]);
+
   return (
     <div className="flex items-center justify-between py-5 font-medium">
       <Link to="/">
@@ -98,15 +97,12 @@ const Navbar = () => {
             // >>> Backend Test
             userInfo && userInfo.email ? (
               <div className="flex items-center gap-2">
-                <p className="text-gray-500 text-sm">
-                  {userInfo.balance} $
-                </p>
+                <p className="text-gray-500 text-sm">{userInfo.balance} $</p>
                 <img
                   src={assets.profile_icon}
                   alt="profile"
                   className="w-5 cursor-pointer"
                 />
-                
               </div>
             ) : (
               <Link to="/login">

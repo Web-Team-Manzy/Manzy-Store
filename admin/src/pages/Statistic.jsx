@@ -1,8 +1,8 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import axios from "axios";
 import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -132,12 +132,11 @@ const Statistic = ({ token }) => {
       endDate
     );
 
-    console.log("bestSellerProductsData", bestSellerProductsData);
+    console.log("bestSellerProductsData 123", bestSellerProductsData);
 
     if (bestSellerProductsData) {
       setBestSellerProducts(bestSellerProductsData.data);
     }
-    console.log("bestSellerProductsData", bestSellerProducts);
 
     const chartStatisticData = await fetchChartStatistic(
       tag,
@@ -451,6 +450,10 @@ const Statistic = ({ token }) => {
       )}
     </div>
   );
+};
+
+Statistic.propTypes = {
+  token: PropTypes.string.isRequired,
 };
 
 export default Statistic;

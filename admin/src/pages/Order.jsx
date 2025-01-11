@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../customize/axios";
 import { backendUrl, currency } from "../App";
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
@@ -15,19 +16,17 @@ const Order = ({ token }) => {
     if (!token) return null;
 
     try {
-      const response = await axios.post(
-        backendUrl + `/order/list?page=${page}&limit=${limit}`,
+      const response = await axios.post(`/order/list?page=${page}&limit=${limit}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setOrders(response.data.orders);
-        setTotalPages(response.data.totalPages);
-        setCurrentPage(response.data.currentPage);
+      if (response.success) {
+        toast.success(response.message);
+        setOrders(response.orders);
+        setTotalPages(response.totalPages);
+        setCurrentPage(response.currentPage);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -41,16 +40,14 @@ const Order = ({ token }) => {
 
   const statusHandler = async (event, orderId) => {
     try {
-      const response = await axios.post(
-        backendUrl + "/order/status",
+      const response = await axios.post("/order/status",
         { orderId, status: event.target.value },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
+      if (response.success) {
         fetchAllOrders();
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
       toast.error(error.message);

@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from "react";
 import { useState } from "react";
-import axios from "axios";
-import { backendUrl } from "../App";
+import axios from "../customize/axios";
 import { toast } from "react-toastify";
+import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
 import ReactPaginate from "react-paginate";
 
@@ -11,6 +12,9 @@ const User = ({ token }) => {
   const [editingUser, setEditingUser] = useState(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const updatedUser = useAuthStore((state) => state.updateUser);
+  const user = useAuthStore((state) => state.user);
+
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -23,16 +27,14 @@ const User = ({ token }) => {
 
   const fetchUsers = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get(backendUrl + `/users?page=${page}&limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`/users?page=${page}&limit=${limit}`);
 
-      if (response.data.EC === 0) {
-        setUsers(response.data.DT.users);
-        setTotalPages(response.data.DT.totalPages);
+      if (response.EC === 0) {
+        setUsers(response.DT.users);
+        setTotalPages(response.DT.totalPages);
         setCurrentPage(page);
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);
@@ -43,7 +45,7 @@ const User = ({ token }) => {
   const handlePageClick = (data) => {
     const selectedPage = data.selected + 1; // + 1 because react-paginate starts from 0
     fetchUsers(selectedPage);
-  }
+  };
 
   const removeUser = async (id) => {
     const confirm = window.confirm(
@@ -52,15 +54,13 @@ const User = ({ token }) => {
     if (!confirm) return;
 
     try {
-      const response = await axios.delete(backendUrl + "/users/" + id, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.delete("/users/" + id);
 
-      if (response.data.EC === 0) {
-        toast.success(response.data.EM);
+      if (response.EC === 0) {
+        toast.success(response.EM);
         fetchUsers();
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);
@@ -83,20 +83,20 @@ const User = ({ token }) => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        backendUrl + "/users/" + editingUser._id,
-        formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.put("/users/" + editingUser._id, formData);
 
-      if (response.data.EC === 0) {
-        toast.success(response.data.EM);
+      if (response.EC === 0) {
+        toast.success(response.EM);
+
+        if (response.DT.role === "admin") {
+          console.log(">>>> user: ", user);
+          updatedUser({ displayName: response.DT.displayName });
+        }
+
         setEditingUser(null);
         fetchUsers();
       } else {
-        toast.error(response.data.EM);
+        toast.error(response.EM);
       }
     } catch (error) {
       console.log(error);
@@ -113,9 +113,10 @@ const User = ({ token }) => {
       <p className="mb-2">Management User</p>
       <div className="flex flex-col gap-2">
         {/* List Table Title */}
-        <div className="hidden md:grid grid-cols-[1fr_1fr_2fr_1fr_2fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm font-bold">
+        <div className="hidden md:grid grid-cols-[1fr_1fr_1fr_2fr_1fr_2fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm font-bold">
           <b>First Name</b>
           <b>Last Name</b>
+          <b>Display Name</b>
           <b>Email</b>
           <b>Role</b>
           <b>Address</b>
@@ -126,11 +127,12 @@ const User = ({ token }) => {
         {/* User List */}
         {users.map((item, index) => (
           <div
-            className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_1fr_2fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
+            className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_2fr_1fr_2fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
             key={index}
           >
             <p>{item.firstName}</p>
             <p>{item.lastName}</p>
+            <p>{item.displayName}</p>
             <p>{item.email}</p>
             <p>{item.role}</p>
             <p>{item.address}</p>
@@ -212,7 +214,6 @@ const User = ({ token }) => {
                 }
                 placeholder="Last Name"
                 className="border px-3 py-2 rounded"
-
               />
               {/* <input
                 type="text"
@@ -224,14 +225,17 @@ const User = ({ token }) => {
                 className="border px-3 py-2 rounded"
               /> */}
 
-              <select className="p-2 font-semibold" value={formData.role} onChange={(e) =>
+              <select
+                className="p-2 font-semibold"
+                value={formData.role}
+                onChange={(e) =>
                   setFormData({ ...formData, role: e.target.value })
-                }>
+                }
+              >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
-              
-              
+
               <div className="flex justify-end gap-3 mt-4">
                 <button
                   onClick={() => setEditingUser(null)}

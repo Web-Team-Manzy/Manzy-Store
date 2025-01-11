@@ -12,6 +12,7 @@ import User from "./pages/User";
 import Category from "./pages/Category";
 import Transaction from "./pages/Transaction";
 import Statistic from "./pages/Statistic";
+import useAuthStore from "./stores/authStore";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "$";
@@ -20,6 +21,11 @@ const App = () => {
   const [token, setToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : ""
   );
+  const doGetAccount = useAuthStore((state) => state.doGetAccount);
+  
+  useEffect(() => {
+    doGetAccount();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("token", token);
