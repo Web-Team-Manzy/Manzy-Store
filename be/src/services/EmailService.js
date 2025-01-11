@@ -1,30 +1,32 @@
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
 dotenv.config();
 
 // Tạo transporter với cấu hình SMTP
 const transporter = nodemailer.createTransport({
-    service: 'gmail', 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS  
-    }
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 // Hàm gửi email mã xác nhận đơn hàng
 const sendOrderConfirmationEmail = async (to, orderDetails) => {
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: to,
-        subject: 'Order Confirmation',
-        html: `
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: to,
+    subject: "Order Confirmation",
+    html: `
             <h1>Thank you for your order!</h1>
             <p>Here are the details:</p>
             <ul>
                 <li><strong>Order ID:</strong> ${orderDetails._id}</li>
                 <li><strong>Amount:</strong> ${orderDetails.amount}</li>
                 <li><strong>Address:</strong> ${orderDetails.address}</li>
-                <li><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</li>
+                <li><strong>Payment Method:</strong> ${
+                  orderDetails.paymentMethod
+                }</li>
             </ul>
             <h2>Items:</h2>
             <table style="width: 100%; border-collapse: collapse;">
@@ -37,67 +39,92 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                     </tr>
                 </thead>
                 <tbody>
-                    ${orderDetails.items.map(item => `
+                    ${orderDetails.items
+                      .map(
+                        (item) => `
                         <tr>
                             <td style="border: 1px solid #ddd; padding: 8px;">
-                                <img src="${item.product.image}" alt="${item.product.name}" style="width: 50px; height: 50px;">
+                                <img src="${item.product.image}" alt="${
+                          item.product.name
+                        }" style="width: 50px; height: 50px;">
                             </td>
                             <td style="border: 1px solid #ddd; padding: 8px;">
-                                <p style="font-weight: bold;">${item.product.name}</p>
+                                <p style="font-weight: bold;">${
+                                  item.product.name
+                                }</p>
                             </td>
                             <td style="border: 1px solid #ddd; padding: 8px;">
-                                ${Object.entries(item.sizes).map(
+                                ${Object.entries(item.sizes)
+                                  .map(
                                     ([size, quantity]) => `
                                         <p style="color: gray; font-size: 12px;">
                                             Size: ${size}
                                         </p>
                                     `
-                                ).join('')}
+                                  )
+                                  .join("")}
                             </td>
                             <td style="border: 1px solid #ddd; padding: 8px;">
-                                ${Object.entries(item.sizes).map(
+                                ${Object.entries(item.sizes)
+                                  .map(
                                     ([size, quantity]) => `
                                         <p style="color: gray; font-size: 12px;">
                                             ${quantity}
                                         </p>
                                     `
-                                ).join('')}
+                                  )
+                                  .join("")}
                             </td>
                         </tr>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                 </tbody>
             </table>
-        `
-    };
+        `,
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log('Order confirmation email sent successfully');
-    } catch (error) {
-        console.error('Error sending order confirmation email:', error);
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Order confirmation email sent successfully");
+  } catch (error) {
+    console.error("Error sending order confirmation email:", error);
+  }
 };
 
 // Hàm gửi email mã PIN
 const sendPinEmail = async (to, pin, purpose) => {
-    const subject = purpose === 'order_confirmation' ? 'Order Transaction PIN' : 'Registration PIN';
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: to,
-        subject: subject,
-        html: `
-            <h1>${subject}</h1>
-            <p>Your transaction PIN is: <strong>${pin}</strong></p>
-            <p>Please use this PIN to confirm your ${purpose === 'order_confirmation' ? 'order' : 'registration'} within 10 minutes.</p>
-        `
-    };
+  const subject =
+    purpose === "order_confirmation"
+      ? "Order Transaction PIN"
+      : "Registration PIN";
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: to,
+    subject: subject,
+    html: `
+            <div style="font-family: Arial, sans-serif; color: #333; text-align: center; padding: 20px;">
+                <h1 style="color: #4CAF50;">${subject}</h1>
+                <p style="font-size: 16px; margin-top: 20px;">Your transaction PIN is:</p>
+                <h2 style="font-size: 36px; color: #ff5722; font-weight: bold;">${pin}</h2>
+                <p style="font-size: 16px; margin-top: 20px;">
+                    Please use this PIN to confirm your ${
+                      purpose === "order_confirmation"
+                        ? "order"
+                        : "registration"
+                    } within 10 minutes.
+                </p>
+                <p style="font-size: 14px; color: #777;">If you did not request this PIN, please ignore this email.</p>
+            </div>
+        `,
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log('Transaction PIN email sent successfully');
-    } catch (error) {
-        console.error('Error sending transaction PIN email:', error);
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Transaction PIN email sent successfully");
+  } catch (error) {
+    console.error("Error sending transaction PIN email:", error);
+  }
 };
 
 module.exports = { sendOrderConfirmationEmail, sendPinEmail };
