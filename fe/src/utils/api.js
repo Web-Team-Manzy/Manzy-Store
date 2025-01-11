@@ -4,7 +4,8 @@ const createUserApi = async (
     email,
     password,
     phone,
-    name = { firstName: "", lastName: "", displayName: "" }
+    name = { firstName: "", lastName: "", displayName: "" },
+    verificationCode
 ) => {
     const API_URL = "/register";
 
@@ -13,6 +14,7 @@ const createUserApi = async (
         password,
         phone,
         name,
+        transactionPin: verificationCode,
     });
 };
 
