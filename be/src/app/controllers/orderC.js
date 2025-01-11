@@ -53,76 +53,99 @@ class orderC {
       console.log(error);
       res.json({ success: false, message: error.message });
     }
-    
-    // [POST] /confirm-order
-    async placeOrder(req, res) {
-        try {
-            const { transactionPin, items, amount, address, paymentMethod } = req.body;
-            const { userId } = req.user.id;
+  }
 
-            // Get user email
-            const user = await userModels.findById(userId);
-            const userEmail = user.email;
+  // [POST] /confirm-order
+  async placeOrder(req, res) {
+    try {
+      const { transactionPin, items, amount, address, paymentMethod } =
+        req.body;
+      const userId = req.user.id;
 
-            if (paymentMethod !== "COD") {
-                // Find the pin by email and purpose
-                const pinData = await pinM.findOne({ email: userEmail, purpose: "order_confirmation" });
-                if (!pinData || new Date() > pinData.expirationTime) {
-                    return res.json({ success: false, message: "Invalid or expired transaction PIN" });
-                }
+      console.log("req.user", req.user);
 
-                // Compare the provided PIN with the hashed PIN
-                const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
-                if (!isMatch) {
-                    return res.json({ success: false, message: "Invalid transaction PIN" });
-                }
+      // Get user email
+      const user = await userModels.findById(userId);
+      const userEmail = user.email;
 
-                // Remove the pin data after confirmation
-                await pinM.findByIdAndDelete(pinData._id);
-            }
-
-            // Create order data
-            const orderData = {
-                userId,
-                items,
-                amount,
-                address,
-                paymentMethod, 
-                payment: paymentMethod === "COD" ? false : true,
-            };
-
-            const newOrder = new orderM(orderData);
-            await newOrder.save();
-
-            const orderId = newOrder._id;
-
-            if (paymentMethod !== "COD") {
-                // Call processPayment
-                const response = await processPayment(userId, amount, orderId);
-
-                if (response && +response.EC === 0 && response.DT.status === "COMPLETED") {
-                    await orderM.findByIdAndUpdate(orderId, { payment: true });
-                    await userModels.findByIdAndUpdate(userId, { cartData: {} });
-
-                    // Send order confirmation email
-                    await sendOrderConfirmationEmail(userEmail, orderData);
-
-                    res.json({ success: true, message: "Payment confirmed and order placed successfully" });
-                } else {
-                    res.json({ success: false, message: "Payment failed" });
-                }
-            } else {
-                // Send order confirmation email for COD
-                await sendOrderConfirmationEmail(userEmail, orderData);
-
-                res.json({ success: true, message: "Order placed successfully with Cash on Delivery" });
-            }
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
+      if (paymentMethod !== "COD") {
+        // Find the pin by email and purpose
+        const pinData = await pinM.findOne({
+          email: userEmail,
+          purpose: "order_confirmation",
+        });
+        if (!pinData || new Date() > pinData.expirationTime) {
+          return res.json({
+            success: false,
+            message: "Invalid or expired transaction PIN",
+          });
         }
+
+        // Compare the provided PIN with the hashed PIN
+        const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
+        if (!isMatch) {
+          return res.json({
+            success: false,
+            message: "Invalid transaction PIN",
+          });
+        }
+
+        // Remove the pin data after confirmation
+        await pinM.findByIdAndDelete(pinData._id);
+      }
+
+      // Create order data
+      const orderData = {
+        userId,
+        items,
+        amount,
+        address,
+        paymentMethod,
+        payment: paymentMethod === "COD" ? false : true,
+      };
+
+      const newOrder = new orderM(orderData);
+      await newOrder.save();
+
+      const orderId = newOrder._id;
+
+      if (paymentMethod !== "COD") {
+        // Call processPayment
+        const response = await processPayment(userId, amount, orderId);
+
+        if (
+          response &&
+          +response.EC === 0 &&
+          response.DT.status === "COMPLETED"
+        ) {
+          await orderM.findByIdAndUpdate(orderId, { payment: true });
+          await userModels.findByIdAndUpdate(userId, { cartData: {} });
+
+          // Send order confirmation email
+          await sendOrderConfirmationEmail(userEmail, orderData);
+
+          res.json({
+            success: true,
+            message: "Payment confirmed and order placed successfully",
+          });
+        } else {
+          res.json({ success: false, message: "Payment failed" });
+        }
+      } else {
+        // Send order confirmation email for COD
+        await sendOrderConfirmationEmail(userEmail, orderData);
+
+        res.json({
+          success: true,
+          message: "Order placed successfully with Cash on Delivery",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
     }
-    
+  }
+
   // All ordes data for admin panel
   async allOrders(req, res) {
     try {
