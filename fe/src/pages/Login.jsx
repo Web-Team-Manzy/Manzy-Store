@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
-import { doLoginGoogle } from "../redux/action/accountAction";
+import { doLogin, doLoginGoogle } from "../redux/action/accountAction";
 import { createUserApi } from "../utils/api";
 
 const Login = () => {
@@ -64,7 +65,9 @@ const Login = () => {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
-    if (currentState === "Sign Up") {
+    if (currentState === "Sign In") {
+      dispatch(doLogin(email, password));
+    } else if (currentState === "Sign Up") {
       if (password !== confirmPassword) {
         toast.error("Passwords do not match.");
         return;
@@ -80,12 +83,23 @@ const Login = () => {
     }
   };
 
+  const handleLoginGoogle = useGoogleLogin({
+    flow: "auth-code",
+    ux_mode: "popup",
+    onSuccess: async (res) => {
+      dispatch(doLoginGoogle(res.code));
+    },
+    onError: (error) => {
+      console.error("Google login error:", error);
+    },
+  });
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
           <h2 className="text-2xl font-semibold text-gray-800 text-center">
-            {currentState === "Sign Up" ? "Create Account" : "Sign In"}
+            {currentState}
           </h2>
 
           {/* Email input */}
@@ -96,43 +110,10 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            disabled={isCodeSent}
+            disabled={currentState === "Sign Up" && isCodeSent}
           />
 
-          {/* Send Verification Code Button */}
-          {!isCodeSent && (
-            <button
-              type="button"
-              onClick={sendVerificationCode}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Send Verification Code
-            </button>
-          )}
-
-          {/* Verification Code Input */}
-          {isCodeSent && !isCodeVerified && (
-            <>
-              <input
-                type="text"
-                placeholder="Enter Verification Code"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={verifyCode}
-                className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white py-3 rounded-lg font-bold shadow-lg hover:from-green-600 hover:to-green-800 hover:scale-105 transform transition-all duration-300 ease-in-out"
-              >
-                Verify Code
-              </button>
-            </>
-          )}
-
-          {/* Password and Additional Info */}
-          {isCodeVerified && (
+          {currentState === "Sign In" && (
             <>
               <input
                 type="password"
@@ -142,45 +123,123 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={name.displayName}
-                onChange={(e) =>
-                  setName({ ...name, displayName: e.target.value })
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+              >
+                Sign In
+              </button>
+
+              <div className="flex justify-between text-sm text-blue-500 mt-[-6px]">
+                <p className="cursor-pointer hover:underline">
+                  Forgot your password?
+                </p>
+                <p
+                  className="cursor-pointer hover:underline"
+                  onClick={() => setCurrentState("Sign Up")}
+                >
+                  Create an account
+                </p>
+              </div>
             </>
           )}
 
-          {/* Submit Button */}
-          {isCodeVerified && (
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Create Account
-            </button>
+          {currentState === "Sign Up" && (
+            <>
+              {!isCodeSent && (
+                <button
+                  type="button"
+                  onClick={sendVerificationCode}
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                >
+                  Send Verification Code
+                </button>
+              )}
+
+              {isCodeSent && !isCodeVerified && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Enter Verification Code"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    value={name.displayName}
+                    onChange={(e) =>
+                      setName({ ...name, displayName: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                  <button
+                    onClick={verifyCode}
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                  >
+                    Create Account
+                  </button>
+                </>
+              )}
+
+              <p
+                className="cursor-pointer hover:underline text-sm text-blue-500 mt-2"
+                onClick={() => setCurrentState("Sign In")}
+              >
+                Already have an account? Sign In
+              </p>
+            </>
           )}
         </form>
+
+        {currentState === "Sign In" && (
+          <div className="flex flex-col items-center mt-4">
+            <p className="text-sm text-gray-500 mb-2">or continue with</p>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleLoginGoogle();
+              }}
+              className="flex items-center justify-center w-64 bg-white text-gray-800 border border-gray-300 rounded-md px-3 py-2 shadow-sm hover:shadow-md transition"
+            >
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                className="w-5 h-5 mr-2"
+              />
+              <span className="text-sm font-medium">Sign in with Google</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
