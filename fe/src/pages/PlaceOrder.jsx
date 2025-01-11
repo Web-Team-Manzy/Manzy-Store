@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useContext } from "react";
 import Title from "../components/Title";
 import Modal from "../components/Modal";
@@ -24,10 +25,10 @@ const PlaceOrder = () => {
     paymentMethod: "COD",
   });
 
-  const [verificationCode, setVerificationCode] = useState(""); // Mã xác nhận
+  const [verificationCode, setVerificationCode] = useState("");
 
   const handlePaymentMethodChange = (method) => {
-    if (isLocked) return; // Nếu đã khóa, không cho phép thay đổi
+    if (isLocked) return;
     setFormData((prevData) => ({
       ...prevData,
       paymentMethod: method,
@@ -41,7 +42,7 @@ const PlaceOrder = () => {
         total += item.product.price * quantity;
       });
     });
-    return total;
+    return total + 10;
   };
 
   const handleChange = (e) => {
@@ -94,11 +95,11 @@ const PlaceOrder = () => {
       const items = cartData;
 
       const response = await confirmEmail(
-        verificationCode, // Mã xác nhận
-        items, // Danh sách sản phẩm trong giỏ hàng
-        amount, // Tổng tiền
-        address, // Địa chỉ giao hàng
-        paymentMethod // Phương thức thanh toán
+        verificationCode,
+        items,
+        amount,
+        address,
+        paymentMethod
       );
 
       console.log(response);
@@ -115,7 +116,7 @@ const PlaceOrder = () => {
   };
 
   const handleCancel = () => {
-    setIsLocked(false); // Mở khóa phương thức thanh toán
+    setIsLocked(false);
     setFormData((prevData) => ({
       ...prevData,
       paymentMethod: "COD",
