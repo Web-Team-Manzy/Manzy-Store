@@ -167,18 +167,6 @@ const Login = () => {
                     onChange={(e) => setVerificationCode(e.target.value)}
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={verifyCode}
-                    className="w-full bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white py-2 rounded-lg font-medium hover:from-green-500 hover:to-green-700 transition"
-                  >
-                    Verify Code
-                  </button>
-                </>
-              )}
-
-              {isCodeVerified && (
-                <>
                   <input
                     type="password"
                     placeholder="Password"
@@ -214,6 +202,7 @@ const Login = () => {
                     required
                   />
                   <button
+                    onClick={verifyCode}
                     type="submit"
                     className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
                   >
