@@ -8,7 +8,6 @@ const Modal = ({
   if (!show) return null;
 
   const handleConfirm = () => {
-    // Gọi hàm onConfirm từ PlaceOrder với giá trị verificationCode
     onConfirm(verificationCode);
     onClose();
   };
