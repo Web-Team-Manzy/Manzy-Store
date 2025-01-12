@@ -56,6 +56,36 @@ const List = ({ token }) => {
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
 
+    if (!formData.name) {
+      toast.error("Please enter product name");
+      return;
+    }
+
+    if (!formData.price) {
+      toast.error("Please enter product price");
+      return;
+    }
+
+    if (!formData.category) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    if (!formData.subCategory) {
+      toast.error("Please select a subcategory");
+      return;
+    }
+
+    if (formData.sizes.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+
+    if (!image1) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+
     // Tạo FormData
     const dataToSend = new FormData();
 
