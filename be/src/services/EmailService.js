@@ -10,7 +10,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
 // Hàm gửi email mã xác nhận đơn hàng
 const sendOrderConfirmationEmail = async (to, orderDetails) => {
   console.log("orderDetails", orderDetails);
@@ -67,6 +66,12 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                     font-size: 14px;
                     color: #777;
                     text-align: center;
+                    border-top: 1px solid #ddd;
+                    padding-top: 15px;
+                }
+                .footer a {
+                    color: #4CAF50;
+                    text-decoration: none;
                 }
             </style>
             <h1>Thank you for your order!</h1>
@@ -90,7 +95,7 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                 <tbody>
                     ${orderDetails.items
                       .map(
-                        (item) => `
+                        (item) => ` 
                         <tr>
                             <td><img src="${item.product.images[0]}" alt="${item.product.name}"></td>
                             <td><p style="font-weight: bold;">${item.product.name}</p></td>
@@ -116,6 +121,13 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
             <div class="footer">
                 <p>If you have any questions, feel free to contact us.</p>
                 <p>Thank you for shopping with us!</p>
+                <p>
+                    <strong>Shop Name:</strong> Manzy Store <br>
+                    <strong>Email:</strong> nambui250403@gmail.com <br>
+                    <strong>Phone:</strong> +84 327 357 359 <br>
+                    <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City
+                </p>
+                <p>Visit our website: <a href="http://manzystore.com" target="_blank">http://manzystore.com</a></p>
             </div>
         `,
   };
@@ -163,6 +175,12 @@ const sendPinEmail = async (to, pin, purpose) => {
                     font-size: 14px;
                     color: #777;
                     text-align: center;
+                    border-top: 1px solid #ddd;
+                    padding-top: 15px;
+                }
+                .footer a {
+                    color: #4CAF50;
+                    text-decoration: none;
                 }
             </style>
             <div style="text-align: center;">
@@ -174,6 +192,13 @@ const sendPinEmail = async (to, pin, purpose) => {
             </div>
             <div class="footer">
                 <p>If you have any questions, please contact our support team.</p>
+                <p>
+                    <strong>Shop Name:</strong> Manzy Store <br>
+                    <strong>Email:</strong> nambui250403@gmail.com <br>
+                    <strong>Phone:</strong> +84 327 357 359 <br>
+                    <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City
+                </p>
+                <p>Visit our website: <a href="http://manzystore.com" target="_blank">www.manzystore.com</a></p>
             </div>
         `,
   };
@@ -185,5 +210,6 @@ const sendPinEmail = async (to, pin, purpose) => {
     console.error("Error sending transaction PIN email:", error);
   }
 };
+
 
 module.exports = { sendOrderConfirmationEmail, sendPinEmail };
