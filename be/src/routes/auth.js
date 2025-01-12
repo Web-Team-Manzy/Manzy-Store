@@ -12,6 +12,8 @@ router.post("/login", authController.handleLogin);
 
 router.post("/login/google", authController.handleLoginGoogle);
 
+router.post("/login/facebook", authController.handleLoginFacebook);
+
 router.post("/logout", auth, authController.handleLogout);
 
 router.get("/account", auth, authController.getUserAccount);
