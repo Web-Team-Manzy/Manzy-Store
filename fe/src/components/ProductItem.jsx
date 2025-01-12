@@ -15,6 +15,12 @@ const ProductItem = ({ id, name, image, price }) => {
     <Link
       className="text-gray-700 cursor-pointer flex flex-col items-center border p-4 h-[400px]"
       to={`/product/${id}`}
+      onClick={() => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }}
     >
       {/* Hình ảnh */}
       <div className="overflow-hidden mb-4 w-full h-[250px]">
