@@ -166,7 +166,7 @@ class orderC {
                 }
             } else {
                 await sendOrderConfirmationEmail(userEmail, dateEmail);
-
+                await userModels.findByIdAndUpdate(userId, { cartData: {} });
                 res.json({
                     success: true,
                     message: "Order placed successfully with Cash on Delivery",

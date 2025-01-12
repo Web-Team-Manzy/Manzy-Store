@@ -47,15 +47,19 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                     border: 1px solid #ddd;
                     padding: 8px;
                     text-align: left;
+                    vertical-align: middle;
                 }
                 th {
                     background-color: #f2f2f2;
                     color: #333;
                 }
                 td img {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 5px;
+                  width: 50px;
+                  height: 50px;
+                  object-fit: cover;
+                  border-radius: 5px;
+                  display: block;
+                  margin: auto;
                 }
                 h2 {
                     margin-top: 20px;
@@ -101,7 +105,9 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                       .map(
                         (item) => ` 
                         <tr>
-                            <td><img src="${item.product.images[0]}" alt="${
+                            <td><img src="${
+                              item.product.images[0]
+                            }" style="width: 50px; height: 50px" alt="${
                           item.product.name
                         }"></td>
                             <td><p style="font-weight: bold;">${

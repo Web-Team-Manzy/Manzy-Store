@@ -130,7 +130,10 @@ const Navbar = () => {
                   </Link>
                   <p
                     className="cursor-pointer hover:text-black"
-                    onClick={() => handleLogout()}
+                    onClick={() => {
+                      navigate("/");
+                      handleLogout();
+                    }}
                   >
                     Logout
                   </p>

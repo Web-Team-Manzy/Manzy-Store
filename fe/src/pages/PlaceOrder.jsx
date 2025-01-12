@@ -17,6 +17,8 @@ const PlaceOrder = () => {
     const userInfo = useSelector((state) => state.account.userInfo);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isLocked, setIsLocked] = useState(false); // Khóa chuyển đổi phương thức thanh toán
+    const [loading, setLoading] = useState(false);
+    const [loadingConfirm, setLoadingConfirm] = useState(false);
 
     const [formData, setFormData] = useState({
         city: "",
@@ -192,12 +194,14 @@ const PlaceOrder = () => {
                 paymentMethod,
             };
 
+            setLoading(true);
+
             const response = await axios.post("http://localhost:8080/order/place", orderData, {
                 withCredentials: true,
             });
 
             if (response.data.success) {
-                toast.success("Please select a size");
+                toast.success("Order placed successfully!");
                 navigate("/orders");
             } else {
                 toast.error("Failed to place order. Please try again.");
@@ -212,12 +216,23 @@ const PlaceOrder = () => {
             } else {
                 toast.error("An unexpected error occurred!");
             }
+        } finally{
+            setLoading(false);
         }
     };
 
     // Yêu cầu mã xác nhận
     const requestVerificationCode = async () => {
-        await requireOrderConfirmationPin();
+        try {
+            setLoading(true);
+            await requireOrderConfirmationPin();
+            
+        } catch (error) {
+            toast.error("An error occurred while requesting the verification code!");
+            console.error("Error requesting verification code:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleVerifyCode = async () => {
@@ -226,6 +241,8 @@ const PlaceOrder = () => {
             const address = { city, district, ward, stress };
             const amount = getCartAmount();
             const items = cartData;
+            
+            setLoadingConfirm(true);
 
             const response = await confirmEmail(
                 verificationCode, // Mã xác nhận
@@ -245,6 +262,9 @@ const PlaceOrder = () => {
             }
         } catch (error) {
             toast.error("An error occurred while verifying the payment!");
+        } finally {
+            setLoadingConfirm(false);
+            setIsModalVisible(false)
         }
     };
 
@@ -431,7 +451,7 @@ const PlaceOrder = () => {
                                 onClick={handlePlaceOrder}
                                 className="bg-black text-white px-16 py-3 text-sm"
                             >
-                                CONFIRM ORDER
+                                {loading ? "CONFIRM ORDERING..." : "CONFIRM ORDER"}
                             </button>
                         )}
                     </div>
@@ -445,6 +465,8 @@ const PlaceOrder = () => {
                 onConfirm={handleVerifyCode}
                 verificationCode={verificationCode}
                 setVerificationCode={setVerificationCode}
+                loading={loading}
+                loadingConfirm={loadingConfirm}
             />
         </div>
     );
