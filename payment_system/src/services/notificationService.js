@@ -95,6 +95,35 @@ const generateExcelReport = async (filters) => {
             row.getCell("discrepancyAmountEX").numFmt = "#,##0.00";
         });
 
+        const reasonCounts = data.reduce((acc, curr) => {
+            if (curr.discrepancyReason) {
+                acc[curr.discrepancyReason] = (acc[curr.discrepancyReason] || 0) + 1;
+            }
+            return acc;
+        }, {});
+
+        if (Object.keys(reasonCounts).length > 0) {
+            const reasonAnalysisSheet = workbook.addWorksheet("Discrepancy Analysis");
+
+            reasonAnalysisSheet.columns = [
+                { header: "Discrepancy Reason", key: "reason", width: 40 },
+                { header: "Count", key: "count", width: 15 },
+                { header: "Percentage", key: "percentage", width: 15 },
+            ];
+
+            reasonAnalysisSheet.getRow(1).font = { bold: true };
+
+            const totalDiscrepancies = Object.values(reasonCounts).reduce((a, b) => a + b, 0);
+
+            Object.entries(reasonCounts).forEach(([reason, count]) => {
+                reasonAnalysisSheet.addRow({
+                    reason,
+                    count,
+                    percentage: `${((count / totalDiscrepancies) * 100).toFixed(2)}%`,
+                });
+            });
+        }
+
         return workbook;
     } catch (error) {
         console.log(">>> generateExcelReport error:", error);
