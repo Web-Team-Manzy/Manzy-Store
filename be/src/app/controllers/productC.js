@@ -146,6 +146,7 @@ class productC {
         sizes,
         bestseller,
       } = req.body;
+      console.log(">>>>> req.body ", req.body);
       const currentProduct = await productM.findById(productId);
       if (!currentProduct) {
         return res.json({ success: false, message: "Product not found" });
@@ -155,6 +156,11 @@ class productC {
       const image2 = req.files?.image2?.[0];
       const image3 = req.files?.image3?.[0];
       const image4 = req.files?.image4?.[0];
+
+      console.log("image1: ", image1);
+      console.log("image2: ", image2);
+      console.log("image3: ", image3);
+      console.log("image4: ", image4);
 
       const subcategory = subCategory;
 
@@ -185,6 +191,8 @@ class productC {
         imagesUrl[3] = result.secure_url;
       }
 
+      console.log("imagesUrl: ", imagesUrl);
+
       const updateData = {
         name,
         description,
@@ -204,7 +212,6 @@ class productC {
     }
   }
 
-
   async deleteProduct(req, res) {
     try {
       const product = await productM.findById(req.query.id);
@@ -214,15 +221,18 @@ class productC {
 
       const images = product.images;
       if (images && images.length > 0) {
-        const cloudinary = require('cloudinary').v2;
+        const cloudinary = require("cloudinary").v2;
         for (const imageUrl of images) {
-          const publicId = imageUrl.split('/').pop().split('.')[0]; 
+          const publicId = imageUrl.split("/").pop().split(".")[0];
           await cloudinary.uploader.destroy(publicId);
         }
       }
 
       await productM.findByIdAndDelete(req.query.id);
-      res.json({ success: true, message: "Delete product and images successfully" });
+      res.json({
+        success: true,
+        message: "Delete product and images successfully",
+      });
     } catch (error) {
       console.log(error);
       res.json({ success: false, message: error.message });
