@@ -2,17 +2,70 @@ const { processPayment } = require("../../services/paymentService");
 const { sendOrderConfirmationEmail, sendPinEmail } = require("../../services/EmailService");
 const orderM = require("../models/orderM");
 const userModels = require("../models/userM");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 const pinM = require("../models/pinM");
 
 class orderC {
+ // User orders data for FE
+    async userOrders(req, res) {
+        try {
+            const { userId } = req.body;
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+
+            const skip = (page - 1) * limit;
+
+            const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
+
+            const totalOrders = await orderM.countDocuments({ userId });
+            
+            const userIds = orders.map((order) => order.userId).filter(Boolean);
+
+            const users = await userModels.find({ _id: { $in: userIds } }).lean();
+
+            const userMap = users.reduce((map, user) => {
+                map[user._id] = user.displayName;
+                return map;
+            }, {});
+
+            const enrichedOrders = orders.map((order) => {
+                const userId = order.userId;
+                order.displayName = userMap[userId] || "Unknown";
+                return order;
+            });
+
+            res.json({
+                success: true,
+                totalOrders,
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                orders: enrichedOrders,
+            });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    // update order status from admin Panel
+    async updateStatus(req, res) {
+        try {
+            const { orderId, status } = req.body;
+            await orderM.findByIdAndUpdate(orderId, { status });
+            res.json({ success: true, message: "Order status updated successfully" });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
     // [POST] /send-order-confirmation-pin
     async sendOrderConfirmationPin(req, res) {
         try {
-            const userEmail = req.user.email;
-            console.log("req.user", req.user.id);
+            const { userId } = req.user.id;
 
-            console.log("userEmail", userEmail);
+            // Get user email
+            const user = await userModels.findById(userId);
+            const userEmail = user.email;
 
             // Generate a random PIN for transaction confirmation
             const transactionPin = Math.floor(100000 + Math.random() * 900000).toString();
@@ -20,10 +73,7 @@ class orderC {
             // Hash the PIN
             const hashedPin = await bcrypt.hash(transactionPin, 10);
 
-            await pinM.deleteMany({
-                email: userEmail,
-                purpose: "order_confirmation",
-            });
+            await pinM.deleteMany({ email: userEmail, purpose: "order_confirmation" });
 
             // Save the hashed PIN and expiration time to the pin collection
             const expirationTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
@@ -39,8 +89,7 @@ class orderC {
             // Send transaction PIN email
             await sendPinEmail(userEmail, transactionPin, "order_confirmation");
 
-            res.json({
-                success: true,
+            res.json({ success: true, 
                 message: "Please check your email for the transaction PIN to confirm the payment.",
             });
         } catch (error) {
@@ -53,9 +102,7 @@ class orderC {
     async placeOrder(req, res) {
         try {
             const { transactionPin, items, amount, address, paymentMethod } = req.body;
-            const userId = req.user.id;
-
-            console.log("req.user", req.user);
+            const { userId } = req.user.id;
 
             // Get user email
             const user = await userModels.findById(userId);
@@ -63,24 +110,15 @@ class orderC {
 
             if (paymentMethod !== "COD") {
                 // Find the pin by email and purpose
-                const pinData = await pinM.findOne({
-                    email: userEmail,
-                    purpose: "order_confirmation",
-                });
+                const pinData = await pinM.findOne({ email: userEmail, purpose: "order_confirmation" });
                 if (!pinData || new Date() > pinData.expirationTime) {
-                    return res.json({
-                        success: false,
-                        message: "Invalid or expired transaction PIN",
-                    });
+                    return res.json({ success: false, message: "Invalid or expired transaction PIN" });
                 }
 
                 // Compare the provided PIN with the hashed PIN
                 const isMatch = await bcrypt.compare(transactionPin, pinData.pin);
                 if (!isMatch) {
-                    return res.json({
-                        success: false,
-                        message: "Invalid transaction PIN",
-                    });
+                    return res.json({ success: false, message: "Invalid transaction PIN" });
                 }
 
                 // Remove the pin data after confirmation
@@ -93,17 +131,17 @@ class orderC {
                 items,
                 amount,
                 address,
-                paymentMethod,
+                paymentMethod, 
                 payment: paymentMethod === "COD" ? false : true,
             };
 
             const newOrder = new orderM(orderData);
-            await newOrder.save();
+            const dateEmail = await newOrder.save();
 
             const orderId = newOrder._id;
 
             if (paymentMethod !== "COD") {
-                // Call processPayment
+                
                 const response = await processPayment(userId, amount, orderId);
 
                 if (response && +response.EC === 0 && response.DT.status === "COMPLETED") {
@@ -111,29 +149,24 @@ class orderC {
                     await userModels.findByIdAndUpdate(userId, { cartData: {} });
 
                     // Send order confirmation email
-                    await sendOrderConfirmationEmail(userEmail, orderData);
+                    await sendOrderConfirmationEmail(userEmail, dateEmail);
 
-                    res.json({
-                        success: true,
-                        message: "Payment confirmed and order placed successfully",
-                    });
+                    res.json({ success: true, message: "Payment confirmed and order placed successfully" });
                 } else {
                     res.json({ success: false, message: "Payment failed" });
                 }
             } else {
-                // Send order confirmation email for COD
-                await sendOrderConfirmationEmail(userEmail, orderData);
-                await userModels.findByIdAndUpdate(userId, { cartData: {} });
-                res.json({
-                    success: true,
-                    message: "Order placed successfully with Cash on Delivery",
-                });
+                
+                await sendOrderConfirmationEmail(userEmail, dateEmail);
+
+                res.json({ success: true, message: "Order placed successfully with Cash on Delivery" });
             }
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });
         }
     }
+    
 
     // All ordes data for admin panel
     async allOrders(req, res) {
@@ -169,59 +202,6 @@ class orderC {
                 totalPages: Math.ceil(totalOrders / limit),
                 orders: enrichedOrders,
             });
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
-        }
-    }
-
-    // User orders data for FE
-    async userOrders(req, res) {
-        try {
-            const { userId } = req.body;
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-
-            const skip = (page - 1) * limit;
-
-            const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
-
-            const totalOrders = await orderM.countDocuments({ userId });
-
-            const userIds = orders.map((order) => order.userId).filter(Boolean);
-
-            const users = await userModels.find({ _id: { $in: userIds } }).lean();
-
-            const userMap = users.reduce((map, user) => {
-                map[user._id] = user.displayName;
-                return map;
-            }, {});
-
-            const enrichedOrders = orders.map((order) => {
-                const userId = order.userId;
-                order.displayName = userMap[userId] || "Unknown";
-                return order;
-            });
-
-            res.json({
-                success: true,
-                totalOrders,
-                currentPage: page,
-                totalPages: Math.ceil(totalOrders / limit),
-                orders: enrichedOrders,
-            });
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
-        }
-    }
-
-    // update order status from admin Panel
-    async updateStatus(req, res) {
-        try {
-            const { orderId, status } = req.body;
-            await orderM.findByIdAndUpdate(orderId, { status });
-            res.json({ success: true, message: "Order status updated successfully" });
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });

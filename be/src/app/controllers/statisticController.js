@@ -145,7 +145,8 @@ class statisticC {
             res.status(400).json({ message: error.message });
         }
     }
-
+    
+    // [GET]/statistic/bestseller?startDate=2025-01-01&endDate=25-01-08
     async getBestSeller(req, res) {
         try {
             const { startDate, endDate } = req.query;
