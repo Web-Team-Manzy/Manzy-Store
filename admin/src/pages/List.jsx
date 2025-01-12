@@ -20,6 +20,8 @@ const List = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
+  const [loading, setLoading] = useState({});
+
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
     number: [37, 38, 39, 40, 41, 42, 43],
@@ -55,6 +57,38 @@ const List = ({ token }) => {
 
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
+
+    if (!formData.name) {
+      toast.error("Please enter product name");
+      return;
+    }
+
+    if (!formData.price) {
+      toast.error("Please enter product price");
+      return;
+    }
+
+    if (!formData.category) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    if (!formData.subCategory) {
+      toast.error("Please select a subcategory");
+      return;
+    }
+
+    if (formData.sizes.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+
+    if (!image1) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+
+    setLoading(true);
 
     // Tạo FormData
     const dataToSend = new FormData();
@@ -104,6 +138,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -166,6 +202,8 @@ const List = ({ token }) => {
 
   const removeProduct = async (id) => {
     try {
+      setLoading((prev) => ({ ...prev, [id]: true }));
+
       const response = await axios.delete("/product/delete", {
         params: { id },
       });
@@ -179,6 +217,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -242,6 +282,10 @@ const List = ({ token }) => {
               >
                 X
               </p>
+
+              {loading[item._id] && (
+                <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+              )}
             </div>
           </div>
         ))}
@@ -262,8 +306,8 @@ const List = ({ token }) => {
 
       {/* Edit Product Modal */}
       {editing && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-5 rounded-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
             <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
             <form onSubmit={handleUpdateProduct}>
               <div className="mb-3 min-w-72">

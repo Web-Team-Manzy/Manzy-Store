@@ -39,6 +39,14 @@ const Category = ({ token }) => {
   };
 
   const handleSaveNewCategory = async () => {
+    if (!formData.name) {
+      toast.error("Category name is required");
+      return;
+    }
+    if (formData.subcategories.length === 0) {
+      toast.error("At least one subcategory is required");
+      return;
+    }
     try {
       const response = await axios.post(`/category/add`, formData);
 
@@ -62,6 +70,14 @@ const Category = ({ token }) => {
   };
 
   const handleSave = async () => {
+    if (!formData.name) {
+      toast.error("Category name is required");
+      return;
+    }
+    if (formData.subcategories.length === 0) {
+      toast.error("At least one subcategory is required");
+      return;
+    }
     try {
       const response = await axios.put("/category/update", {
         categoryId: editingCategory._id,

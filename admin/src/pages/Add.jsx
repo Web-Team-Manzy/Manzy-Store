@@ -22,9 +22,10 @@ const Add = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  // const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [sizeType, setSizeType] = useState("letter"); // letter or number
+
+  const [loading, setLoading] = useState(false);
 
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
@@ -33,6 +34,18 @@ const Add = ({ token }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    if (sizes.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+
+    if (!image1) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -57,17 +70,21 @@ const Add = ({ token }) => {
         setName("");
         setDescription("");
         setPrice("");
+        setCategory("");
+        setSubCategory("");
+        setSizes([]);
         setImage1(false);
         setImage2(false);
         setImage3(false);
         setImage4(false);
-        setPrice("");
       } else {
         toast.error(response.message);
       }
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -198,7 +215,12 @@ const Add = ({ token }) => {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full px-3 py-2 "
+            required
           >
+            {" "}
+            <option value="" disabled>
+              Select a category
+            </option>
             {categories.map((cat) => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
@@ -213,6 +235,7 @@ const Add = ({ token }) => {
             value={subCategory}
             onChange={(e) => setSubCategory(e.target.value)}
             className="w-full px-3 py-2 "
+            required
           >
             <option value="" disabled>
               Select a subcategory
@@ -232,6 +255,7 @@ const Add = ({ token }) => {
             className="w-full px-3 py-2 sm:w-[120px]"
             type="number"
             placeholder="24"
+            required
           />
         </div>
       </div>
@@ -303,10 +327,21 @@ const Add = ({ token }) => {
           Add to bestseller
         </label>
       </div> */}
-
-      <button type="submit" className="w-28 py-3 mt-4 bg-black text-white">
-        ADD
-      </button>
+      <div className="flex gap-2 items-center">
+        <button
+          type="submit"
+          className={`w-28 py-3 mt-4 bg-black text-white ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loading ? "Loading..." : "ADD"}
+        </button>
+        {loading && (
+          <div className="flex items-center justify-center">
+            <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin mt-3"></div>
+          </div>
+        )}
+      </div>
     </form>
   );
 };

@@ -96,7 +96,7 @@ const User = ({ token }) => {
         setEditingUser(null);
         fetchUsers();
       } else {
-        toast.error(response.EM);
+        toast.error(response.EM + " need email, display name and role");
       }
     } catch (error) {
       console.log(error);

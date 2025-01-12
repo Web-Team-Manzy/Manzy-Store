@@ -4,6 +4,7 @@ import { fetchCart, updateQuantity } from "../redux/action/cartAction";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
+import { toast } from "react-toastify";
 import { ShopContext } from "../context/ShopContext";
 
 const Cart = () => {
@@ -12,6 +13,7 @@ const Cart = () => {
   const cartData = useSelector((state) => state.cart?.cartData || []);
   const { navigate } = useContext(ShopContext);
   const account = useSelector((state) => state.account);
+  const { userInfo } = account;
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -104,7 +106,15 @@ const Cart = () => {
 
       <div className="w-full text-end">
         <button
-          onClick={() => navigate("/place-order")}
+          onClick={() => {
+            console.log(">>> userInfo", userInfo);
+            if (!userInfo.email) {
+              toast.error("Please login to continue");
+              navigate("/login");
+              return;
+            }
+            navigate("/place-order");
+          }}
           className="bg-black text-white text-sm my-8 px-8 py-3"
         >
           CHECKOUT
