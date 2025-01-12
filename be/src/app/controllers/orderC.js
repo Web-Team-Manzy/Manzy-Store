@@ -6,6 +6,59 @@ const bcrypt = require('bcrypt');
 const pinM = require("../models/pinM");
 
 class orderC {
+
+    // User orders data for FE
+    async userOrders(req, res) {
+        try {
+            const { userId } = req.body;
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+
+            const skip = (page - 1) * limit;
+
+            const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
+
+            const totalOrders = await orderM.countDocuments({ userId });
+            
+            const userIds = orders.map((order) => order.userId).filter(Boolean);
+
+            const users = await userModels.find({ _id: { $in: userIds } }).lean();
+
+            const userMap = users.reduce((map, user) => {
+                map[user._id] = user.displayName;
+                return map;
+            }, {});
+
+            const enrichedOrders = orders.map((order) => {
+                const userId = order.userId;
+                order.displayName = userMap[userId] || "Unknown";
+                return order;
+            });
+
+            res.json({
+                success: true,
+                totalOrders,
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                orders: enrichedOrders,
+            });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    // update order status from admin Panel
+    async updateStatus(req, res) {
+        try {
+            const { orderId, status } = req.body;
+            await orderM.findByIdAndUpdate(orderId, { status });
+            res.json({ success: true, message: "Order status updated successfully" });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
     // [POST] /send-order-confirmation-pin
     async sendOrderConfirmationPin(req, res) {
         try {
@@ -150,59 +203,6 @@ class orderC {
                 totalPages: Math.ceil(totalOrders / limit),
                 orders: enrichedOrders,
             });
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
-        }
-    }
-
-    // User orders data for FE
-    async userOrders(req, res) {
-        try {
-            const { userId } = req.body;
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-
-            const skip = (page - 1) * limit;
-
-            const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
-
-            const totalOrders = await orderM.countDocuments({ userId });
-            
-            const userIds = orders.map((order) => order.userId).filter(Boolean);
-
-            const users = await userModels.find({ _id: { $in: userIds } }).lean();
-
-            const userMap = users.reduce((map, user) => {
-                map[user._id] = user.displayName;
-                return map;
-            }, {});
-
-            const enrichedOrders = orders.map((order) => {
-                const userId = order.userId;
-                order.displayName = userMap[userId] || "Unknown";
-                return order;
-            });
-
-            res.json({
-                success: true,
-                totalOrders,
-                currentPage: page,
-                totalPages: Math.ceil(totalOrders / limit),
-                orders: enrichedOrders,
-            });
-        } catch (error) {
-            console.log(error);
-            res.json({ success: false, message: error.message });
-        }
-    }
-
-    // update order status from admin Panel
-    async updateStatus(req, res) {
-        try {
-            const { orderId, status } = req.body;
-            await orderM.findByIdAndUpdate(orderId, { status });
-            res.json({ success: true, message: "Order status updated successfully" });
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });
