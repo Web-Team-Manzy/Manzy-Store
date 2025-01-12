@@ -50,6 +50,13 @@ const Login = () => {
         }
         // Simulate sending verification code
 
+        const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})*$/;
+
+        if (!emailRegex.test(email)) {
+            toast.error("Invalid email address.");
+            return;
+        }
+
         const res = await sendConfirmEmailApi(email);
 
         if (res && res.EC === 0) {
@@ -72,6 +79,17 @@ const Login = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+
+        if (!email) {
+            toast.error("Please enter an email address.");
+            return;
+        }
+
+        const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})*$/;
+        if (!emailRegex.test(email)) {
+            toast.error("Invalid email address.");
+            return;
+        }
 
         if (currentState === "Sign In") {
             dispatch(doLogin(email, password));
