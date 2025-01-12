@@ -62,7 +62,7 @@ route(app);
 
 //
 const setupCronJobs = require("./config/cron");
-setupCronJobs();
+// setupCronJobs();
 
 // const initMainAccount = require("./services/accountService").initMainAccount;
 // // Khởi tạo tài khoản chính

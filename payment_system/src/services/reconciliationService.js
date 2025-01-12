@@ -38,17 +38,18 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
                 (order) => order._id === transaction.orderId
             );
 
-            // find existing reconciliation log for this transaction
+            if (!matchingOrder) {
+                continue;
+            }
+
             const existingLog = await ReconciliationLog.findOne({
                 transactionId: transaction._id,
             });
 
             if (existingLog) {
-                // update existing log
                 existingLog.paymentSystemAmount = transaction.amount;
                 existingLog.mainSystemAmount = matchingOrder ? matchingOrder.amount : 0;
 
-                // Kiểm tra khớp lệch
                 if (!matchingOrder) {
                     existingLog.status = "MISMATCHED";
                     existingLog.discrepancyReason = "Order not found in main system";
@@ -59,6 +60,8 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
                     existingLog.status = "MATCHED";
                 }
 
+                existingLog.lastModified = new Date();
+
                 await existingLog.save();
                 continue;
             }
@@ -68,6 +71,8 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
                 orderId: transaction.orderId,
                 paymentSystemAmount: transaction.amount,
                 mainSystemAmount: matchingOrder ? matchingOrder.amount : 0,
+                paymentMethod: matchingOrder.paymentMethod,
+                processedBy: "SYSTEM",
             });
 
             // Kiểm tra khớp lệch
@@ -84,23 +89,14 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
             await reconciliationLog.save();
         }
 
-        const summary = await ReconciliationLog.aggregate([
-            {
-                $match: {
-                    reconciliationDate: {
-                        $gte: new Date(startDate),
-                        $lte: new Date(endDate),
-                    },
-                },
+        const summary = await ReconciliationLog.find({
+            reconciliationDate: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
             },
-            {
-                $group: {
-                    _id: "$status",
-                    count: { $sum: 1 },
-                    totalAmount: { $sum: "$paymentSystemAmount" },
-                },
-            },
-        ]);
+        })
+            .populate("transactionId")
+            .exec();
 
         if (!summary) {
             return {
