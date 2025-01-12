@@ -61,7 +61,7 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
                 $match: {
                     reconciliationDate: {
                         $gte: new Date(startDate),
-                        $lte: new Date(Date.now()),
+                        $lte: new Date(endDate),
                     },
                 },
             },
@@ -98,6 +98,7 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
 };
 
 const getDiscrepancyReport = async (date) => {
+    //MISMATCHED
     return ReconciliationLog.find({
         status: "MISMATCHED",
         reconciliationDate: {

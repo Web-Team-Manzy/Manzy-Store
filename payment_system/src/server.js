@@ -60,6 +60,10 @@ app.use(express.json());
 // Định tuyến
 route(app);
 
+//
+const setupCronJobs = require("./config/cron");
+setupCronJobs();
+
 // const initMainAccount = require("./services/accountService").initMainAccount;
 // // Khởi tạo tài khoản chính
 // initMainAccount();
