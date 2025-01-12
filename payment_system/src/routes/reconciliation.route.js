@@ -5,4 +5,6 @@ const ReconciliationController = require("../app/controllers/reconciliation.cont
 
 router.get("/", ReconciliationController.reconcileTransaction);
 
+router.get("/discrepancy", ReconciliationController.getDiscrepancyReport);
+
 module.exports = router;

@@ -97,6 +97,17 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
     }
 };
 
+const getDiscrepancyReport = async (date) => {
+    return ReconciliationLog.find({
+        status: "MISMATCHED",
+        reconciliationDate: {
+            $gte: new Date(date),
+            $lt: new Date(date + 24 * 60 * 60 * 1000),
+        },
+    }).populate("transactionId");
+};
+
 module.exports = {
     reconcileTransaction,
+    getDiscrepancyReport,
 };
