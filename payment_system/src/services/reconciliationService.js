@@ -95,7 +95,7 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
                 $lte: new Date(endDate),
             },
         })
-            .populate("transactionId")
+            // .populate("transactionId")
             .exec();
 
         if (!summary) {
@@ -105,7 +105,7 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
             };
         }
 
-        console.log(">>> summary:", summary);
+        // console.log(">>> summary:", summary);
 
         return {
             EC: 0,

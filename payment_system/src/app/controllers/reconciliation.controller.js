@@ -4,6 +4,7 @@ const {
     reconcileTransaction,
     getDiscrepancyReport,
 } = require("../../services/reconciliationService");
+const { sendReportEmail } = require("../../services/notificationService");
 
 class ReconciliationController {
     static async reconcileTransaction(req, res) {
@@ -71,6 +72,30 @@ class ReconciliationController {
             return res.status(500).json({
                 EC: 99,
                 EM: "Failed to get discrepancy report",
+            });
+        }
+    }
+
+    static async sendReport(req, res) {
+        try {
+            const { startDate, endDate } = req.body;
+
+            const filters = {
+                startDate,
+                endDate,
+            };
+
+            await sendReportEmail(filters);
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Report sent successfully",
+            });
+        } catch (error) {
+            console.log(">>> sendReport error:", error);
+            return res.status(500).json({
+                EC: 99,
+                EM: "Failed to send report",
             });
         }
     }

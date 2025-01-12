@@ -7,4 +7,6 @@ router.get("/", ReconciliationController.reconcileTransaction);
 
 router.get("/discrepancy", ReconciliationController.getDiscrepancyReport);
 
+router.post("/send-report", ReconciliationController.sendReport);
+
 module.exports = router;
