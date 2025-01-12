@@ -1,9 +1,10 @@
 const schedule = require("node-schedule");
 
 const { reconcileTransaction } = require("../services/reconciliationService");
-const { sendAlert } = require("../services/notificationService");
+const { sendAlert, sendReportEmail } = require("../services/notificationService");
 
 const setupCronJobs = () => {
+    // 1 0 * * *
     schedule.scheduleJob("1 0 * * *", async () => {
         try {
             console.log(">>> Running reconciliation cron job...");
@@ -12,26 +13,33 @@ const setupCronJobs = () => {
             const startDate = new Date(yesterday.setHours(0, 0, 0, 0));
             const endDate = new Date(yesterday.setHours(23, 59, 59, 999));
 
-            const data = await reconcileTransaction(startDate, endDate);
-
-            const summary = data.DT;
-
-            console.log(">>> Reconciliation summary:", summary);
-
-            // Check for discrepancies
-            if (summary.some((item) => item._id === "MISMATCHED" && item.count > 0)) {
-                await sendAlert({
-                    type: "RECONCILIATION_DISCREPANCY",
-                    data: summary,
-                });
-            }
+            await sendReportEmail({
+                startDate,
+                endDate,
+            })
         } catch (error) {
-            await sendAlert({
-                type: "RECONCILIATION_ERROR",
-                error: error.message,
-            });
+            console.log(">>> Reconciliation cron job error:", error);
         }
     });
+
+    // weekly report
+    // 1 0 * * 1
+    // schedule.scheduleJob("1 0 * * 1", async () => {
+    //     try {
+    //         console.log(">>> Running weekly report cron job...");
+
+    //         const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    //         const startDate = new Date(lastWeek.setHours(0, 0, 0, 0));
+    //         const endDate = new Date(Date.now());
+
+    //         await sendReportEmail({
+    //             startDate,
+    //             endDate,
+    //         })
+    //     } catch (error) {
+    //         console.log(">>> Weekly report cron job error:", error);
+    //     }
+    // });
 };
 
 module.exports = setupCronJobs;

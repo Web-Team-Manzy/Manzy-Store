@@ -1,11 +1,11 @@
 const nodemailer = require("nodemailer");
 const ExcelJS = require("exceljs");
-const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
 
 const { reconcileTransaction } = require("./reconciliationService");
+const HTMLReportService = require("./htmlReportService");
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -268,6 +268,16 @@ const sendReportEmail = async (filters) => {
 
         await workbook.xlsx.writeFile(filePath);
 
+        const data = await reconcileTransaction(
+            new Date(filters.startDate),
+            new Date(filters.endDate)
+        );
+
+        const htmlReport = await HTMLReportService.generateHTMLReport(data.DT, filters);
+        const htmlFileName = `Reconciliation_Report_${new Date().getTime()}.html`;
+        const htmlFilePath = `./public/reports/${htmlFileName}`;
+        fs.writeFileSync(htmlFilePath, htmlReport);
+
         const templateData = {
             startDate: new Date(filters.startDate).toLocaleDateString(),
             endDate: new Date(filters.endDate).toLocaleDateString(),
@@ -289,20 +299,25 @@ const sendReportEmail = async (filters) => {
             fs.readFileSync(path.join(rootPath, "views/templates/report-email.handlebars"), "utf8")
         )(templateData);
 
-        // await transporter.sendMail({
-        //     from: process.env.SMTP_USER,
-        //     to: process.env.ADMIN_EMAILS.split(","),
-        //     subject: "Reconciliation Report",
-        //     html: htmlContent,
-        //     attachments: [
-        //         {
-        //             filename: fileName,
-        //             path: filePath,
-        //         },
-        //     ],
-        // });
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: process.env.ADMIN_EMAILS.split(","),
+            subject: "Reconciliation Report",
+            html: htmlContent,
+            attachments: [
+                {
+                    filename: fileName,
+                    path: filePath,
+                },
+                {
+                    filename: htmlFileName,
+                    path: htmlFilePath,
+                },
+            ],
+        });
 
-        // fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath);
+        fs.unlinkSync(htmlFilePath);
 
         return true;
     } catch (error) {

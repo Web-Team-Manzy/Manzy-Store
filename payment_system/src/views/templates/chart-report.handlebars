@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconciliation Analysis Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .filters {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .filters h3 {
+            margin-top: 0;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        canvas {
+            width: 100% !important;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reconciliation Analysis Report</h1>
+            <div class="filters">
+                <h3>Applied Filters:</h3>
+                <p>Period: {{filters.startDate}} - {{filters.endDate}}</p>
+                {{#if filters.status}}<p>Status: {{filters.status}}</p>{{/if}}
+                {{#if filters.paymentMethod}}<p>Payment Method: {{filters.paymentMethod}}</p>{{/if}}
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Status Distribution</div>
+                <canvas id="statusChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Daily Reconciliation Trend</div>
+                <canvas id="trendChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Discrepancy Analysis</div>
+                <canvas id="discrepancyChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Payment Method Analysis</div>
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated on: {{generatedDate}}</p>
+        </div>
+    </div>
+
+    <script>
+        // Lấy data từ template
+        const chartData = {{{chartData}}};
+
+        // Khởi tạo các biểu đồ
+        new Chart(document.getElementById('statusChart'), {
+            type: 'pie',
+            data: chartData.statusData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: chartData.trendData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('discrepancyChart'), {
+            type: 'bar',
+            data: chartData.discrepancyData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('paymentMethodChart'), {
+            type: 'bar',
+            data: chartData.paymentMethodData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
