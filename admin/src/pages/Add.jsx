@@ -50,8 +50,6 @@ const Add = ({ token }) => {
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
 
-      console.log(formData.name);
-
       const response = await axios.post("/product/add", formData);
 
       if (response.success) {
@@ -76,7 +74,7 @@ const Add = ({ token }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('/category/list');
+        const response = await axios.get("/category/list");
 
         if (response.success) {
           const data = response.data;

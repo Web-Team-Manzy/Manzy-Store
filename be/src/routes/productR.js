@@ -24,7 +24,18 @@ router.get("/listNewProduct", productC.listNewProduct);
 
 router.get("/detail/:productId", productC.detailProduct);
 
-router.put("/update", auth, admin, productC.updateProduct);
+router.put(
+  "/update",
+  auth,
+  admin,
+  upload.fields([
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+    { name: "image4", maxCount: 1 },
+  ]),
+  productC.updateProduct
+);
 
 router.delete("/delete", auth, admin, productC.deleteProduct);
 
