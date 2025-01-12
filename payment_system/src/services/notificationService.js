@@ -1,5 +1,10 @@
 const nodemailer = require("nodemailer");
 const ExcelJS = require("exceljs");
+const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
+const handlebars = require("handlebars");
+const fs = require("fs");
+const path = require("path");
+
 const { reconcileTransaction } = require("./reconciliationService");
 
 const transporter = nodemailer.createTransport({
@@ -95,33 +100,157 @@ const generateExcelReport = async (filters) => {
             row.getCell("discrepancyAmountEX").numFmt = "#,##0.00";
         });
 
-        // Tạo sheet phân tích lý do lệch
-        const reasonCounts = summary.reduce((acc, curr) => {
-            if (curr.discrepancyReason) {
-                acc[curr.discrepancyReason] = (acc[curr.discrepancyReason] || 0) + 1;
+        worksheet.autoFilter = {
+            from: "A1",
+            to: "I1",
+        };
+
+        // Tạo sheet biểu đồ phân tích trạng thái
+        const statusCounts = summary.reduce((acc, curr) => {
+            const object = {
+                _id: curr.status,
+                count: 1,
+                amount: curr.mainSystemAmount,
+            };
+
+            const existing = acc.find((item) => item._id === object._id);
+
+            if (existing) {
+                existing.count += object.count;
+                existing.amount += object.amount;
+            } else {
+                acc.push(object);
             }
+
             return acc;
-        }, {});
+        }, []);
 
-        const reasonAnalysisSheet = workbook.addWorksheet("Discrepancy Analysis");
+        const statusAnalysisSheet = workbook.addWorksheet("Status Analysis");
 
-        reasonAnalysisSheet.columns = [
-            { header: "Discrepancy Reason", key: "reason", width: 40 },
+        statusAnalysisSheet.columns = [
+            { header: "Status", key: "status", width: 15 },
             { header: "Count", key: "count", width: 15 },
+            { header: "Total Amount", key: "amount", width: 20 },
             { header: "Percentage", key: "percentage", width: 15 },
         ];
 
-        reasonAnalysisSheet.getRow(1).font = { bold: true };
+        const statusTotal = statusCounts.reduce((a, b) => a + b.count, 0);
 
-        const totalDiscrepancies = Object.values(reasonCounts).reduce((a, b) => a + b, 0);
-
-        Object.entries(reasonCounts).forEach(([reason, count]) => {
-            reasonAnalysisSheet.addRow({
-                reason,
-                count,
-                percentage: `${((count / totalDiscrepancies) * 100).toFixed(2)}%`,
+        statusCounts.forEach((item) => {
+            statusAnalysisSheet.addRow({
+                status: item._id,
+                count: item.count,
+                amount: item.amount,
+                percentage: `${((item.count / statusTotal) * 100).toFixed(2)}%`,
             });
         });
+
+        statusAnalysisSheet.getRow(1).font = { bold: true };
+        statusAnalysisSheet.getRow(1).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE6E6E6" },
+        };
+        statusAnalysisSheet.getColumn("amount").numFmt = "#,##0.00";
+
+        // Tạo sheet biểu đồ phân tích phân tích theo thời gian
+        const dateCounts = summary
+            .reduce((acc, curr) => {
+                const date = new Date(curr.reconciliationDate).toLocaleDateString();
+
+                const object = {
+                    _id: date,
+                    total: 1,
+                    matched: curr.status === "MATCHED" ? 1 : 0,
+                    mismatched: curr.status === "MISMATCHED" ? 1 : 0,
+                    pending: curr.status === "PENDING" ? 1 : 0,
+                    amount: curr.mainSystemAmount,
+                };
+
+                const existing = acc.find((item) => item._id === object._id);
+
+                if (existing) {
+                    existing.total += object.total;
+                    existing.matched += object.matched;
+                    existing.mismatched += object.mismatched;
+                    existing.pending += object.pending;
+                    existing.amount += object.amount;
+                } else {
+                    acc.push(object);
+                }
+
+                return acc;
+            }, [])
+            .sort((a, b) => new Date(a._id) - new Date(b._id));
+
+        const dateAnalysisSheet = workbook.addWorksheet("Date Analysis");
+
+        dateAnalysisSheet.columns = [
+            { header: "Date", key: "date", width: 15 },
+            { header: "Total Transactions", key: "total", width: 20 },
+            { header: "Matched", key: "matched", width: 15 },
+            { header: "Mismatched", key: "mismatched", width: 15 },
+            { header: "Pending", key: "pending", width: 15 },
+            { header: "Total Amount", key: "amount", width: 20 },
+        ];
+
+        dateCounts.forEach((item) => {
+            dateAnalysisSheet.addRow({
+                date: item._id,
+                total: item.total,
+                matched: item.matched,
+                mismatched: item.mismatched,
+                pending: item.pending,
+                amount: item.amount,
+            });
+        });
+
+        dateAnalysisSheet.getRow(1).font = { bold: true };
+        dateAnalysisSheet.getRow(1).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE6E6E6" },
+        };
+        dateAnalysisSheet.getColumn("amount").numFmt = "#,##0.00";
+
+        // Tạo sheet phân tích lý do sai khác
+        const discrepancyReasons = summary.reduce((acc, curr) => {
+            const object = {
+                _id: curr.discrepancyReason || "N/A",
+                count: 1,
+                amount: curr.discrepancyAmount,
+            };
+
+            return acc;
+        }, []);
+
+        const discrepancyReasonsSheet = workbook.addWorksheet("Discrepancy Reasons");
+
+        discrepancyReasonsSheet.columns = [
+            { header: "Discrepancy Reason", key: "reason", width: 40 },
+            { header: "Count", key: "count", width: 15 },
+            { header: "Total Amount", key: "amount", width: 20 },
+            { header: "Percentage", key: "percentage", width: 15 },
+        ];
+
+        const discrepancyTotal = discrepancyReasons.reduce((a, b) => a + b.count, 0);
+
+        discrepancyReasons.forEach((item) => {
+            discrepancyReasonsSheet.addRow({
+                reason: item._id,
+                count: item.count,
+                amount: item.amount,
+                percentage: `${((item.count / discrepancyTotal) * 100).toFixed(2)}%`,
+            });
+        });
+
+        discrepancyReasonsSheet.getRow(1).font = { bold: true };
+        discrepancyReasonsSheet.getRow(1).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE6E6E6" },
+        };
+        discrepancyReasonsSheet.getColumn("amount").numFmt = "#,##0.00";
 
         return workbook;
     } catch (error) {
@@ -138,6 +267,42 @@ const sendReportEmail = async (filters) => {
         const filePath = `./public/reports/${fileName}`;
 
         await workbook.xlsx.writeFile(filePath);
+
+        const templateData = {
+            startDate: new Date(filters.startDate).toLocaleDateString(),
+            endDate: new Date(filters.endDate).toLocaleDateString(),
+            filters: {
+                status: filters.status || "All",
+                paymentMethod: filters.paymentMethod || "All",
+                minDiscrepancyAmount: filters.minDiscrepancyAmount || "N/A",
+                maxDiscrepancyAmount: filters.maxDiscrepancyAmount || "N/A",
+            },
+            recipient: process.env.ADMIN_EMAILS.split(",")[0],
+            generatedDate: new Date().toLocaleString(),
+        };
+
+        const rootPath = path.join(__dirname, "..");
+
+        console.log(">>> rootPath:", rootPath);
+
+        const htmlContent = handlebars.compile(
+            fs.readFileSync(path.join(rootPath, "views/templates/report-email.handlebars"), "utf8")
+        )(templateData);
+
+        // await transporter.sendMail({
+        //     from: process.env.SMTP_USER,
+        //     to: process.env.ADMIN_EMAILS.split(","),
+        //     subject: "Reconciliation Report",
+        //     html: htmlContent,
+        //     attachments: [
+        //         {
+        //             filename: fileName,
+        //             path: filePath,
+        //         },
+        //     ],
+        // });
+
+        // fs.unlinkSync(filePath);
 
         return true;
     } catch (error) {
