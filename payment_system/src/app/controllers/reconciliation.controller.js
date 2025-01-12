@@ -10,8 +10,14 @@ class ReconciliationController {
         try {
             let { startDate, endDate, page, limit } = req.query;
 
+            startDate = startDate ? new Date(startDate) : new Date();
+            endDate = endDate ? new Date(endDate) : new Date();
+
             page = parseInt(page) || 1;
             limit = parseInt(limit) || 5;
+
+            console.log(">>> startDate:", startDate);
+            console.log(">>> endDate:", endDate);
 
             const data = await reconcileTransaction(startDate, endDate, page, limit);
 
@@ -27,7 +33,7 @@ class ReconciliationController {
             return res.status(200).json({
                 EC: 0,
                 EM: "Reconciliation successful",
-                data: data.DT,
+                DT: data.DT,
             });
         } catch (error) {
             console.log(">>> reconcileTransaction error:", error);
@@ -40,7 +46,9 @@ class ReconciliationController {
 
     static async getDiscrepancyReport(req, res) {
         try {
-            const { date } = req.query;
+            let { date } = req.query;
+
+            date = date ? new Date(date) : new Date();
 
             const data = await getDiscrepancyReport(date);
 

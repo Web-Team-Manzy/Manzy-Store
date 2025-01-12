@@ -14,6 +14,9 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
             },
         });
 
+        startDate = new Date(startDate.setHours(0, 0, 0, 0));
+        endDate = new Date(endDate.setHours(23, 59, 59, 999));
+
         const res = await makeServiceRequest(
             SERVICES.MAIN_SYSTEM.BASE_URL,
             SERVICES.MAIN_SYSTEM.SERVICE_ID,
@@ -34,6 +37,31 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
             const matchingOrder = mainSystemOrders.find(
                 (order) => order._id === transaction.orderId
             );
+
+            // find existing reconciliation log for this transaction
+            const existingLog = await ReconciliationLog.findOne({
+                transactionId: transaction._id,
+            });
+
+            if (existingLog) {
+                // update existing log
+                existingLog.paymentSystemAmount = transaction.amount;
+                existingLog.mainSystemAmount = matchingOrder ? matchingOrder.amount : 0;
+
+                // Kiểm tra khớp lệch
+                if (!matchingOrder) {
+                    existingLog.status = "MISMATCHED";
+                    existingLog.discrepancyReason = "Order not found in main system";
+                } else if (transaction.amount !== matchingOrder.amount) {
+                    existingLog.status = "MISMATCHED";
+                    existingLog.discrepancyReason = "Amount mismatch";
+                } else {
+                    existingLog.status = "MATCHED";
+                }
+
+                await existingLog.save();
+                continue;
+            }
 
             const reconciliationLog = new ReconciliationLog({
                 transactionId: transaction._id,
@@ -99,11 +127,12 @@ const reconcileTransaction = async (startDate, endDate, page = 1, limit = 5) => 
 
 const getDiscrepancyReport = async (date) => {
     //MISMATCHED
+    //MATCHED
     return ReconciliationLog.find({
         status: "MISMATCHED",
         reconciliationDate: {
             $gte: new Date(date),
-            $lt: new Date(date + 24 * 60 * 60 * 1000),
+            $lt: new Date(date).setDate(new Date(date).getDate() + 1),
         },
     }).populate("transactionId");
 };
