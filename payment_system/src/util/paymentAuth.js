@@ -18,8 +18,10 @@ const generateServiceToken = (serviceId) => {
     );
 };
 
-const generateSignature = (payload, timestamp) => {
+const generateSignature = (timestamp, payload = "genSignature") => {
     const dataToSign = `${JSON.stringify(payload)}|${timestamp}|${process.env.SERVICE_API_KEY}`;
+
+    // console.log(">>> generateSignature:", dataToSign);
 
     return crypto
         .createHmac("sha256", process.env.SERVICE_API_KEY)
@@ -29,8 +31,10 @@ const generateSignature = (payload, timestamp) => {
 
 const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = null) => {
     try {
+        console.log(">>> makeServiceRequest:", baseUrl, serviceId, method, endpoint, data);
+
         const timestamp = Date.now().toString();
-        const signature = generateSignature(data, timestamp);
+        const signature = generateSignature(timestamp, data);
         const token = generateServiceToken(serviceId);
 
         const response = await fetch(`${baseUrl}${endpoint}`, {
@@ -46,7 +50,9 @@ const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = n
         });
 
         if (!response.ok) {
-            throw new Error(`Service request failed: ${response.statusText}`);
+            const error = await response.json();
+
+            throw new Error(`Service request failed: ${error.EM}`);
         }
 
         return response.json();
