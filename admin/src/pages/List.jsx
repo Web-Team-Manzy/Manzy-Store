@@ -292,8 +292,8 @@ const List = ({ token }) => {
 
       {/* Edit Product Modal */}
       {editing && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-5 rounded-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
             <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
             <form onSubmit={handleUpdateProduct}>
               <div className="mb-3 min-w-72">
