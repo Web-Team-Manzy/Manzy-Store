@@ -41,7 +41,7 @@ class productC {
         description,
         price: Number(price),
         category,
-        subCategory,
+        subcaterogy,
         sizes: JSON.parse(sizes),
         bestseller: bestseller === "true" ? true : false,
         images: imagesUrl,
@@ -56,7 +56,8 @@ class productC {
       res.json({ success: false, message: error.message });
     }
   }
-  //
+
+  // Hiện danh sách sản phẩm cho admin and user
   async listProduct(req, res) {
     try {
       const {
@@ -201,10 +202,28 @@ class productC {
     }
   }
 
-  async deleteProduct(req, res) {
+
+async deleteProduct(req, res) {
     try {
+      const product = await productM.findById(req.query.id);
+      if (!product) {
+        return res.json({ success: false, message: "Product not found" });
+      }
+
+      // Assuming the product model has an array of image URLs stored in product.images
+      const images = product.images;
+      if (images && images.length > 0) {
+        // Add your cloud image deletion logic here
+        // For example, if using Cloudinary:
+        const cloudinary = require('cloudinary').v2;
+        for (const imageUrl of images) {
+          const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID from URL
+          await cloudinary.uploader.destroy(publicId);
+        }
+      }
+
       await productM.findByIdAndDelete(req.query.id);
-      res.json({ success: true, message: "Delete product successfully" });
+      res.json({ success: true, message: "Delete product and images successfully" });
     } catch (error) {
       console.log(error);
       res.json({ success: false, message: error.message });
