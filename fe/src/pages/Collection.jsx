@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
+import axios from "../customize/axios";
 import ProductItem from "../components/ProductItem";
 import { getProducts } from "../service/callAPI";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Collection = () => {
   const location = useLocation();
@@ -11,6 +13,10 @@ const Collection = () => {
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState([]);
+
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState(null);
@@ -22,6 +28,37 @@ const Collection = () => {
     Shirt: ["Casual", "Formal", "T-Shirts"],
     Shoes: ["Sneakers", "Sports", "Boots"],
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`/category/list?limit=20`);
+
+        if (response.success) {
+          const data = response.data;
+          setCategories(data);
+
+          // Lấy subcategories từ category đầu tiên để render mặc định
+          const firstCategory = data[0];
+          if (firstCategory) {
+            setSubCategories(firstCategory.subcategories || []);
+          }
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+      }
+    };
+    fetchCategories();
+  }, []);
+  useEffect(() => {
+    const selectedCategory = categories.find((cat) => cat._id === category);
+    if (selectedCategory) {
+      setSubCategories(selectedCategory.subcategories || []);
+    }
+  }, [category, categories]);
 
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
@@ -131,16 +168,16 @@ const Collection = () => {
         >
           <p className="mb-3 text-sm font-medium">CATEGORIES</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            {Object.keys(categorySubCategoryMap).map((cat) => (
-              <p className="flex gap-2" key={cat}>
+            {categories.map((cat) => (
+              <p className="flex gap-2" key={cat._id}>
                 <input
                   className="w-3"
                   type="checkbox"
-                  value={cat}
-                  checked={category === cat}
+                  value={cat._id}
+                  checked={category === cat._id}
                   onChange={handleCategoryChange}
                 />
-                {cat}
+                {cat.name}
               </p>
             ))}
           </div>
@@ -155,7 +192,7 @@ const Collection = () => {
           >
             <p className="mb-3 text-sm font-medium">TYPE</p>
             <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-              {categorySubCategoryMap[category].map((subCat) => (
+              {subCategories.map((subCat) => (
                 <p className="flex gap-2" key={subCat}>
                   <input
                     className="w-3"

@@ -34,6 +34,16 @@ const Add = ({ token }) => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
+    if (sizes.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+
+    if (!image1) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+
     try {
       const formData = new FormData();
 
@@ -198,6 +208,7 @@ const Add = ({ token }) => {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full px-3 py-2 "
+            required
           >
             {categories.map((cat) => (
               <option key={cat._id} value={cat._id}>
@@ -213,6 +224,7 @@ const Add = ({ token }) => {
             value={subCategory}
             onChange={(e) => setSubCategory(e.target.value)}
             className="w-full px-3 py-2 "
+            required
           >
             <option value="" disabled>
               Select a subcategory
@@ -232,6 +244,7 @@ const Add = ({ token }) => {
             className="w-full px-3 py-2 sm:w-[120px]"
             type="number"
             placeholder="24"
+            required
           />
         </div>
       </div>
