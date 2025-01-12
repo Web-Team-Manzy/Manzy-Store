@@ -20,7 +20,7 @@ const List = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({});
 
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
@@ -202,6 +202,8 @@ const List = ({ token }) => {
 
   const removeProduct = async (id) => {
     try {
+      setLoading((prev) => ({ ...prev, [id]: true }));
+
       const response = await axios.delete("/product/delete", {
         params: { id },
       });
@@ -215,6 +217,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -279,7 +283,7 @@ const List = ({ token }) => {
                 X
               </p>
 
-              {loading && (
+              {loading[item._id] && (
                 <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
               )}
             </div>
