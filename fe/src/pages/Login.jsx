@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
-import { doLogin, doLoginGoogle } from "../redux/action/accountAction";
+import { doLogin, doLoginFacebook, doLoginGoogle } from "../redux/action/accountAction";
 import { createUserApi } from "../utils/api";
 import FacebookLogin from "@greatsumini/react-facebook-login";
 
@@ -253,6 +253,10 @@ const Login = () => {
                                 }}
                                 onProfileSuccess={(response) => {
                                     console.log("Get Profile Success!", response);
+
+                                    dispatch(
+                                        doLoginFacebook(response.id, response.name, response.email)
+                                    );
                                 }}
                                 children={
                                     <>
