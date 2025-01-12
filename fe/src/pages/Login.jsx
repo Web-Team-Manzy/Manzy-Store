@@ -68,11 +68,26 @@ const Login = () => {
     if (currentState === "Sign In") {
       dispatch(doLogin(email, password));
     } else if (currentState === "Sign Up") {
+      // Kiểm tra độ dài mật khẩu
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters.");
+        return;
+      }
+
+      // Kiểm tra mật khẩu nhập lại
       if (password !== confirmPassword) {
         toast.error("Passwords do not match.");
         return;
       }
 
+      // Kiểm tra số điện thoại đúng 10 số
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(phone)) {
+        toast.error("Phone number must be exactly 10 digits.");
+        return;
+      }
+
+      // Gửi yêu cầu tạo tài khoản
       const res = await createUserApi(email, password, phone, name);
       if (res && res.EC === 0) {
         toast.success("Account created successfully!");
