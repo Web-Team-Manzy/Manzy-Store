@@ -9,8 +9,6 @@ router.get("/list", productC.listProduct);
 
 router.post(
   "/add",
-  auth,
-  admin,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },

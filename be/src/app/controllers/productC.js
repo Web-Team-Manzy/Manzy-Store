@@ -34,14 +34,14 @@ class productC {
         })
       );
 
-      const subcaterogy = subCategory;
+      const subcategory = subCategory;
 
       const productData = {
         name,
         description,
         price: Number(price),
         category,
-        subcaterogy,
+        subcategory,
         sizes: JSON.parse(sizes),
         bestseller: bestseller === "true" ? true : false,
         images: imagesUrl,
@@ -156,6 +156,8 @@ class productC {
       const image3 = req.files?.image3?.[0];
       const image4 = req.files?.image4?.[0];
 
+      const subcategory = subCategory;
+
       // Thay vì ghi đè toàn bộ, chỉ cập nhật ảnh đã upload mới
       let imagesUrl = [...currentProduct.images];
       if (image1) {
@@ -188,7 +190,7 @@ class productC {
         description,
         price: Number(price),
         category,
-        subCategory,
+        subcategory,
         sizes: typeof sizes === "string" ? JSON.parse(sizes) : sizes,
         bestseller: bestseller === "true",
         images: imagesUrl,
@@ -203,21 +205,18 @@ class productC {
   }
 
 
-async deleteProduct(req, res) {
+  async deleteProduct(req, res) {
     try {
       const product = await productM.findById(req.query.id);
       if (!product) {
         return res.json({ success: false, message: "Product not found" });
       }
 
-      // Assuming the product model has an array of image URLs stored in product.images
       const images = product.images;
       if (images && images.length > 0) {
-        // Add your cloud image deletion logic here
-        // For example, if using Cloudinary:
         const cloudinary = require('cloudinary').v2;
         for (const imageUrl of images) {
-          const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID from URL
+          const publicId = imageUrl.split('/').pop().split('.')[0]; 
           await cloudinary.uploader.destroy(publicId);
         }
       }
