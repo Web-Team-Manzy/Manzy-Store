@@ -79,8 +79,12 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
             <ul>
                 <li><strong>Order ID:</strong> ${orderDetails._id}</li>
                 <li><strong>Amount:</strong> ${orderDetails.amount} $</li>
-                <li><strong>Address:</strong> ${orderDetails.address.ward}, ${orderDetails.address.district}, ${orderDetails.address.city}</li>
-                <li><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</li>
+                <li><strong>Address:</strong> ${orderDetails.address.ward}, ${
+      orderDetails.address.district
+    }, ${orderDetails.address.city}</li>
+                <li><strong>Payment Method:</strong> ${
+                  orderDetails.paymentMethod
+                }</li>
             </ul>
             <h2>Items:</h2>
             <table>
@@ -97,8 +101,12 @@ const sendOrderConfirmationEmail = async (to, orderDetails) => {
                       .map(
                         (item) => ` 
                         <tr>
-                            <td><img src="${item.product.images[0]}" alt="${item.product.name}"></td>
-                            <td><p style="font-weight: bold;">${item.product.name}</p></td>
+                            <td><img src="${item.product.images[0]}" alt="${
+                          item.product.name
+                        }"></td>
+                            <td><p style="font-weight: bold;">${
+                              item.product.name
+                            }</p></td>
                             <td>${Object.entries(item.sizes)
                               .map(
                                 ([size, quantity]) => `
@@ -187,7 +195,9 @@ const sendPinEmail = async (to, pin, purpose) => {
                 <h1>${subject}</h1>
                 <p>Your transaction PIN is:</p>
                 <h2>${pin}</h2>
-                <p>Please use this PIN to confirm your ${purpose === "order_confirmation" ? "order" : "registration"} within 10 minutes.</p>
+                <p>Please use this PIN to confirm your ${
+                  purpose === "order_confirmation" ? "order" : "registration"
+                } within 10 minutes.</p>
                 <p style="font-size: 14px; color: #777;">If you did not request this PIN, please ignore this email.</p>
             </div>
             <div class="footer">
@@ -210,6 +220,5 @@ const sendPinEmail = async (to, pin, purpose) => {
     console.error("Error sending transaction PIN email:", error);
   }
 };
-
 
 module.exports = { sendOrderConfirmationEmail, sendPinEmail };

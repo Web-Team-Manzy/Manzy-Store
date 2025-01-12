@@ -22,9 +22,10 @@ const Add = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  // const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [sizeType, setSizeType] = useState("letter"); // letter or number
+
+  const [loading, setLoading] = useState(false);
 
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
@@ -43,6 +44,8 @@ const Add = ({ token }) => {
       toast.error("Please upload at least one image");
       return;
     }
+
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -80,6 +83,8 @@ const Add = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -322,10 +327,21 @@ const Add = ({ token }) => {
           Add to bestseller
         </label>
       </div> */}
-
-      <button type="submit" className="w-28 py-3 mt-4 bg-black text-white">
-        ADD
-      </button>
+      <div className="flex gap-2 items-center">
+        <button
+          type="submit"
+          className={`w-28 py-3 mt-4 bg-black text-white ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loading ? "Loading..." : "ADD"}
+        </button>
+        {loading && (
+          <div className="flex items-center justify-center">
+            <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin mt-3"></div>
+          </div>
+        )}
+      </div>
     </form>
   );
 };

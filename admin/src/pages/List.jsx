@@ -20,6 +20,8 @@ const List = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
     number: [37, 38, 39, 40, 41, 42, 43],
@@ -86,6 +88,8 @@ const List = ({ token }) => {
       return;
     }
 
+    setLoading(true);
+
     // Tạo FormData
     const dataToSend = new FormData();
 
@@ -134,6 +138,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,6 +278,10 @@ const List = ({ token }) => {
               >
                 X
               </p>
+
+              {loading && (
+                <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+              )}
             </div>
           </div>
         ))}

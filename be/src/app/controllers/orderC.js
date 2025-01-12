@@ -62,7 +62,7 @@ class orderC {
     // [POST] /send-order-confirmation-pin
     async sendOrderConfirmationPin(req, res) {
         try {
-            const { userId } = req.user.id;
+            const userId = req.user.id;
 
             // Get user email
             const user = await userModels.findById(userId);
@@ -103,7 +103,7 @@ class orderC {
     async placeOrder(req, res) {
         try {
             const { transactionPin, items, amount, address, paymentMethod } = req.body;
-            const { userId } = req.user.id;
+            const userId = req.user.id;
 
             // Get user email
             const user = await userModels.findById(userId);
