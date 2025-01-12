@@ -78,7 +78,7 @@ class productC {
       }
 
       if (subCategory) {
-        query.subCategory = subCategory;
+        query.subcategory = subCategory;
       }
 
       if (search) {
