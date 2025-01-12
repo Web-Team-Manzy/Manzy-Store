@@ -94,6 +94,7 @@ const createGoogleUserService = async (userData) => {
         // check if email exists
         const user = await User.findOne({
             email,
+            googleId: userData.googleId,
         });
 
         if (user) {
@@ -113,6 +114,65 @@ const createGoogleUserService = async (userData) => {
             displayName,
             source: "google",
             googleId: userData.googleId,
+        });
+
+        if (!result) {
+            return {
+                EC: 1,
+                EM: "Create user failed",
+                DT: {},
+            };
+        }
+
+        return {
+            EC: 0,
+            EM: "Register successfully",
+            DT: { email, phone, firstName, lastName, displayName },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
+const createFacebookUserService = async (userData) => {
+    try {
+        const { id, email, name } = userData;
+
+        if (!id || !email || !name) {
+            return {
+                EC: 1,
+                EM: "Missing required fields",
+                DT: {},
+            };
+        }
+
+        // check if email exists
+        const user = await User.findOne({
+            email,
+            facebookId: id,
+        });
+
+        if (user) {
+            return {
+                EC: 1,
+                EM: "Email is already in use",
+                DT: {},
+            };
+        }
+
+        // save to db
+        let result = await User.create({
+            email,
+            password: id,
+            firstName: name,
+            displayName: name,
+            source: "facebook",
+            facebookId: id,
         });
 
         if (!result) {
@@ -261,7 +321,7 @@ const loginGoogleService = async (code) => {
             if (result.EC === 1) {
                 return {
                     EC: 1,
-                    EM: "Internal server error",
+                    EM: result.EM || "Internal server error",
                 };
             }
 
@@ -319,6 +379,93 @@ const loginGoogleService = async (code) => {
         return {
             EC: 1,
             EM: "Internal server error",
+        };
+    }
+};
+
+const loginFacebookService = async (userData) => {
+    try {
+        const { id, email, name } = userData;
+
+        if (!id || !email || !name) {
+            return {
+                EC: 1,
+                EM: "Unauthorized",
+            };
+        }
+
+        let user = await User.findOne({
+            email,
+        });
+
+        if (!user) {
+            let result = await createFacebookUserService({
+                id,
+                email,
+                name,
+            });
+
+            if (result.EC === 1) {
+                return {
+                    EC: 1,
+                    EM: result.EM || "Internal server error",
+                };
+            }
+
+            user = await User.findOne({
+                email,
+            });
+
+            if (!user) {
+                return {
+                    EC: 1,
+                    EM: "Internal server error",
+                };
+            }
+        }
+
+        // create an access token
+        const payload = {
+            id: user._id,
+            email: user.email,
+            phone: user.phone,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            displayName: user.displayName,
+            address: user.address,
+            role: user.role,
+        };
+
+        const accessToken = issueAccessToken(payload);
+
+        // create a refresh token
+        await RefreshToken.deleteMany({ user: user._id });
+
+        const refreshToken = await createRefreshToken(user._id);
+
+        return {
+            EC: 0,
+            EM: "Login successfully",
+            DT: {
+                accessToken,
+                refreshToken,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    phone: user.phone,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    displayName: user.displayName,
+                    address: user.address,
+                    role: user.role,
+                },
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EC: 1,
+            EM: "Internal server error ",
         };
     }
 };
@@ -401,4 +548,9 @@ module.exports = {
 
     refreshTokenService,
     loginGoogleService,
+
+    createGoogleUserService,
+
+    createFacebookUserService,
+    loginFacebookService,
 };

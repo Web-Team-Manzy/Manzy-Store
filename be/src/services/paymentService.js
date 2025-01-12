@@ -132,10 +132,54 @@ const processGetMainAccount = async () => {
     }
 };
 
+const processGetReconciliation = async (startDate, endDate) => {
+    try {
+        const serviceId = SERVICES.MAIN_SYSTEM;
+        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const endpoint = `/payment/reconciliation?startDate=${startDate}&endDate=${endDate}`;
+
+        const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
+
+        console.log(">>> processGetReconciliation:", res);
+
+        return res;
+    } catch (error) {
+        console.log(">>> processGetReconciliation:", error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
+const processGetReconciliationDiscrepancy = async (date) => {
+    try {
+        const serviceId = SERVICES.MAIN_SYSTEM;
+        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const endpoint = `/payment/reconciliation/discrepancy?date=${date}`;
+
+        const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
+
+        console.log(">>> processGetReconciliationDiscrepancy:", res);
+
+        return res;
+    } catch (error) {
+        console.log(">>> processGetReconciliationDiscrepancy:", error);
+        return {
+            EC: 1,
+            EM: error.message,
+            DT: {},
+        };
+    }
+};
+
 module.exports = {
     processCreateAccount,
     processPayment,
     processGetAccountBalance,
     processGetTransactions,
     processGetMainAccount,
+    processGetReconciliation,
+    processGetReconciliationDiscrepancy,
 };

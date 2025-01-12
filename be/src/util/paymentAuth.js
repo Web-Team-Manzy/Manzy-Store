@@ -31,8 +31,6 @@ const generateSignature = (payload = "genSignature", timestamp) => {
 
 const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = null) => {
     try {
-        console.log(">>> makeServiceRequest:", baseUrl, serviceId, method, endpoint, data);
-
         const timestamp = Date.now().toString();
         const signature = generateSignature(data, timestamp);
         const token = generateServiceToken(serviceId);

@@ -6,7 +6,7 @@ const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const session = require('express-session');
+const session = require("express-session");
 const app = express();
 const port = process.env.PORT || 8081;
 
@@ -22,17 +22,19 @@ app.use(cookieParser());
 // Config CORS
 app.use(
     cors({
-        origin: [process.env.FRONTEND_URL, process.env.ADMIN_PANEL_URL],
+        origin: [process.env.FRONTEND_URL, process.env.ADMIN_PANEL_URL, "http://localhost:5174"],
         credentials: true,
     })
 );
 
-app.use(session({
-    secret: process.env.JWT_ACCESS_TOKEN_SECRET, 
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } 
-}));
+app.use(
+    session({
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false },
+    })
+);
 
 app.use(
     express.urlencoded({

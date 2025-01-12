@@ -2,11 +2,10 @@ const { processPayment } = require("../../services/paymentService");
 const { sendOrderConfirmationEmail, sendPinEmail } = require("../../services/EmailService");
 const orderM = require("../models/orderM");
 const userModels = require("../models/userM");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const pinM = require("../models/pinM");
 
 class orderC {
-
     // User orders data for FE
     async userOrders(req, res) {
         try {
@@ -19,7 +18,7 @@ class orderC {
             const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
 
             const totalOrders = await orderM.countDocuments({ userId });
-            
+
             const userIds = orders.map((order) => order.userId).filter(Boolean);
 
             const users = await userModels.find({ _id: { $in: userIds } }).lean();
@@ -62,7 +61,7 @@ class orderC {
     // [POST] /send-order-confirmation-pin
     async sendOrderConfirmationPin(req, res) {
         try {
-            const { userId } = req.user.id;
+            const userId = req.user.id;
 
             // Get user email
             const user = await userModels.findById(userId);
@@ -90,7 +89,8 @@ class orderC {
             // Send transaction PIN email
             await sendPinEmail(userEmail, transactionPin, "order_confirmation");
 
-            res.json({ success: true, 
+            res.json({
+                success: true,
                 message: "Please check your email for the transaction PIN to confirm the payment.",
             });
         } catch (error) {
@@ -103,7 +103,7 @@ class orderC {
     async placeOrder(req, res) {
         try {
             const { transactionPin, items, amount, address, paymentMethod } = req.body;
-            const { userId } = req.user.id;
+            const userId = req.user.id;
 
             // Get user email
             const user = await userModels.findById(userId);
@@ -111,9 +111,15 @@ class orderC {
 
             if (paymentMethod !== "COD") {
                 // Find the pin by email and purpose
-                const pinData = await pinM.findOne({ email: userEmail, purpose: "order_confirmation" });
+                const pinData = await pinM.findOne({
+                    email: userEmail,
+                    purpose: "order_confirmation",
+                });
                 if (!pinData || new Date() > pinData.expirationTime) {
-                    return res.json({ success: false, message: "Invalid or expired transaction PIN" });
+                    return res.json({
+                        success: false,
+                        message: "Invalid or expired transaction PIN",
+                    });
                 }
 
                 // Compare the provided PIN with the hashed PIN
@@ -132,7 +138,7 @@ class orderC {
                 items,
                 amount,
                 address,
-                paymentMethod, 
+                paymentMethod,
                 payment: paymentMethod === "COD" ? false : true,
             };
 
@@ -142,7 +148,6 @@ class orderC {
             const orderId = newOrder._id;
 
             if (paymentMethod !== "COD") {
-                
                 const response = await processPayment(userId, amount, orderId);
 
                 if (response && +response.EC === 0 && response.DT.status === "COMPLETED") {
@@ -152,22 +157,26 @@ class orderC {
                     // Send order confirmation email
                     await sendOrderConfirmationEmail(userEmail, dateEmail);
 
-                    res.json({ success: true, message: "Payment confirmed and order placed successfully" });
+                    res.json({
+                        success: true,
+                        message: "Payment confirmed and order placed successfully",
+                    });
                 } else {
                     res.json({ success: false, message: "Payment failed" });
                 }
             } else {
-                
                 await sendOrderConfirmationEmail(userEmail, dateEmail);
 
-                res.json({ success: true, message: "Order placed successfully with Cash on Delivery" });
+                res.json({
+                    success: true,
+                    message: "Order placed successfully with Cash on Delivery",
+                });
             }
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });
         }
     }
-    
 
     // All ordes data for admin panel
     async allOrders(req, res) {
@@ -206,6 +215,44 @@ class orderC {
         } catch (error) {
             console.log(error);
             res.json({ success: false, message: error.message });
+        }
+    }
+
+    // Get orders by date for payment system
+    async getOrdersByDate(req, res) {
+        try {
+            let startDate = new Date(req.params.startDate);
+            let endDate = new Date(req.params.endDate);
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                return res.json({
+                    EC: 1,
+                    EM: "Invalid date format",
+                });
+            }
+
+            const orders = await orderM.find({
+                createdAt: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate),
+                },
+            });
+
+            if (!orders) {
+                return res.json({
+                    EC: 1,
+                    EM: "No orders found",
+                });
+            }
+
+            res.json({
+                EC: 0,
+                EM: "Success",
+                DT: orders,
+            });
+        } catch (error) {
+            console.log(error);
+            res.json({ EC: 1, EM: error.message });
         }
     }
 }

@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema(
             default: null,
         },
 
+        facebookId: {
+            type: String,
+            default: null,
+        },
+
         cartData: {
             type: Object,
             default: {},

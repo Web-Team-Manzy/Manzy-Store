@@ -1,13 +1,17 @@
 require("dotenv").config();
+const bcrypt = require("bcrypt");
+const pinM = require("../models/pinM");
 
 const { processCreateAccount } = require("../../services/paymentService");
 const {
     createUserService,
     loginService,
     loginGoogleService,
+    loginFacebookService,
 } = require("../../services/userService");
 const { deleteRefreshTokenOfUser } = require("../../util/authHelper");
 const User = require("../models/userM");
+const { sendPinEmail } = require("../../services/EmailService");
 
 class AuthController {
     // [GET] /account
@@ -66,7 +70,7 @@ class AuthController {
             await newPin.save();
 
             // Send email confirmation PIN
-            await sendTransactionPinEmail(email, transactionPin, "email_confirmation");
+            await sendPinEmail(email, transactionPin, "email_confirmation");
 
             return res.status(200).json({
                 EC: 0,
@@ -107,14 +111,16 @@ class AuthController {
             const newUser = new User({
                 email,
                 password: hashedPassword,
-                ...otherData
+                ...otherData,
             });
             await newUser.save();
 
             // Xóa mã PIN sau khi xác nhận
             await pinM.findByIdAndDelete(pinData._id);
 
-            return res.status(200).json({ EC: 0, EM: "Email confirmed and user registered successfully" });
+            return res
+                .status(200)
+                .json({ EC: 0, EM: "Email confirmed and user registered successfully" });
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -190,6 +196,64 @@ class AuthController {
             }
 
             const data = await loginGoogleService(code);
+
+            const { user, accessToken, refreshToken } = data.DT;
+
+            const paymentAccount = await processCreateAccount(user?.id, {
+                balance: 500000,
+            });
+
+            console.log(">>> paymentAccount:", paymentAccount);
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
+            });
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: false, // set true if your using https
+                sameSite: "strict",
+                maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
+            });
+
+            return res.status(200).json({
+                EC: 0,
+                EM: "Login successfully",
+                DT: {
+                    user,
+                    accessToken,
+                    refreshToken,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                EC: 3,
+                EM: "Internal server error",
+            });
+        }
+    }
+
+    // [POST] /login/facebook
+    async handleLoginFacebook(req, res) {
+        try {
+            const { id, email, name } = req.body;
+
+            if (!id || !email || !name) {
+                return res.status(401).json({
+                    EC: 2,
+                    EM: "Unauthorized",
+                });
+            }
+
+            const data = await loginFacebookService({
+                id,
+                email,
+                name,
+            });
 
             const { user, accessToken, refreshToken } = data.DT;
 

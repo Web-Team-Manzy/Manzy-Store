@@ -42,6 +42,9 @@ const serviceAuth = (req, res, next) => {
 
         const calculatedSignature = generateSignature(payload, requestTimestamp);
 
+        console.log(">>> signature:", signature);
+        console.log(">>> calculatedSignature:", calculatedSignature);
+
         if (signature !== calculatedSignature) {
             return res.status(401).json({
                 EC: 1,

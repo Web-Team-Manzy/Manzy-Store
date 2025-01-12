@@ -33,7 +33,14 @@ const serviceAuth = (req, res, next) => {
         }
 
         const signature = req.headers["x-signature"];
-        const calculatedSignature = generateSignature(req.body, requestTimestamp);
+
+        let payload = req.body;
+
+        if (JSON.stringify(payload) === "{}") {
+            payload = null;
+        }
+
+        const calculatedSignature = generateSignature(payload, requestTimestamp);
 
         if (signature !== calculatedSignature) {
             return res.status(401).json({

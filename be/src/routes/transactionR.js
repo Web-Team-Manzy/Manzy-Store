@@ -10,4 +10,8 @@ const transactionController = require("../app/controllers/transactionC");
 
 router.get("/", auth, isAdmin, transactionController.getTransactions);
 
+router.post("/reconciliation", transactionController.getReconciliation);
+
+router.get("/reconciliation-discrepancy/:date", transactionController.getReconciliationDiscrepancy);
+
 module.exports = router;
