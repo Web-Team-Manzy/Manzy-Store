@@ -18,7 +18,7 @@ const generateServiceToken = (serviceId) => {
     );
 };
 
-const generateSignature = (timestamp, payload = "genSignature") => {
+const generateSignature = (payload = "genSignature", timestamp) => {
     const dataToSign = `${JSON.stringify(payload)}|${timestamp}|${process.env.SERVICE_API_KEY}`;
 
     // console.log(">>> generateSignature:", dataToSign);
@@ -34,7 +34,7 @@ const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = n
         console.log(">>> makeServiceRequest:", baseUrl, serviceId, method, endpoint, data);
 
         const timestamp = Date.now().toString();
-        const signature = generateSignature(timestamp, data);
+        const signature = generateSignature(data, timestamp);
         const token = generateServiceToken(serviceId);
 
         const response = await fetch(`${baseUrl}${endpoint}`, {
