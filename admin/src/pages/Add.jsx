@@ -67,11 +67,13 @@ const Add = ({ token }) => {
         setName("");
         setDescription("");
         setPrice("");
+        setCategory("");
+        setSubCategory("");
+        setSizes([]);
         setImage1(false);
         setImage2(false);
         setImage3(false);
         setImage4(false);
-        setPrice("");
       } else {
         toast.error(response.message);
       }
@@ -210,6 +212,10 @@ const Add = ({ token }) => {
             className="w-full px-3 py-2 "
             required
           >
+            {" "}
+            <option value="" disabled>
+              Select a category
+            </option>
             {categories.map((cat) => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
