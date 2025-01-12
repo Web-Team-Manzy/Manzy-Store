@@ -21,7 +21,13 @@ const Login = ({ setToken }) => {
       });
       console.log(response);
       if (response.EC === 0 && response.DT.user.role === "admin") {
-        login(response.DT.user);
+        const {user, accessToken, refreshToken} = response.DT;
+        
+        login(user, {accessToken, refreshToken});
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
         setToken(response.DT.accessToken);
       } else {
         toast.error("Invalid email or password || Not an admin account");

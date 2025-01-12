@@ -5,7 +5,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
 import { doLogin, doLoginFacebook, doLoginGoogle } from "../redux/action/accountAction";
-import { createUserApi } from "../utils/api";
+import { createUserApi, sendConfirmEmailApi } from "../utils/api";
 import FacebookLogin from "@greatsumini/react-facebook-login";
 
 const Login = () => {
@@ -49,8 +49,15 @@ const Login = () => {
             return;
         }
         // Simulate sending verification code
-        setIsCodeSent(true);
-        toast.success("Verification code sent to your email.");
+
+        const res = await sendConfirmEmailApi(email);
+
+        if (res && res.EC === 0) {
+            toast.success("Verification code sent to your email.");
+            setIsCodeSent(true);
+        } else {
+            toast.error(res.EM);
+        }
     };
 
     const verifyCode = async () => {
@@ -69,12 +76,27 @@ const Login = () => {
         if (currentState === "Sign In") {
             dispatch(doLogin(email, password));
         } else if (currentState === "Sign Up") {
+            // Kiểm tra độ dài mật khẩu
+            if (password.length < 6) {
+                toast.error("Password must be at least 6 characters.");
+                return;
+            }
+
+            // Kiểm tra mật khẩu nhập lại
             if (password !== confirmPassword) {
                 toast.error("Passwords do not match.");
                 return;
             }
 
-            const res = await createUserApi(email, password, phone, name);
+            // Kiểm tra số điện thoại đúng 10 số
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone)) {
+                toast.error("Phone number must be exactly 10 digits.");
+                return;
+            }
+
+            // Gửi yêu cầu tạo tài khoản
+            const res = await createUserApi(email, password, phone, name, verificationCode);
             if (res && res.EC === 0) {
                 toast.success("Account created successfully!");
                 setCurrentState("Sign In");
@@ -203,7 +225,6 @@ const Login = () => {
                                         required
                                     />
                                     <button
-                                        onClick={verifyCode}
                                         type="submit"
                                         className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
                                     >

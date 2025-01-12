@@ -1,4 +1,6 @@
 require("dotenv").config();
+const bcrypt = require("bcrypt");
+const pinM = require("../models/pinM");
 
 const { processCreateAccount } = require("../../services/paymentService");
 const {
@@ -9,6 +11,7 @@ const {
 } = require("../../services/userService");
 const { deleteRefreshTokenOfUser } = require("../../util/authHelper");
 const User = require("../models/userM");
+const { sendPinEmail } = require("../../services/EmailService");
 
 class AuthController {
     // [GET] /account
@@ -67,7 +70,7 @@ class AuthController {
             await newPin.save();
 
             // Send email confirmation PIN
-            await sendTransactionPinEmail(email, transactionPin, "email_confirmation");
+            await sendPinEmail(email, transactionPin, "email_confirmation");
 
             return res.status(200).json({
                 EC: 0,
