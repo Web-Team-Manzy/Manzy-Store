@@ -34,6 +34,8 @@ class productC {
         })
       );
 
+      const subcaterogy = subCategory;
+
       const productData = {
         name,
         description,
