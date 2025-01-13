@@ -32,7 +32,7 @@ class categoryC {
     // User Features
     async listCategory(req, res) {
         try {
-            const all = req.body.all;
+            const all = req.query.all ? req.query.all === "true" : false;
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 5;
             const skip = (page - 1) * limit;

@@ -91,9 +91,7 @@ const Add = ({ token }) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get("/category/list", {
-                    all: true,
-                });
+                const response = await axios.get("/category/list?all=true");
 
                 if (response.success) {
                     const data = response.data;
