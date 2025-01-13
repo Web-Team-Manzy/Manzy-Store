@@ -47,7 +47,8 @@ const Order = ({ token }) => {
       });
 
       if (response.success) {
-        fetchAllOrders();
+        toast.success("Status updated successfully!");
+        fetchAllOrders(currentPage);
       } else {
         toast.error(response.message);
       }
@@ -57,8 +58,7 @@ const Order = ({ token }) => {
   };
 
   useEffect(() => {
-    toast.success("Status updated successfully!");
-    fetchAllOrders(currentPage);
+    fetchAllOrders();
   }, [token]);
 
   return (
