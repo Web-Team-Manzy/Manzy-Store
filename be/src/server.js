@@ -1,7 +1,5 @@
 require("dotenv").config();
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
@@ -11,7 +9,7 @@ const session = require("express-session");
 const https = require("https");
 
 const app = express();
-const port = process.env.PORT || 8081;
+const port = process.env.APP_PORT || 8081;
 
 const route = require("./routes");
 const db = require("./config/db");
@@ -56,7 +54,13 @@ app.use(express.json());
 // Khởi tạo các route
 route(app);
 
-// Tạo HTTPS server
-https.createServer(options, app).listen(port, () => {
-    console.log(`App listening securely on port https://localhost:${port}`);
-});
+if (process.env.NODE_ENV === "production") {
+    app.listen(process.env.PORT, () => {
+        console.log(`App listening on port http://localhost:${port}`);
+    });
+} else {
+    // Tạo HTTPS server
+    https.createServer(options, app).listen(port, () => {
+        console.log(`App listening securely on port https://localhost:${port}`);
+    });
+}
