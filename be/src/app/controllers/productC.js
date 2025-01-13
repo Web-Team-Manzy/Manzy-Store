@@ -2,7 +2,7 @@ const productM = require("../models/productM");
 const categoryM = require("../models/categoryM");
 const cloudinary = require("../../config/cloud/clConfig");
 const orderM = require("../models/orderM");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 
 class productC {
@@ -33,7 +33,16 @@ class productC {
 
             const subcategory = subCategory;
 
-            const sortedSizes = JSON.parse(sizes).sort((a, b) => a.localeCompare(b));
+            let parseSizes = JSON.parse(sizes);
+            let sortedSizes = [];
+
+            if (parseSizes.length > 0) {
+                if (typeof parseSizes[0] === "string") {
+                    sortedSizes = parseSizes.sort((a, b) => a.localeCompare(b));
+                } else if (typeof parseSizes[0] === "number") {
+                    sortedSizes = parseSizes.sort((a, b) => a - b);
+                }
+            }
 
             const productData = {
                 name,
@@ -163,7 +172,16 @@ class productC {
 
             const subcategory = subCategory;
 
-            const sortedSizes = JSON.parse(sizes).sort((a, b) => a.localeCompare(b));
+            let parseSizes = JSON.parse(sizes);
+            let sortedSizes = [];
+
+            if (parseSizes.length > 0) {
+                if (typeof parseSizes[0] === "string") {
+                    sortedSizes = parseSizes.sort((a, b) => a.localeCompare(b));
+                } else if (typeof parseSizes[0] === "number") {
+                    sortedSizes = parseSizes.sort((a, b) => a - b);
+                }
+            }
 
             // Thay vì ghi đè toàn bộ, chỉ cập nhật ảnh đã upload mới
             let imagesUrl = [...currentProduct.images];
@@ -275,13 +293,10 @@ class productC {
 
             await productM.updateMany({}, { $set: { bestseller: false } });
 
-            const bestSellingProductsObjectIds = bestSellingProducts
+            const bestSellingProductsObjectIds = bestSellingProducts;
 
             for (const productId of bestSellingProductsObjectIds) {
-                await productM.findByIdAndUpdate(
-                    productId,
-                    {bestseller: true}
-                );
+                await productM.findByIdAndUpdate(productId, { bestseller: true });
             }
 
             await productM.find({ bestseller: true });
