@@ -161,7 +161,7 @@ const Navbar = () => {
 
       {/* Sidebar menu for small screens */}
       <div
-        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all transform ${
+        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all transform z-50 ${
           visible
             ? "w-full opacity-100 translate-x-0"
             : "w-0 opacity-0 translate-x-full"
