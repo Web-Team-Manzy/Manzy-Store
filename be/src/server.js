@@ -2,24 +2,33 @@ require("dotenv").config();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const session = require("express-session");
+const https = require("https");
+
 const app = express();
 const port = process.env.PORT || 8081;
 
 const route = require("./routes");
 const db = require("./config/db");
 
-// Connect to DB
+// Kết nối cơ sở dữ liệu
 db.connect();
 
-// Config cookie
+// Đường dẫn tới chứng chỉ SSL
+const options = {
+    key: fs.readFileSync("./sslkeys/key.pem"),
+    cert: fs.readFileSync("./sslkeys/cert.pem"),
+};
+
+// Cấu hình cookie
 app.use(cookieParser());
 
-// Config CORS
+// Cấu hình CORS
 app.use(
     cors({
         origin: [process.env.FRONTEND_URL, process.env.ADMIN_PANEL_URL, "http://localhost:5174"],
@@ -32,7 +41,7 @@ app.use(
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false },
+        cookie: { secure: true }, // Bật chế độ bảo mật cho cookie
     })
 );
 
@@ -44,8 +53,10 @@ app.use(
 
 app.use(express.json());
 
+// Khởi tạo các route
 route(app);
 
-app.listen(port, () => {
-    console.log(`App listening on port ${port}`);
+// Tạo HTTPS server
+https.createServer(options, app).listen(port, () => {
+    console.log(`App listening securely on port https://localhost:${port}`);
 });
