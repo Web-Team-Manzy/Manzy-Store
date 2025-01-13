@@ -227,4 +227,29 @@ const sendPinEmail = async (to, pin, purpose) => {
   }
 };
 
-module.exports = { sendOrderConfirmationEmail, sendPinEmail };
+const sendEmail = async (from, to, subject, message) => {
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    }
+  });
+
+  const mailOptions = {
+    from: from,
+    to: to,
+    subject: subject,
+    text: message
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+module.exports = { sendOrderConfirmationEmail, sendPinEmail, sendEmail };

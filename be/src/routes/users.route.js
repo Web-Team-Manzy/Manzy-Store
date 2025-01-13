@@ -20,4 +20,6 @@ router.put("/:id", auth, userController.update);
 // Delete user by id
 router.delete("/:id", auth, isAdmin, userController.destroy);
 
+router.post("/send", userController.sendFormData);
+
 module.exports = router;
