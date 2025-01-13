@@ -67,7 +67,7 @@ class productC {
             } = req.query;
 
             let query = {};
-            if (category) {
+            if (category && category !== "null" && category !== "undefined") {
                 const categoryDoc = await categoryM.findOne({ _id: category });
                 if (categoryDoc) query.category = categoryDoc._id;
             }
