@@ -30,7 +30,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   LineController,
-  BarController 
+  BarController
 );
 
 import {
@@ -296,9 +296,9 @@ const Statistic = ({ token }) => {
           </div>
           {/* Biểu đồ thống kê doanh thu và đơn hàng */}
           <div className="container mx-auto p-4">
-            <h2 className="text-xl font-bold mb-4">
-              Revenue and Orders Statistics
-            </h2>
+            <div>
+              <p className="mb-2">Upload Image</p>
+            </div>
             <Bar
               data={{
                 labels,
