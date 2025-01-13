@@ -14,6 +14,8 @@ const User = ({ token }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const updatedUser = useAuthStore((state) => state.updateUser);
   const user = useAuthStore((state) => state.user);
+  const [loadingRemove, setLoadingRemove] = useState({});
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -54,6 +56,7 @@ const User = ({ token }) => {
     if (!confirm) return;
 
     try {
+      setLoadingRemove((prev) => ({ ...prev, [id]: true }));
       const response = await axios.delete("/users/" + id);
 
       if (response.EC === 0) {
@@ -65,6 +68,8 @@ const User = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoadingRemove((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -83,6 +88,7 @@ const User = ({ token }) => {
 
   const handleSave = async () => {
     try {
+      setLoadingEdit(true);
       const response = await axios.put("/users/" + editingUser._id, formData);
 
       if (response.EC === 0) {
@@ -101,6 +107,8 @@ const User = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoadingEdit(false);
     }
   };
 
@@ -148,7 +156,13 @@ const User = ({ token }) => {
                 onClick={() => removeUser(item._id)}
                 className="text-right md:text-center cursor-pointer text-lg text-red-500 hover:underline"
               >
-                X
+                {loadingRemove[item._id] ? (
+                  <div>
+                    <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  "X"
+                )}
               </p>
             </div>
           </div>
@@ -247,7 +261,7 @@ const User = ({ token }) => {
                   onClick={handleSave}
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                 >
-                  Save
+                  {loadingEdit ? "Loading..." : "Save"}
                 </button>
               </div>
             </div>

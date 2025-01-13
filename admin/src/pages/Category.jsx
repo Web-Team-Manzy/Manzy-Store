@@ -20,6 +20,9 @@ const Category = ({ token }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isAdding, setIsAdding] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [loadingRemove, setLoadingRemove] = useState({});
+  const [loadingAdd, setLoadingAdd] = useState(false);
 
   const fetchCategories = async (page = 1, limit = 5) => {
     try {
@@ -48,6 +51,7 @@ const Category = ({ token }) => {
       return;
     }
     try {
+      setLoadingAdd(true);
       const response = await axios.post(`/category/add`, formData);
 
       if (response.success) {
@@ -61,6 +65,8 @@ const Category = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoadingAdd(false);
     }
   };
 
@@ -79,6 +85,7 @@ const Category = ({ token }) => {
       return;
     }
     try {
+      setLoadingEdit(true);
       const response = await axios.put("/category/update", {
         categoryId: editingCategory._id,
         ...formData,
@@ -94,6 +101,8 @@ const Category = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoadingEdit(false);
     }
   };
   const handleEdit = async (category) => {
@@ -107,6 +116,7 @@ const Category = ({ token }) => {
 
   const handleDelete = async (category) => {
     try {
+      setLoadingRemove((prev) => ({ ...prev, [category._id]: true }));
       const response = await axios.delete(`/category/delete/${category._id}`);
 
       if (response.success) {
@@ -118,6 +128,8 @@ const Category = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoadingRemove((prev) => ({ ...prev, [category._id]: false }));
     }
   };
 
@@ -174,7 +186,13 @@ const Category = ({ token }) => {
                 onClick={() => handleDelete(item)}
                 className="text-right md:text-center cursor-pointer text-lg text-red-500 hover:underline"
               >
-                X
+                {loadingRemove[item._id] ? (
+                  <div>
+                    <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  "X"
+                )}
               </p>
             </div>
           </div>
@@ -278,7 +296,7 @@ const Category = ({ token }) => {
                   onClick={handleSave}
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                 >
-                  Save
+                  {loadingEdit ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
@@ -370,7 +388,7 @@ const Category = ({ token }) => {
                   onClick={handleSaveNewCategory}
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                 >
-                  Save
+                  {loadingAdd ? "Adding..." : "Add"}
                 </button>
               </div>
             </div>
