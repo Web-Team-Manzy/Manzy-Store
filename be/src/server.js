@@ -56,7 +56,7 @@ route(app);
 
 if (process.env.NODE_ENV === "production") {
     app.listen(process.env.PORT, () => {
-        console.log(`App listening on port http://localhost:${port}`);
+        console.log(`App listening on port (production):${process.env.PORT}`);
     });
 } else {
     // Tạo HTTPS server
