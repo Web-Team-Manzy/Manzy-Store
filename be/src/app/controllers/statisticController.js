@@ -189,6 +189,137 @@ class statisticC {
             res.status(400).json({ message: error.message });
         }
     }
+
+    // [GET]/statistic/averageOrderValue?startDate=2025-01-01&endDate=25-01-08
+    async getAverageOrderValue(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+
+            const orders = await orderM.find({
+                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
+            }).lean();
+
+            const totalRevenue = orders.reduce((total, order) => total + order.amount, 0);
+            const averageOrderValue = orders.length ? totalRevenue / orders.length : 0;
+
+            res.status(200).json({ averageOrderValue });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    // [GET]/statistic/topCustomers?startDate=2025-01-01&endDate=25-01-08&limit=5
+    async getTopCustomers(req, res) {
+        try {
+            const { startDate, endDate, limit = 5 } = req.query;
+
+            const topCustomers = await orderM.aggregate([
+                { 
+                    $match: {
+                        createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$customerId",
+                        totalSpent: { $sum: "$amount" },
+                        orderCount: { $sum: 1 }
+                    }
+                },
+                { $sort: { totalSpent: -1 } },
+                { $limit: parseInt(limit) }
+            ]);
+
+            res.status(200).json({ topCustomers });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    // [GET]/statistic/salesByCategory?startDate=2025-01-01&endDate=25-01-08
+    async getSalesByCategory(req, res) {
+        try {
+            
+            const { startDate, endDate } = req.query;
+
+            const orders = await orderM.find({
+                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
+            }).lean();
+
+            const salesByCategory = orders.reduce((total, order) => {
+                order.items.forEach(item => {
+                    const category = item.product.category;
+                    if (!total[category]) {
+                        total[category] = {
+                            totalOrders: 1,
+                            totalRevenue: item.amount
+                        };
+                    } else {
+                        total[category].totalOrders += 1;
+                        total[category].totalRevenue += item.amount;
+                    }
+                });
+                return total;
+            }, {});
+
+            const formattedSalesByCategory = Object.keys(salesByCategory).map(category => ({
+                category,
+                totalOrders: salesByCategory[category].totalOrders,
+                totalRevenue: salesByCategory[category].totalRevenue
+            }));
+
+            res.status(200).json({
+                success: true,
+                data: formattedSalesByCategory
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+
+
+    // [GET]/statistic/customerRetention?startDate=2025-01-01&endDate=25-01-08
+    async getCustomerRetention(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+
+            const orders = await orderM.find({
+                createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) }
+            }).lean();
+
+            const customerOrderDates = orders.reduce((acc, order) => {
+                if (!acc[order.customerId]) {
+                    acc[order.customerId] = [];
+                }
+                acc[order.customerId].push(order.createdAt);
+                return acc;
+            }, {});
+
+            let repeatCustomers = 0;
+
+            Object.values(customerOrderDates).forEach(dates => {
+                if (dates.length > 1) {
+                    repeatCustomers += 1;
+                }
+            });
+
+            const totalCustomers = Object.keys(customerOrderDates).length;
+            const retentionRate = totalCustomers ? (repeatCustomers / totalCustomers) * 100 : 0;
+
+            res.status(200).json({
+                retentionRate: `${retentionRate.toFixed(2)}%`,
+                totalCustomers,
+                repeatCustomers
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
 }
 
 module.exports = new statisticC();
