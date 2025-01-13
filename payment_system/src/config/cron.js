@@ -5,8 +5,9 @@ const { sendAlert, sendReportEmail } = require("../services/notificationService"
 
 const setupCronJobs = () => {
     // 1 0 * * * : run at 00:01 every day
+    // run at 8:40 every day: 40 8 * * *
     // * * * * * : run every minute
-    schedule.scheduleJob("* * * * *", async () => {
+    schedule.scheduleJob("40 8 * * *", async () => {
         try {
             console.log(">>> Running reconciliation cron job...");
 
