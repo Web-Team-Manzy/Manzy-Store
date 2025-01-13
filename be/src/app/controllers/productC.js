@@ -2,6 +2,8 @@ const productM = require("../models/productM");
 const categoryM = require("../models/categoryM");
 const cloudinary = require("../../config/cloud/clConfig");
 const orderM = require("../models/orderM");
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 class productC {
     async addProduct(req, res) {
@@ -31,13 +33,15 @@ class productC {
 
             const subcategory = subCategory;
 
+            const sortedSizes = JSON.parse(sizes).sort((a, b) => a.localeCompare(b));
+
             const productData = {
                 name,
                 description,
                 price: Number(price),
                 category,
                 subcategory,
-                sizes: JSON.parse(sizes),
+                sizes: sortedSizes,
                 bestseller: bestseller === "true" ? true : false,
                 images: imagesUrl,
             };
@@ -159,6 +163,8 @@ class productC {
 
             const subcategory = subCategory;
 
+            const sortedSizes = JSON.parse(sizes).sort((a, b) => a.localeCompare(b));
+
             // Thay vì ghi đè toàn bộ, chỉ cập nhật ảnh đã upload mới
             let imagesUrl = [...currentProduct.images];
             if (image1) {
@@ -194,7 +200,7 @@ class productC {
                 price: Number(price),
                 category,
                 subcategory,
-                sizes: typeof sizes === "string" ? JSON.parse(sizes) : sizes,
+                sizes: sortedSizes,
                 bestseller: bestseller === "true",
                 images: imagesUrl,
             };
@@ -269,10 +275,16 @@ class productC {
 
             await productM.updateMany({}, { $set: { bestseller: false } });
 
-            await productM.updateMany(
-                { _id: { $in: bestSellingProducts } },
-                { $set: { bestseller: true } }
-            );
+            const bestSellingProductsObjectIds = bestSellingProducts
+
+            for (const productId of bestSellingProductsObjectIds) {
+                await productM.findByIdAndUpdate(
+                    productId,
+                    {bestseller: true}
+                );
+            }
+
+            await productM.find({ bestseller: true });
 
             res.json({
                 success: true,
