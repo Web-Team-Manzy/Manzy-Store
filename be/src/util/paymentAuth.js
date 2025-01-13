@@ -35,6 +35,17 @@ const makeServiceRequest = async (baseUrl, serviceId, method, endpoint, data = n
         const signature = generateSignature(data, timestamp);
         const token = generateServiceToken(serviceId);
 
+        console.log(">>> makeServiceRequest:", {
+            baseUrl,
+            serviceId,
+            method,
+            endpoint,
+            data,
+            timestamp,
+            signature,
+            token,
+        });
+
         const response = await fetch(`${baseUrl}${endpoint}`, {
             method,
             headers: {
