@@ -19,9 +19,12 @@ export const doGetAccountBalance = (userId) => {
         });
 
         try {
-            const response = await axios.get(`https://localhost:8080/users/${userId}/balance`, {
-                withCredentials: true,
-            });
+            const response = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/users/${userId}/balance`,
+                {
+                    withCredentials: true,
+                }
+            );
 
             if (response && +response.EC === 0) {
                 dispatch({
@@ -51,7 +54,7 @@ export const doUpdateAccount = (userId, updatedUserData) => {
 
         try {
             const response = await axios.put(
-                "https://localhost:8080/users/" + userId,
+                `${import.meta.env.VITE_BACKEND_URL}/users/` + userId,
                 updatedUserData,
                 {
                     withCredentials: true,
@@ -94,7 +97,7 @@ export const doLogin = (email, password) => {
 
         axios
             .post(
-                "https://localhost:8080/login",
+                `${import.meta.env.VITE_BACKEND_URL}/login`,
                 {
                     email,
                     password,
@@ -140,7 +143,7 @@ export const doLoginGoogle = (code) => {
 
         axios
             .post(
-                "https://localhost:8080/login/google",
+                `${import.meta.env.VITE_BACKEND_URL}/login/google`,
                 {
                     code,
                 },
@@ -185,7 +188,7 @@ export const doLoginFacebook = (id, name, email) => {
 
         axios
             .post(
-                "https://localhost:8080/login/facebook",
+                `${import.meta.env.VITE_BACKEND_URL}/login/facebook`,
                 {
                     id,
                     name,
@@ -231,7 +234,7 @@ export const doGetAccount = () => {
         });
 
         axios
-            .get("https://localhost:8080/account", {
+            .get(`${import.meta.env.VITE_BACKEND_URL}/account`, {
                 withCredentials: true,
             })
             .then((response) => {
@@ -272,7 +275,7 @@ export const doLogout = (email) => {
 
         axios
             .post(
-                "https://localhost:8080/logout",
+                `${import.meta.env.VITE_BACKEND_URL}/logout`,
                 {
                     email,
                 },
