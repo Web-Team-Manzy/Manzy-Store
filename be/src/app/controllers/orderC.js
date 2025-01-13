@@ -255,6 +255,74 @@ class orderC {
             res.json({ EC: 1, EM: error.message });
         }
     }
+
+    // New Features
+    async getOrderById(req, res) {
+        try {
+            const { orderId } = req.params;
+            const order = await orderM.findById(orderId).lean();
+            if (!order) {
+                return res.json({ success: false, message: "Order not found" });
+            }
+            res.json({ success: true, data: order });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    async cancelOrder(req, res) {
+        try {
+            const { orderId } = req.body;
+            const order = await orderM.findByIdAndUpdate(orderId, { status: "Cancelled" });
+            if (!order) {
+                return res.json({ success: false, message: "Order not found" });
+            }
+            res.json({ success: true, message: "Order cancelled successfully" });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    // [DELETE] /orders/:orderId
+    async deleteOrder(req, res) {
+        try {
+            const { orderId } = req.params;
+            const order = await orderM.findByIdAndDelete(orderId);
+            if (!order) {
+                return res.json({ success: false, message: "Order not found" });
+            }
+            res.json({ success: true, message: "Order deleted successfully" });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    async updateOrder(req, res) {
+        try {
+            const { orderId } = req.params;
+            const { items, amount, address, paymentMethod } = req.body;
+
+            // Kiểm tra các trường đầu vào
+            if (!Array.isArray(items) || typeof amount !== 'number' || typeof address !== 'string' || typeof paymentMethod !== 'string') {
+                return res.status(400).json({ success: false, message: "Invalid input data" });
+            }
+
+            const updateData = { items, amount, address, paymentMethod };
+            const order = await orderM.findByIdAndUpdate(orderId, updateData, { new: true });
+
+            if (!order) {
+                return res.json({ success: false, message: "Order not found" });
+            }
+
+            res.json({ success: true, message: "Order updated successfully", data: order });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new orderC();
