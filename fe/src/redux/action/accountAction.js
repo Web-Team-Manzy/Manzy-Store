@@ -19,7 +19,7 @@ export const doGetAccountBalance = (userId) => {
         });
 
         try {
-            const response = await axios.get(`http://localhost:8080/users/${userId}/balance`, {
+            const response = await axios.get(`https://localhost:8080/users/${userId}/balance`, {
                 withCredentials: true,
             });
 
@@ -51,7 +51,7 @@ export const doUpdateAccount = (userId, updatedUserData) => {
 
         try {
             const response = await axios.put(
-                "http://localhost:8080/users/" + userId,
+                "https://localhost:8080/users/" + userId,
                 updatedUserData,
                 {
                     withCredentials: true,
@@ -94,7 +94,7 @@ export const doLogin = (email, password) => {
 
         axios
             .post(
-                "http://localhost:8080/login",
+                "https://localhost:8080/login",
                 {
                     email,
                     password,
@@ -140,7 +140,7 @@ export const doLoginGoogle = (code) => {
 
         axios
             .post(
-                "http://localhost:8080/login/google",
+                "https://localhost:8080/login/google",
                 {
                     code,
                 },
@@ -185,7 +185,7 @@ export const doLoginFacebook = (id, name, email) => {
 
         axios
             .post(
-                "http://localhost:8080/login/facebook",
+                "https://localhost:8080/login/facebook",
                 {
                     id,
                     name,
@@ -231,7 +231,7 @@ export const doGetAccount = () => {
         });
 
         axios
-            .get("http://localhost:8080/account", {
+            .get("https://localhost:8080/account", {
                 withCredentials: true,
             })
             .then((response) => {
@@ -272,7 +272,7 @@ export const doLogout = (email) => {
 
         axios
             .post(
-                "http://localhost:8080/logout",
+                "https://localhost:8080/logout",
                 {
                     email,
                 },

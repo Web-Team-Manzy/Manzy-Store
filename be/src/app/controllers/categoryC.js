@@ -79,6 +79,31 @@ class categoryC{
             res.json({success: false, message: error.message});
         }
     }
+
+    async getCategoryById(req, res) {
+        try {
+            const { categoryId } = req.params;
+            const category = await categoryM.findById(categoryId);
+            if (!category) {
+                return res.json({ success: false, message: "Category not found" });
+            }
+            res.json({ success: true, data: category });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
+
+    async searchCategories(req, res) {
+        try {
+            const { name } = req.query;
+            const categories = await categoryM.find({ name: new RegExp(name, 'i') });
+            res.json({ success: true, data: categories });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new categoryC;

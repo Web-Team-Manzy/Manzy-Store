@@ -14,6 +14,16 @@ const Profile = () => {
     phone: userInfo.phone,
   });
 
+  useEffect(() => {
+    setFormData({
+      displayName: userInfo.displayName,
+      email: userInfo.email,
+      role: userInfo.role,
+      address: userInfo.address,
+      phone: userInfo.phone,
+    });
+  }, [userInfo]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
