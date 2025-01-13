@@ -84,7 +84,6 @@ class cartC {
             const { itemId, size } = req.body;
 
             console.log(">>> req.session", req.session);
-            console.log(">>> res.session.cartData", req.session.cartData);
 
             // Lấy giỏ hàng của người dùng
             let cartData = {};
@@ -114,6 +113,8 @@ class cartC {
             } else {
                 req.session.cartData = cartData;
             }
+
+            console.log(">>> res.session.cartData", req.session.cartData);
 
             res.json({ success: true, message: "Thêm vào giỏ hàng thành công" });
         } catch (error) {
