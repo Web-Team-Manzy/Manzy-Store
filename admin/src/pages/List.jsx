@@ -231,10 +231,11 @@ const List = ({ token }) => {
       <p className="mb-2">All Products List</p>
       <div className="flex flex-col gap-2">
         {/* List Table Title */}
-        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm ">
+        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-gray-100 text-sm ">
           <b>Image</b>
           <b>Name</b>
           <b>Category</b>
+          <b>SubCategory</b>
           <b>Price</b>
           <b className="text-center">Action</b>
         </div>
@@ -243,12 +244,13 @@ const List = ({ token }) => {
 
         {list.map((item, index) => (
           <div
-            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
+            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
             key={index}
           >
             <img className="w-12" src={item.images[0]} alt="" />
             <p>{item.name}</p>
             <p>{item.category?.name || "No Category"}</p>
+            <p>{item.subcategory || "No sub category"}</p>
             <p>
               {currency}
               {item.price}
