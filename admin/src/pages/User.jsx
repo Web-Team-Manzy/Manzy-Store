@@ -58,7 +58,7 @@ const User = ({ token }) => {
 
       if (response.EC === 0) {
         toast.success(response.EM);
-        fetchUsers();
+        fetchUsers(currentPage);
       } else {
         toast.error(response.EM);
       }
@@ -86,7 +86,7 @@ const User = ({ token }) => {
       const response = await axios.put("/users/" + editingUser._id, formData);
 
       if (response.EC === 0) {
-        toast.success(response.EM);
+        toast.success("User updated successfully!");
 
         if (response.DT.role === "admin") {
           console.log(">>>> user: ", user);
@@ -94,7 +94,7 @@ const User = ({ token }) => {
         }
 
         setEditingUser(null);
-        fetchUsers();
+        fetchUsers(currentPage);
       } else {
         toast.error(response.EM + " need email, display name and role");
       }

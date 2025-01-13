@@ -52,7 +52,7 @@ const Category = ({ token }) => {
 
       if (response.success) {
         toast.success("Category added successfully!");
-        fetchCategories();
+        fetchCategories(currentPage);
         setIsAdding(false);
         setFormData({ name: "", description: "", subcategories: [] });
       } else {
@@ -87,7 +87,7 @@ const Category = ({ token }) => {
       if (response.success) {
         toast.success(response.message);
         setEditingCategory(null);
-        fetchCategories();
+        fetchCategories(currentPage);
       } else {
         toast.error(response.message);
       }
@@ -111,7 +111,7 @@ const Category = ({ token }) => {
 
       if (response.success) {
         toast.success(response.message);
-        fetchCategories();
+        fetchCategories(currentPage);
       } else {
         toast.error(response.message);
       }
