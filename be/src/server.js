@@ -12,6 +12,8 @@ const https = require("https");
 const app = express();
 const port = process.env.APP_PORT || 8081;
 
+app.set("trust proxy", 1);
+
 const route = require("./routes");
 const db = require("./config/db");
 
@@ -40,8 +42,14 @@ app.use(
     session({
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
         resave: false,
-        saveUninitialized: true,
-        cookie: { secure: true }, // Bật chế độ bảo mật cho cookie
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // set true if your using https
+            sameSite: "none",
+            maxAge: 24 * 60 * 60 * 1000,
+            domain: "manzy-store-main-system-backend.onrender.com",
+        },
     })
 );
 
