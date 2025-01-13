@@ -21,14 +21,6 @@ const Collection = () => {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState(null);
 
-  const categorySubCategoryMap = {
-    Accessories: ["Watches", "Belts", "Hats"],
-    Bags: ["Handbags", "Backpacks", "Travel Bags"],
-    Pants: ["Jeans", "Shorts", "Trousers"],
-    Shirt: ["Casual", "Formal", "T-Shirts"],
-    Shoes: ["Sneakers", "Sports", "Boots"],
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -89,10 +81,6 @@ const Collection = () => {
         break;
       case "high-low":
         setSortField("price");
-        setSortOrder("desc");
-        break;
-      case "dated":
-        setSortField("dated");
         setSortOrder("desc");
         break;
       default:
@@ -220,7 +208,6 @@ const Collection = () => {
             <option value="">Sort</option>
             <option value="low-high">Sort by : Low to High</option>
             <option value="high-low">Sort by : High to Low</option>
-            <option value="dated">Sort by : New Products</option>
           </select>
         </div>
 
