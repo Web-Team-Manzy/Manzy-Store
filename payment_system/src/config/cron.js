@@ -12,7 +12,7 @@ const setupCronJobs = () => {
 
             const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const startDate = new Date(yesterday.setHours(0, 0, 0, 0));
-            const endDate = new Date(yesterday.setHours(23, 59, 59, 999));
+            const endDate = new Date(Date.now());
 
             await sendReportEmail({
                 startDate,
