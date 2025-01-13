@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 
 const Header = () => {
@@ -20,6 +20,18 @@ const Header = () => {
       );
     }
   };
+
+  // useEffect để tự động đổi ảnh sau mỗi 3 giây
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prevImage) =>
+        prevImage === images.length - 1 ? 0 : prevImage + 1
+      );
+    }, 3000); // 3 giây
+
+    // Cleanup interval khi component bị hủy
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   return (
     <div className="relative">
