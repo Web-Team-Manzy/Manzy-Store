@@ -36,39 +36,39 @@ app.use(
     })
 );
 
-// app.use(
-//     session({
-//         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-//         resave: false,
-//         saveUninitialized: true,
-//         cookie: { secure: true }, // Bật chế độ bảo mật cho cookie
-//     })
-// );
-
 app.use(
     session({
-        name: "connect.sid", // Tên của session cookie
-        httpOnly: true, // Ngăn JavaScript truy cập cookie
-        secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS trong môi trường production
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET, // Thay bằng secret an toàn của bạn
-        resave: false, // Ngăn lưu lại session nếu không thay đổi
-        saveUninitialized: true, // Ngăn tạo session mới nếu không có dữ liệu
-        store: MongoStore.create({
-            mongoUrl:
-                process.env.MONGO_URI ||
-                "mongodb+srv://hoanglenam0905:22120217@cluster0.5queg.mongodb.net/ManzyStoreDB?retryWrites=true&w=majority&appName=Cluster0", // Kết nối MongoDB
-            collectionName: "sessions", // Tên collection lưu trữ session
-            ttl: 14 * 24 * 60 * 60, // Thời gian hết hạn session (14 ngày)
-            autoRemove: "native", // Sử dụng cơ chế xóa tự động của MongoDB
-        }),
-        cookie: {
-            httpOnly: true, // Ngăn JavaScript truy cập cookie
-            secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS trong môi trường production
-            maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie hết hạn sau 7 ngày
-            sameSite: "none", // Chỉ cho phép gửi cookie trong cùng domain
-        },
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: true }, // Bật chế độ bảo mật cho cookie
     })
 );
+
+// app.use(
+//     session({
+//         name: "connect.sid", // Tên của session cookie
+//         httpOnly: true, // Ngăn JavaScript truy cập cookie
+//         secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS trong môi trường production
+//         secret: process.env.JWT_ACCESS_TOKEN_SECRET, // Thay bằng secret an toàn của bạn
+//         resave: false, // Ngăn lưu lại session nếu không thay đổi
+//         saveUninitialized: true, // Ngăn tạo session mới nếu không có dữ liệu
+//         store: MongoStore.create({
+//             mongoUrl:
+//                 process.env.MONGO_URI ||
+//                 "mongodb+srv://hoanglenam0905:22120217@cluster0.5queg.mongodb.net/ManzyStoreDB?retryWrites=true&w=majority&appName=Cluster0", // Kết nối MongoDB
+//             collectionName: "sessions", // Tên collection lưu trữ session
+//             ttl: 14 * 24 * 60 * 60, // Thời gian hết hạn session (14 ngày)
+//             autoRemove: "native", // Sử dụng cơ chế xóa tự động của MongoDB
+//         }),
+//         cookie: {
+//             httpOnly: true, // Ngăn JavaScript truy cập cookie
+//             secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS trong môi trường production
+//             maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie hết hạn sau 7 ngày
+//             sameSite: "none", // Chỉ cho phép gửi cookie trong cùng domain
+//         },
+//     })
+// );
 
 app.use(
     express.urlencoded({
