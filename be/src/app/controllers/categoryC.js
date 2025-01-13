@@ -1,60 +1,59 @@
 const categoryM = require("../models/categoryM");
 
-class categoryC{
+class categoryC {
     // Admin Features
     async addCategory(req, res) {
         try {
+            const { name, description, subcategories } = req.body;
 
-            const {name, description, subcategories} = req.body;
-
-            const category = new categoryM({name, description, subcategories});
+            const category = new categoryM({ name, description, subcategories });
 
             await category.save();
-            res.json({success: true, message: "Add category successfully"});
-
+            res.json({ success: true, message: "Add category successfully" });
         } catch (error) {
-
             console.log(error);
-            res.json({success: false, message: error.message});
-
+            res.json({ success: false, message: error.message });
         }
     }
 
     async updateCategory(req, res) {
         try {
-            
-            const {categoryId, name, description, subcategories} = req.body;
+            const { categoryId, name, description, subcategories } = req.body;
 
-            await categoryM.findByIdAndUpdate(categoryId, {name, description, subcategories});
+            await categoryM.findByIdAndUpdate(categoryId, { name, description, subcategories });
 
-            res.json({success: true, message: "Update category successfully"});
-
-        } catch (error) {   
-
+            res.json({ success: true, message: "Update category successfully" });
+        } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});
-            
+            res.json({ success: false, message: error.message });
         }
     }
 
     // User Features
     async listCategory(req, res) {
         try {
-            const page = parseInt(req.query.page) || 1; 
+            const all = req.body.all;
+            const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 5;
-            const skip = (page - 1) * limit; 
-    
-            const data = await categoryM.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
-            const total = await categoryM.countDocuments({}); 
-    
+            const skip = (page - 1) * limit;
+
+            let data = [];
+            if (all) {
+                data = await categoryM.find({}).sort({ createdAt: -1 });
+            } else {
+                data = await categoryM.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+            }
+
+            const total = await categoryM.countDocuments({});
+
             res.json({
                 success: true,
                 data,
                 pagination: {
                     total,
                     page,
-                    pages: Math.ceil(total / limit)
-                }
+                    pages: Math.ceil(total / limit),
+                },
             });
         } catch (error) {
             console.log(error);
@@ -64,17 +63,17 @@ class categoryC{
 
     async deleteCategory(req, res) {
         try {
-            const {categoryId} = req.params;
+            const { categoryId } = req.params;
             const category = await categoryM.findByIdAndDelete(categoryId);
 
             if (!category) {
-                return res.json({success: false, message: "Category not found"});
+                return res.json({ success: false, message: "Category not found" });
             }
 
-            res.json({success: true, message: "Delete category successfully"});
+            res.json({ success: true, message: "Delete category successfully" });
         } catch (error) {
             console.log(error);
-            res.json({success: false, message: error.message});
+            res.json({ success: false, message: error.message });
         }
     }
 
@@ -95,7 +94,7 @@ class categoryC{
     async searchCategories(req, res) {
         try {
             const { name } = req.query;
-            const categories = await categoryM.find({ name: new RegExp(name, 'i') });
+            const categories = await categoryM.find({ name: new RegExp(name, "i") });
             res.json({ success: true, data: categories });
         } catch (error) {
             console.log(error);
@@ -104,4 +103,4 @@ class categoryC{
     }
 }
 
-module.exports = new categoryC;
+module.exports = new categoryC();
