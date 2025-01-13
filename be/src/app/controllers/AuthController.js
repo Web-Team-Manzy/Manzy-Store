@@ -152,14 +152,14 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
@@ -207,14 +207,14 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
@@ -265,14 +265,14 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: true, // set true if your using https
+                secure: process.env.NODE_ENV === "production", // set true if your using https
                 sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
@@ -298,8 +298,18 @@ class AuthController {
     // [POST] /logout
     async handleLogout(req, res) {
         try {
-            res.clearCookie("accessToken");
-            res.clearCookie("refreshToken");
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production", // set true if your using https
+                sameSite: "none",
+                maxAge: 0, // 15 minutes
+            });
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production", // set true if your using https
+                sameSite: "none",
+                maxAge: 0, // 1 day
+            });
 
             // delete refresh token in database
             const email = req.user.email;

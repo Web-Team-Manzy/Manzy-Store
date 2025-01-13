@@ -15,6 +15,8 @@ import {
   Title,
   Tooltip,
   Legend,
+  LineController,
+  BarController,
 } from "chart.js";
 
 ChartJS.register(
@@ -26,7 +28,9 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  LineController,
+  BarController 
 );
 
 import {

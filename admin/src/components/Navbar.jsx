@@ -4,14 +4,14 @@ import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
 
 const doLogout = async () => {
-  const response = await axios.get("http://localhost:8080/account", {
+  const response = await axios.get("/account", {
     withCredentials: true,
   });
   const res = response;
   if (res && +res.EC === 0) {
     await axios
       .post(
-        "http://localhost:8080/logout",
+        "/logout",
         {
           email: res?.DT?.user?.email || "",
         },

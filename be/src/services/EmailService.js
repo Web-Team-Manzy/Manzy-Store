@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 dotenv.config();
 
-// Tạo transporter với cấu hình SMTP
+// Cấu hình transporter với thông tin SMTP
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -10,220 +10,163 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-// Hàm gửi email mã xác nhận đơn hàng
+
+/**
+ * Gửi email xác nhận đơn hàng
+ * @param {string} to - Địa chỉ email người nhận
+ * @param {object} orderDetails - Thông tin đơn hàng
+ */
 const sendOrderConfirmationEmail = async (to, orderDetails) => {
-  console.log("orderDetails", orderDetails);
+  console.log("Sending order confirmation email with details:", orderDetails);
+
+  const emailContent = `
+  <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px;">
+    <h1 style="color: #4CAF50; text-align: center;">Thank you for your order!</h1>
+    <p style="font-size: 16px; margin-top: 20px;">Here are the details:</p>
+    <ul style="padding: 0; list-style: none; font-size: 14px;">
+      <li style="margin-bottom: 10px;"><strong>Order ID:</strong> <span style="color: #ff5722; font-weight: bold;">${
+        orderDetails._id
+      }</span></li>
+      <li style="margin-bottom: 10px;"><strong>Amount:</strong> <span style="color: #4CAF50; font-size: 18px;">${
+        orderDetails.amount
+      } $</span></li>
+      <li style="margin-bottom: 10px;"><strong>Address:</strong> ${
+        orderDetails.address.ward
+      }, ${orderDetails.address.district}, ${orderDetails.address.city}</li>
+      <li style="margin-bottom: 10px;"><strong>Payment Method:</strong> ${
+        orderDetails.paymentMethod
+      }</li>
+    </ul>
+    <h2 style="color: #4CAF50; margin-top: 20px;">Items:</h2>
+    <table style="
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    ">
+      <thead>
+        <tr>
+          <th style="background: #f2f2f2; padding: 8px; text-align: left;">Image</th>
+          <th style="background: #f2f2f2; padding: 8px; text-align: left;">Product</th>
+          <th style="background: #f2f2f2; padding: 8px; text-align: left;">Size</th>
+          <th style="background: #f2f2f2; padding: 8px; text-align: left;">Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orderDetails.items
+          .map(
+            (item) => `
+          <tr>
+            <td style="text-align: center; padding: 8px;">
+              <img src="${item.product.images[0]}" alt="${
+              item.product.name
+            }" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+            </td>
+            <td style="padding: 8px;"><strong>${item.product.name}</strong></td>
+            <td style="padding: 8px;">${Object.keys(item.sizes)
+              .map((size) => `<p style="margin: 0; color: #555;">${size}</p>`)
+              .join("")}</td>
+            <td style="padding: 8px;">${Object.values(item.sizes)
+              .map(
+                (quantity) =>
+                  `<p style="margin: 0; font-weight: bold; color: #4CAF50;">${quantity}</p>`
+              )
+              .join("")}</td>
+          </tr>
+        `
+          )
+          .join("")}
+      </tbody>
+    </table>
+    <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #777;">
+      <p>If you have any questions, feel free to contact us.</p>
+      <p><strong>Shop Name:</strong> Manzy Store<br>
+      <strong>Email:</strong> nambui250403@gmail.com<br>
+      <strong>Phone:</strong> +84 327 357 359<br>
+      <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City</p>
+      <p>Visit our website: <a href="http://manzystore.com" target="_blank" style="color: #4CAF50; text-decoration: none;">http://manzystore.com</a></p>
+    </div>
+  </div>
+`;
+
+  // Cấu hình email
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: to,
+    to,
     subject: "Order Confirmation",
-    html: `
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    color: #333;
-                    background-color: #f9f9f9;
-                    padding: 20px;
-                }
-                h1 {
-                    color: #4CAF50;
-                }
-                ul {
-                    list-style-type: none;
-                    padding: 0;
-                }
-                li {
-                    margin-bottom: 10px;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                    background-color: #fff;
-                    border-radius: 5px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                    vertical-align: middle;
-                }
-                th {
-                    background-color: #f2f2f2;
-                    color: #333;
-                }
-                td img {
-                  width: 50px;
-                  height: 50px;
-                  object-fit: cover;
-                  border-radius: 5px;
-                  display: block;
-                  margin: auto;
-                }
-                h2 {
-                    margin-top: 20px;
-                    color: #4CAF50;
-                }
-                .footer {
-                    margin-top: 30px;
-                    font-size: 14px;
-                    color: #777;
-                    text-align: center;
-                    border-top: 1px solid #ddd;
-                    padding-top: 15px;
-                }
-                .footer a {
-                    color: #4CAF50;
-                    text-decoration: none;
-                }
-            </style>
-            <h1>Thank you for your order!</h1>
-            <p>Here are the details:</p>
-            <ul>
-                <li><strong>Order ID:</strong> ${orderDetails._id}</li>
-                <li><strong>Amount:</strong> ${orderDetails.amount} $</li>
-                <li><strong>Address:</strong> ${orderDetails.address.ward}, ${
-      orderDetails.address.district
-    }, ${orderDetails.address.city}</li>
-                <li><strong>Payment Method:</strong> ${
-                  orderDetails.paymentMethod
-                }</li>
-            </ul>
-            <h2>Items:</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Product</th>
-                        <th>Size</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${orderDetails.items
-                      .map(
-                        (item) => ` 
-                        <tr>
-                            <td><img src="${
-                              item.product.images[0]
-                            }" style="width: 50px; height: 50px" alt="${
-                          item.product.name
-                        }"></td>
-                            <td><p style="font-weight: bold;">${
-                              item.product.name
-                            }</p></td>
-                            <td>${Object.entries(item.sizes)
-                              .map(
-                                ([size, quantity]) => `
-                                    <p style="color: gray; font-size: 12px;">Size: ${size}</p>`
-                              )
-                              .join("")}
-                            </td>
-                            <td>${Object.entries(item.sizes)
-                              .map(
-                                ([size, quantity]) => `
-                                    <p style="color: gray; font-size: 12px;">${quantity}</p>`
-                              )
-                              .join("")}
-                            </td>
-                        </tr>`
-                      )
-                      .join("")}
-                </tbody>
-            </table>
-            <div class="footer">
-                <p>If you have any questions, feel free to contact us.</p>
-                <p>Thank you for shopping with us!</p>
-                <p>
-                    <strong>Shop Name:</strong> Manzy Store <br>
-                    <strong>Email:</strong> nambui250403@gmail.com <br>
-                    <strong>Phone:</strong> +84 327 357 359 <br>
-                    <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City
-                </p>
-                <p>Visit our website: <a href="http://manzystore.com" target="_blank">http://manzystore.com</a></p>
-            </div>
-        `,
+    html: emailContent,
   };
 
+  // Gửi email
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Order confirmation email sent successfully");
+    console.log("Order confirmation email sent successfully.");
   } catch (error) {
-    console.error("Error sending order confirmation email:", error);
+    console.error("Failed to send order confirmation email:", error);
   }
 };
 
-// Hàm gửi email mã PIN
+/**
+ * Gửi email mã PIN
+ * @param {string} to - Địa chỉ email người nhận
+ * @param {string} pin - Mã PIN
+ * @param {string} purpose - Mục đích (order_confirmation hoặc registration)
+ */
 const sendPinEmail = async (to, pin, purpose) => {
   const subject =
     purpose === "order_confirmation"
       ? "Order Transaction PIN"
       : "Registration PIN";
+
+  // HTML nội dung email
+  const emailContent = `
+  <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; text-align: center; color: #333;">
+    <h1 style="color: #4CAF50; margin-bottom: 20px;">${subject}</h1>
+    <p style="font-size: 16px; margin: 10px 0;">Your transaction PIN is:</p>
+    <h2 style="
+      font-size: 48px;
+      color: #ff5722;
+      font-weight: bold;
+      background: #fff3e0;
+      border: 2px solid #ffab91;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    ">${pin}</h2>
+    <p style="font-size: 16px; margin: 10px 0;">
+      Please use this PIN to confirm your ${
+        purpose === "order_confirmation" ? "order" : "registration"
+      } within 10 minutes.
+    </p>
+    <p style="font-size: 14px; color: #777; margin: 20px 0;">If you did not request this PIN, please ignore this email.</p>
+    <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #777;">
+      <p><strong>Shop Name:</strong> Manzy Store<br>
+      <strong>Email:</strong> nambui250403@gmail.com<br>
+      <strong>Phone:</strong> +84 327 357 359<br>
+      <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City</p>
+      <p>Visit our website: <a href="http://manzystore.com" target="_blank" style="color: #4CAF50; text-decoration: none;">www.manzystore.com</a></p>
+    </div>
+  </div>
+`;
+
+  // Cấu hình email
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: to,
-    subject: subject,
-    html: `
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    color: #333;
-                    background-color: #f9f9f9;
-                    padding: 20px;
-                }
-                h1 {
-                    color: #4CAF50;
-                }
-                h2 {
-                    font-size: 36px;
-                    color: #ff5722;
-                    font-weight: bold;
-                }
-                p {
-                    font-size: 16px;
-                    margin-top: 20px;
-                }
-                .footer {
-                    margin-top: 30px;
-                    font-size: 14px;
-                    color: #777;
-                    text-align: center;
-                    border-top: 1px solid #ddd;
-                    padding-top: 15px;
-                }
-                .footer a {
-                    color: #4CAF50;
-                    text-decoration: none;
-                }
-            </style>
-            <div style="text-align: center;">
-                <h1>${subject}</h1>
-                <p>Your transaction PIN is:</p>
-                <h2>${pin}</h2>
-                <p>Please use this PIN to confirm your ${
-                  purpose === "order_confirmation" ? "order" : "registration"
-                } within 10 minutes.</p>
-                <p style="font-size: 14px; color: #777;">If you did not request this PIN, please ignore this email.</p>
-            </div>
-            <div class="footer">
-                <p>If you have any questions, please contact our support team.</p>
-                <p>
-                    <strong>Shop Name:</strong> Manzy Store <br>
-                    <strong>Email:</strong> nambui250403@gmail.com <br>
-                    <strong>Phone:</strong> +84 327 357 359 <br>
-                    <strong>Address:</strong> 62/31 Street No. 4, Thu Duc District, Ho Chi Minh City
-                </p>
-                <p>Visit our website: <a href="http://manzystore.com" target="_blank">www.manzystore.com</a></p>
-            </div>
-        `,
+    to,
+    subject,
+    html: emailContent,
   };
 
+  // Gửi email
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Transaction PIN email sent successfully");
+    console.log("Transaction PIN email sent successfully.");
   } catch (error) {
-    console.error("Error sending transaction PIN email:", error);
+    console.error("Failed to send transaction PIN email:", error);
   }
 };
 

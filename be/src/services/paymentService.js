@@ -7,7 +7,10 @@ const userModels = require("../app/models/userM");
 const processCreateAccount = async (userId, options) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = "/payment/create-account";
 
         const res = await makeServiceRequest(baseUrl, serviceId, "POST", endpoint, {
@@ -29,7 +32,10 @@ const processCreateAccount = async (userId, options) => {
 const processGetAccountBalance = async (userId) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = `/payment/get-balance`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "POST", endpoint, {
@@ -52,7 +58,10 @@ const processGetAccountBalance = async (userId) => {
 const processPayment = async (userId, amount, orderId) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = "/payment/transaction/create-transaction";
 
         const res = await makeServiceRequest(baseUrl, serviceId, "POST", endpoint, {
@@ -75,7 +84,10 @@ const processPayment = async (userId, amount, orderId) => {
 const processGetTransactions = async (page = 1, limit = 10) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = `/payment/transaction?page=${page}&limit=${limit}`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
@@ -116,7 +128,10 @@ const processGetTransactions = async (page = 1, limit = 10) => {
 const processGetMainAccount = async () => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = "/payment/get-main-account";
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
@@ -135,7 +150,10 @@ const processGetMainAccount = async () => {
 const processGetReconciliation = async (startDate, endDate) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = `/payment/reconciliation?startDate=${startDate}&endDate=${endDate}`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
@@ -156,7 +174,10 @@ const processGetReconciliation = async (startDate, endDate) => {
 const processGetReconciliationDiscrepancy = async (date) => {
     try {
         const serviceId = SERVICES.MAIN_SYSTEM;
-        const baseUrl = process.env.PAYMENT_SERVICE_URL;
+        const baseUrl =
+            process.env.NODE_ENV === "production"
+                ? process.env.PAYMENT_SERVICE_PRODUCTION_URL
+                : process.env.PAYMENT_SERVICE_URL;
         const endpoint = `/payment/reconciliation/discrepancy?date=${date}`;
 
         const res = await makeServiceRequest(baseUrl, serviceId, "GET", endpoint);
