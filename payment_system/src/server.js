@@ -64,9 +64,9 @@ route(app);
 const setupCronJobs = require("./config/cron");
 setupCronJobs();
 
-// const initMainAccount = require("./services/accountService").initMainAccount;
-// // Khởi tạo tài khoản chính
-// initMainAccount();
+const initMainAccount = require("./services/accountService").initMainAccount;
+// Khởi tạo tài khoản chính
+initMainAccount();
 
 if (process.env.NODE_ENV === "production") {
     app.listen(process.env.PORT, () => {
