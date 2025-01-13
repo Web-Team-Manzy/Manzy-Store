@@ -4,8 +4,9 @@ const { reconcileTransaction } = require("../services/reconciliationService");
 const { sendAlert, sendReportEmail } = require("../services/notificationService");
 
 const setupCronJobs = () => {
-    // 1 0 * * *
-    schedule.scheduleJob("1 0 * * *", async () => {
+    // 1 0 * * * : run at 00:01 every day
+    // * * * * * : run every minute
+    schedule.scheduleJob("* * * * *", async () => {
         try {
             console.log(">>> Running reconciliation cron job...");
 
@@ -16,7 +17,7 @@ const setupCronJobs = () => {
             await sendReportEmail({
                 startDate,
                 endDate,
-            })
+            });
         } catch (error) {
             console.log(">>> Reconciliation cron job error:", error);
         }
