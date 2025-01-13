@@ -1,18 +1,11 @@
 import React from "react";
-import { useContext } from "react";
-import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import { useState, useEffect } from "react";
 import ProductItem from "./ProductItem";
 import { lastProduct } from "../service/callAPI";
 
 const LatestCollect = () => {
-  //const { products } = useContext(ShopContext);
   const [latestProducts, setLatestProducts] = useState([]);
-
-  // useEffect(() => {
-  //     setLatestProducts(products.slice(0, 10));
-  // }, [])
 
   useEffect(() => {
     const fetchLatestProducts = async () => {
@@ -33,7 +26,7 @@ const LatestCollect = () => {
       <div className="text-center py-8 text-3xl">
         <Title text1={"LATEST "} text2={"COLLECTION"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Giới thiệu sản phẩm mới nhất của chúng tôi
+          Introducing our latest products
         </p>
       </div>
 

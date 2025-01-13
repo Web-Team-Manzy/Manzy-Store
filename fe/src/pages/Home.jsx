@@ -1,18 +1,18 @@
-import React from 'react'
-import Header from '../components/Header'
-import LatestCollect from '../components/LatestCollect'
-import BestSeller from '../components/BestSeller'
-import OurPolicy from '../components/OurPolicy'
+import React from "react";
+import Header from "../components/Header";
+import LatestCollect from "../components/LatestCollect";
+import BestSeller from "../components/BestSeller";
+import OurPolicy from "../components/OurPolicy";
 
 const Home = () => {
   return (
     <div>
       <Header />
-      <LatestCollect />
       <BestSeller />
+      <LatestCollect />
       <OurPolicy />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
