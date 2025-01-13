@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { fetchCart } from "../redux/action/cartAction";
 import { doGetAccountBalance, doLogout } from "../redux/action/accountAction";
 
 const Navbar = () => {
@@ -31,6 +31,7 @@ const Navbar = () => {
     if (userInfo?.id) {
       dispatch(doGetAccountBalance(userInfo.id));
     }
+    dispatch(fetchCart());
   }, [userInfo?.id, userInfo.balance, dispatch]);
 
   // Handle scroll to change navbar style
@@ -122,8 +123,8 @@ const Navbar = () => {
             </Link>
           )}
           {userInfo && userInfo.email && (
-            <div className="group-hover:block hidden absolute drop-menu right-0 pt-4 transition-opacity duration-300 opacity-0 group-hover:opacity-100">
-              <div className="flex flex-col gap-2 w-36 px-5 py-3 bg-slate-100 text-gray-500 rounded">
+            <div className="group-hover:block hidden absolute drop-menu right-0 pt-4 transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
+              <div className="flex flex-col gap-2 w-36 px-5 py-3 bg-slate-100 text-gray-500 rounded shadow-lg">
                 <Link to="/profile">
                   <p className="cursor-pointer hover:text-black">My Profile</p>
                 </Link>
