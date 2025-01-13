@@ -31,6 +31,7 @@ app.use(cookieParser());
 app.use(
     cors({
         origin: [process.env.FRONTEND_URL, process.env.ADMIN_PANEL_URL, "http://localhost:5174"],
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
     })
 );
