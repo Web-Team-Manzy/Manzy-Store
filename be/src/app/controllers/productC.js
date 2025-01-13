@@ -68,7 +68,8 @@ class productC {
 
             let query = {};
             if (category) {
-                query.category = category;
+                const categoryDoc = await categoryM.findOne({ _id: category });
+                if (categoryDoc) query.category = categoryDoc._id;
             }
 
             if (subCategory) {
