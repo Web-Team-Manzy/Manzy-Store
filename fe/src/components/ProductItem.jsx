@@ -25,7 +25,7 @@ const ProductItem = ({ id, name, image, price }) => {
       {/* Hình ảnh */}
       <div className="overflow-hidden mb-4 w-full h-[250px]">
         <img
-          className="w-full h-full object-cover hover:scale-110 transition ease-in-out"
+          className="w-full h-full object-contain hover:scale-110 transition ease-in-out"
           src={image[0]}
           alt={name}
         />
