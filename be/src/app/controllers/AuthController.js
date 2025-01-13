@@ -90,7 +90,7 @@ class AuthController {
     // [POST] /register
     async register(req, res) {
         try {
-            const { email, transactionPin, password, ...otherData } = req.body;
+            const { email, transactionPin, password, phone, name } = req.body;
 
             // Find the pin by email and purpose
             const pinData = await pinM.findOne({ email, purpose: "email_confirmation" });
@@ -111,7 +111,8 @@ class AuthController {
             const newUser = new User({
                 email,
                 password: hashedPassword,
-                ...otherData,
+                phone,
+                ...name,
             });
             await newUser.save();
 

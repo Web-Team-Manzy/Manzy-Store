@@ -16,8 +16,9 @@ const Order = ({ token }) => {
     if (!token) return null;
 
     try {
-      const response = await axios.post(`/order/list?page=${page}&limit=${limit}`,
-        {},
+      const response = await axios.post(
+        `/order/list?page=${page}&limit=${limit}`,
+        {}
       );
 
       if (response.success) {
@@ -35,17 +36,19 @@ const Order = ({ token }) => {
 
   const handlePageClick = (data) => {
     const selectedPage = data.selected + 1;
-    fetchAllOrders(selectedPage); 
+    fetchAllOrders(selectedPage);
   };
 
   const statusHandler = async (event, orderId) => {
     try {
-      const response = await axios.post("/order/status",
-        { orderId, status: event.target.value },
-      );
+      const response = await axios.post("/order/status", {
+        orderId,
+        status: event.target.value,
+      });
 
       if (response.success) {
-        fetchAllOrders();
+        toast.success("Status updated successfully!");
+        fetchAllOrders(currentPage);
       } else {
         toast.error(response.message);
       }
@@ -72,15 +75,17 @@ const Order = ({ token }) => {
               <div>
                 {order.items.map((item, itemIndex) => {
                   return (
-                  <div key={itemIndex}>
-                    <p className="py-0.5 font-medium">{item.product.name}</p>
-                    {Object.entries(item.sizes).map(([size, quantity], sizeIndex) => (
-                      <p key={sizeIndex} className="text-gray-500">
-                        Size: {size} x {quantity}
-                      </p>
-                    ))}
-                  </div>
-                )
+                    <div key={itemIndex}>
+                      <p className="py-0.5 font-medium">{item.product.name}</p>
+                      {Object.entries(item.sizes).map(
+                        ([size, quantity], sizeIndex) => (
+                          <p key={sizeIndex} className="text-gray-500">
+                            Size: {size} x {quantity}
+                          </p>
+                        )
+                      )}
+                    </div>
+                  );
                 })}
               </div>
 
@@ -95,7 +100,7 @@ const Order = ({ token }) => {
                     "," +
                     order.address.district +
                     "," +
-                    order.address.ward }
+                    order.address.ward}
                 </p>
               </div>
               <p>{order.address.phone}</p>
@@ -112,14 +117,15 @@ const Order = ({ token }) => {
               {currency}
               {order.amount}
             </p>
-            <select className="p-2 font-semibold" value={order.status} onChange={(event) => statusHandler(event, order._id)}>
+            <select
+              className="p-2 font-semibold"
+              value={order.status}
+              onChange={(event) => statusHandler(event, order._id)}
+            >
               <option value="Order Placed">Order Placed</option>
               <option value="Packing">Packing</option>
               <option value="Shipped">Shipped</option>
-              <option value="Out for Delivery"
-              >
-                Out for Delivery
-              </option>
+              <option value="Out for Delivery">Out for Delivery</option>
               <option value="Delivered">Delivered</option>
             </select>
           </div>

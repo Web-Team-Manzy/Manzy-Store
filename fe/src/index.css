@@ -25,6 +25,7 @@ textarea {
   outline-color: #c586a5;
   border-radius: 4px;
 }
+
 .active {
   background-color: #ffebf5;
   border-color: #c586a5;
@@ -34,9 +35,27 @@ textarea {
   display: none;
 }
 
-@media (max-width: 640px) {
-  a.active {
-    background-color: black;
-    color: white;
+@media (max-width: 600px) {
+  .navbar {
+    /* Đảm bảo navbar không thay đổi khi màn hình nhỏ */
+    width: 100%;
+    background-color: white;
   }
+
+  /* Các phần tử khác có thể điều chỉnh theo nhu cầu */
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    /* Có thể thay thế bằng một sidebar hoặc điều chỉnh các phần tử */
+  }
+}
+
+
+html,
+body {
+  min-width: 600px;
+  overflow-x: hidden;
 }

@@ -13,6 +13,7 @@ import Category from "./pages/Category";
 import Transaction from "./pages/Transaction";
 import Statistic from "./pages/Statistic";
 import useAuthStore from "./stores/authStore";
+import HomePage from "./pages/HomePage";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "$";
@@ -45,6 +46,7 @@ const App = () => {
             <Sidebar />
             <div className="w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-gray-600 text-base">
               <Routes>
+                <Route path="/" element={<HomePage/>} />
                 <Route path="/add" element={<Add token={token} />} />
                 <Route path="/list" element={<List token={token} />} />
                 <Route path="/orders" element={<Orders token={token} />} />

@@ -4,19 +4,20 @@ const { reconcileTransaction } = require("../services/reconciliationService");
 const { sendAlert, sendReportEmail } = require("../services/notificationService");
 
 const setupCronJobs = () => {
-    // 1 0 * * *
-    schedule.scheduleJob("1 0 * * *", async () => {
+    // 1 0 * * * : run at 00:01 every day
+    // * * * * * : run every minute
+    schedule.scheduleJob("* * * * *", async () => {
         try {
             console.log(">>> Running reconciliation cron job...");
 
             const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const startDate = new Date(yesterday.setHours(0, 0, 0, 0));
-            const endDate = new Date(yesterday.setHours(23, 59, 59, 999));
+            const endDate = new Date(Date.now());
 
             await sendReportEmail({
                 startDate,
                 endDate,
-            })
+            });
         } catch (error) {
             console.log(">>> Reconciliation cron job error:", error);
         }

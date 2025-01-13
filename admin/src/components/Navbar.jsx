@@ -2,6 +2,7 @@ import { assets } from "../assets/assets";
 import axios from "../customize/axios";
 import useAuthStore from "../stores/authStore";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 const doLogout = async () => {
   const response = await axios.get("/account", {
@@ -32,7 +33,13 @@ const Navbar = ({ setToken }) => {
   const user = useAuthStore((state) => state.user);
   return (
     <div className="flex items-center py-2 px-[4%] justify-between">
-      <img className="w-[max(10%,80px)]" src={assets.logo} alt="logo" />
+      <Link to="/">
+        <img
+          className="w-[max(10%,80px)] cursor-pointer"
+          src={assets.logo}
+          alt="logo"
+        />
+      </Link>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 border px-2 py-1">
           <img
