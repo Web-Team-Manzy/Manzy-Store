@@ -193,6 +193,107 @@ const sendEmail = async (from, to, subject, message) => {
     console.error('Error sending email:', error);
     return { success: false, error: error.message };
   }
+  
 };
 
-module.exports = { sendOrderConfirmationEmail, sendPinEmail, sendEmail };
+const sendRegistrationSuccessEmail = async (to, userName) => {
+  const emailContent = `
+        <div style="
+            font-family: 'Arial', sans-serif; 
+            background-color: #f3f4f6; 
+            padding: 20px; 
+            color: #333; 
+            line-height: 1.6;">
+            
+            <!-- Email Container -->
+            <div style="
+                max-width: 600px; 
+                margin: auto; 
+                background-color: #ffffff; 
+                padding: 30px; 
+                border-radius: 10px; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                
+                <!-- Header -->
+                <h2 style="
+                    color: #4CAF50; 
+                    text-align: center;
+                    font-weight: bold;">
+                    Chào mừng đến với Manzy Store, ${userName}!
+                </h2>
+
+                <!-- Content -->
+                <p style="font-size: 16px; margin-bottom: 20px;">
+                    Cảm ơn bạn đã đăng ký tài khoản tại Manzy Store. Chúng tôi rất vui được phục vụ bạn.
+                </p>
+                <p style="font-size: 16px; margin-bottom: 20px;">
+                    Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi.
+                </p>
+
+                <!-- Contact Information -->
+                <div style="
+                    background-color: #f9f9f9; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    text-align: center;">
+                    
+                    <p style="font-size: 14px; margin: 5px 0;">
+                        <strong>Shop Name:</strong> Manzy Store
+                    </p>
+                    <p style="font-size: 14px; margin: 5px 0;">
+                        <strong>Email:</strong> 
+                        <a href="mailto:nambui250403@gmail.com" style="color: #4CAF50; text-decoration: none;">nambui250403@gmail.com</a>
+                    </p>
+                    <p style="font-size: 14px; margin: 5px 0;">
+                        <strong>Phone:</strong> 
+                        <a href="tel:+84327357359" style="color: #4CAF50; text-decoration: none;">+84 327 357 359</a>
+                    </p>
+                    <p style="font-size: 14px; margin: 5px 0;">
+                        <strong>Address:</strong> 
+                        62/31 Street No. 4, Thu Duc District, Ho Chi Minh City
+                    </p>
+                </div>
+
+                <!-- Call to Action -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="http://manzystore.com" target="_blank" 
+                      style="
+                            background-color: #4CAF50; 
+                            color: white; 
+                            padding: 10px 20px; 
+                            text-decoration: none; 
+                            font-size: 16px; 
+                            border-radius: 5px;">
+                        Visit Our Website
+                    </a>
+                </div>
+
+                <!-- Footer -->
+                <footer style="
+                    margin-top: 30px; 
+                    text-align: center; 
+                    font-size: 12px; 
+                    color: #999;">
+                    <p>Bạn nhận được email này vì bạn đã đăng ký tại Manzy Store. Nếu bạn không thực hiện, vui lòng bỏ qua email này.</p>
+                </footer>
+            </div>
+        </div>
+    `;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject: "Đăng Ký Thành Công - Manzy Store",
+        html: emailContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log("Registration success email sent successfully.");
+    } catch (error) {
+        console.error("Failed to send registration success email:", error);
+    }
+};
+
+
+module.exports = { sendOrderConfirmationEmail, sendPinEmail, sendEmail , sendRegistrationSuccessEmail };
