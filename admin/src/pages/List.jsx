@@ -21,6 +21,7 @@ const List = ({ token }) => {
   const [subCategories, setSubCategories] = useState([]);
 
   const [loading, setLoading] = useState({});
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   const sizeOptions = {
     letter: ["S", "M", "L", "XL", "XXL"],
@@ -88,7 +89,7 @@ const List = ({ token }) => {
       return;
     }
 
-    setLoading(true);
+    setLoadingUpdate(true);
 
     // Tạo FormData
     const dataToSend = new FormData();
@@ -139,7 +140,7 @@ const List = ({ token }) => {
       console.log(error);
       toast.error(error.message);
     } finally {
-      setLoading(false);
+      setLoadingUpdate(false);
     }
   };
 
@@ -612,8 +613,7 @@ const List = ({ token }) => {
                   //   ]);
                   // }}
                 >
-                  {" "}
-                  Save{" "}
+                  {loadingUpdate ? <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin mt-3">Saving</div> : "Save"}
                 </button>
               </div>
             </form>
