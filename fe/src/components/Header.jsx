@@ -36,7 +36,7 @@ const Header = () => {
   return (
     <div className="relative z-10">
       {/* Header right with image */}
-      <div className="w-full h-[60vh] sm:h-[80vh] relative mt-[60px] sm:mt-0">
+      <div className=" z-10 w-full h-[60vh] sm:h-[80vh] relative mt-[60px] sm:mt-0">
         {/* Ảnh hiện tại */}
         <img
           className="w-full h-full object-cover transition-transform duration-500"
