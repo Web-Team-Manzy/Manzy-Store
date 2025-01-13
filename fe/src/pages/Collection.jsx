@@ -91,10 +91,6 @@ const Collection = () => {
         setSortField("price");
         setSortOrder("desc");
         break;
-      case "dated":
-        setSortField("dated");
-        setSortOrder("desc");
-        break;
       default:
         setSortField(null);
         setSortOrder(null);
