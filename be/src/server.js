@@ -54,13 +54,13 @@ app.use(express.json());
 // Khởi tạo các route
 route(app);
 
-// if (process.env.NODE_ENV === "production") {
-//     app.listen(process.env.PORT, () => {
-//         console.log(`App listening on port http://localhost:${port}`);
-//     });
-// } else {
-// Tạo HTTPS server
-https.createServer(options, app).listen(port, () => {
-    console.log(`App listening securely on port https://localhost:${port}`);
-});
-// }
+if (process.env.NODE_ENV === "production") {
+    app.listen(process.env.PORT, () => {
+        console.log(`App listening on port http://localhost:${port}`);
+    });
+} else {
+    // Tạo HTTPS server
+    https.createServer(options, app).listen(port, () => {
+        console.log(`App listening securely on port https://localhost:${port}`);
+    });
+}
