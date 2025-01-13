@@ -52,3 +52,10 @@ export const confirmEmail = async (transactionPin, items, amount, address, payme
         paymentMethod,
     });
 };
+
+export const SendEmail = async (name, email, subject, message) => {
+    return await axios.post("/users/send", {
+        name, email, subject, message
+    });
+};
+
