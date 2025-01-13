@@ -47,6 +47,7 @@ app.use(
 
 app.use(
     session({
+        name: "connect.sid", // Tên của session cookie
         secret: process.env.JWT_ACCESS_TOKEN_SECRET, // Thay bằng secret an toàn của bạn
         resave: true, // Ngăn lưu lại session nếu không thay đổi
         saveUninitialized: true, // Ngăn tạo session mới nếu không có dữ liệu
