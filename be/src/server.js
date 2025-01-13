@@ -48,8 +48,10 @@ app.use(
 app.use(
     session({
         name: "connect.sid", // Tên của session cookie
+        httpOnly: true, // Ngăn JavaScript truy cập cookie
+        secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS trong môi trường production
         secret: process.env.JWT_ACCESS_TOKEN_SECRET, // Thay bằng secret an toàn của bạn
-        resave: true, // Ngăn lưu lại session nếu không thay đổi
+        resave: false, // Ngăn lưu lại session nếu không thay đổi
         saveUninitialized: true, // Ngăn tạo session mới nếu không có dữ liệu
         store: MongoStore.create({
             mongoUrl:
