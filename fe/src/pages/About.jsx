@@ -67,7 +67,15 @@ const About = () => {
       {/* Social Media Icons Section */}
       <div className="flex justify-center space-x-8 mt-8">
         <a
-          href="https://facebook.com"
+          href="https://twitter.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-600"
+        >
+          <FaTwitter size={48} />
+        </a>
+        <a
+          href="https://www.facebook.com/dotima71"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:text-blue-800"
@@ -75,20 +83,12 @@ const About = () => {
           <FaFacebook size={48} />
         </a>
         <a
-          href="https://instagram.com"
+          href="https://www.instagram.com/tienmanh741/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-pink-600 hover:text-pink-800"
         >
           <FaInstagram size={48} />
-        </a>
-        <a
-          href="https://twitter.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-600"
-        >
-          <FaTwitter size={48} />
         </a>
       </div>
     </div>
