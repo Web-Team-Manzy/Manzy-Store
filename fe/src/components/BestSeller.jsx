@@ -8,9 +8,18 @@ import { getProducts } from "../service/callAPI";
 const BestSeller = () => {
   const [bestSeller, setBestSeller] = useState([]);
 
-  const collectionList = async (page, category) => {
+  const collectionList = async (page, category, bestseller) => {
     try {
-      const res = await getProducts(page, category);
+      const res = await getProducts(
+        page,
+        category,
+        "",
+        "",
+        "name",
+        "acs",
+        8,
+        bestseller
+      );
       setBestSeller(res.products || []);
       console.log("API Response:", res);
     } catch (error) {
@@ -19,7 +28,7 @@ const BestSeller = () => {
   };
 
   useEffect(() => {
-    collectionList(1);
+    collectionList(1, "", true);
   }, []);
 
   return (
