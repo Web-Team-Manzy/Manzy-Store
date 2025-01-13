@@ -2,22 +2,21 @@ import React, { useState } from "react";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 
 const About = () => {
-  // State to toggle the visibility of the "Learn More" content
   const [showMore, setShowMore] = useState(false);
 
   const handleLearnMore = () => {
-    setShowMore(!showMore); // Toggle the visibility of the extra content
+    setShowMore(!showMore);
   };
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="flex items-center justify-between space-x-12">
+      <div className="flex flex-col md:flex-row items-center justify-between space-y-8 md:space-y-0 md:space-x-12">
         {/* Text Content Section */}
         <div className="w-full md:w-1/2 text-center md:text-left">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">About Us</h1>
           <p className="text-xl text-gray-700 mb-6">
-            Welcome to our online clothing store! At our store, we believe
-            that fashion should be both stylish and affordable. Whether you’re
+            Welcome to our online clothing store! At our store, we believe that
+            fashion should be both stylish and affordable. Whether you’re
             looking for casual wear, office attire, or a special outfit for an
             event, we have a wide variety of options to suit your needs.
           </p>
@@ -27,25 +26,23 @@ const About = () => {
             trends in fashion, ensuring that you’re always ahead of the curve.
           </p>
 
-          {/* Show more content when button is clicked */}
           {showMore && (
             <>
               <p className="text-xl text-gray-700 mb-6">
-                We take pride in offering the best fabrics and materials, designed
-                for comfort, durability, and style. With our easy-to-use website,
-                shopping is convenient and hassle-free, allowing you to browse,
-                choose, and receive your items quickly.
+                We take pride in offering the best fabrics and materials,
+                designed for comfort, durability, and style. With our easy-to-use
+                website, shopping is convenient and hassle-free, allowing you to
+                browse, choose, and receive your items quickly.
               </p>
               <p className="text-xl text-gray-700 mb-6">
                 Our dedicated support team is always here to assist you with any
                 questions or concerns. We aim to build long-lasting relationships
-                with our customers, providing exceptional service and products every
-                time you shop with us.
+                with our customers, providing exceptional service and products
+                every time you shop with us.
               </p>
             </>
           )}
 
-          {/* Learn More Button */}
           <button
             onClick={handleLearnMore}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg"
@@ -59,7 +56,7 @@ const About = () => {
           <img
             src="https://as1.ftcdn.net/v2/jpg/05/49/38/52/1000_F_549385228_gKCdqkhpw51dWtHIVtxRN0AynnT3kq31.jpg"
             alt="Our Store"
-            className="rounded-lg shadow-lg"
+            className="rounded-lg shadow-lg mx-auto"
           />
         </div>
       </div>
