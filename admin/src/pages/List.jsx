@@ -600,20 +600,14 @@ const List = ({ token }) => {
                   Cancel{" "}
                 </button>
                 <button
-                  className="mt-2 w-full py-2 px-4 rounded-md bg-black text-white"
+                  className="mt-2 w-full py-2 px-4 rounded-md bg-black text-white flex justify-center items-center"
                   type="submit"
-                  // onClick={(e) => {
-                  //   e.preventDefault();
-                  //   console.log(">>>> formData", formData);
-                  //   console.log(">>>> images", [
-                  //     image1,
-                  //     image2,
-                  //     image3,
-                  //     image4,
-                  //   ]);
-                  // }}
                 >
-                  {loadingUpdate ? <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin mt-3">Saving</div> : "Save"}
+                  {loadingUpdate ? (
+                    <div className="w-6 h-6 border-4 border-t-black border-gray-300 rounded-full animate-spin"></div>
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </div>
             </form>
