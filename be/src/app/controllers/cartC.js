@@ -165,8 +165,6 @@ class cartC {
         }
     }
 
-  }
-
   // [POST] /cart/clear
   async clearCart(req, res) {
     try {
@@ -185,52 +183,52 @@ class cartC {
     }
   }
 
-  // [POST] /cart/apply-coupon
-  async applyCoupon(req, res) {
-    try {
-        const userId = req.user ? req.user.id : null;
-        const { couponCode } = req.body;
+    // [POST] /cart/apply-coupon
+    async applyCoupon(req, res) {
+        try {
+            const userId = req.user ? req.user.id : null;
+            const { couponCode } = req.body;
 
-        let cartData = {};
+            let cartData = {};
 
-        if (userId) {
-            const userData = await userM.findById(userId);
-            cartData = userData.cartData || {};
-        } else {
-            cartData = req.session.cartData || {};
+            if (userId) {
+                const userData = await userM.findById(userId);
+                cartData = userData.cartData || {};
+            } else {
+                cartData = req.session.cartData || {};
+            }
+
+            // // Validate coupon
+            // const coupon = await couponM.findOne({ code: couponCode, isActive: true });
+            // if (!coupon) {
+            //     return res.json({ success: false, message: "Invalid or expired coupon code." });
+            // }
+
+            // // Apply discount
+            // const discount = coupon.discount; // e.g., 10 for 10%
+            // let totalPrice = 0;
+
+            // for (const itemId in cartData) {
+            //     const product = await productM.findById(itemId);
+            //     const quantity = Object.values(cartData[itemId]).reduce((a, b) => a + b, 0);
+            //     totalPrice += product.price * quantity;
+            // }
+
+            // const discountedPrice = totalPrice - (totalPrice * discount / 100);
+
+            // // Save coupon to cart
+            // if (userId) {
+            //     await userM.findByIdAndUpdate(userId, { cartData: { ...cartData, coupon: couponCode, discountedPrice } });
+            // } else {
+            //     req.session.cartData = { ...cartData, coupon: couponCode, discountedPrice };
+            // }
+
+            res.json({ success: true, message: "Coupon applied successfully.", discountedPrice });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
         }
-
-        // // Validate coupon
-        // const coupon = await couponM.findOne({ code: couponCode, isActive: true });
-        // if (!coupon) {
-        //     return res.json({ success: false, message: "Invalid or expired coupon code." });
-        // }
-
-        // // Apply discount
-        // const discount = coupon.discount; // e.g., 10 for 10%
-        // let totalPrice = 0;
-
-        // for (const itemId in cartData) {
-        //     const product = await productM.findById(itemId);
-        //     const quantity = Object.values(cartData[itemId]).reduce((a, b) => a + b, 0);
-        //     totalPrice += product.price * quantity;
-        // }
-
-        // const discountedPrice = totalPrice - (totalPrice * discount / 100);
-
-        // // Save coupon to cart
-        // if (userId) {
-        //     await userM.findByIdAndUpdate(userId, { cartData: { ...cartData, coupon: couponCode, discountedPrice } });
-        // } else {
-        //     req.session.cartData = { ...cartData, coupon: couponCode, discountedPrice };
-        // }
-
-        res.json({ success: true, message: "Coupon applied successfully.", discountedPrice });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
     }
-  }
 }
 
 module.exports = new cartC();
