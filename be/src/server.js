@@ -48,8 +48,8 @@ app.use(
 app.use(
     session({
         secret: process.env.JWT_ACCESS_TOKEN_SECRET, // Thay bằng secret an toàn của bạn
-        resave: false, // Ngăn lưu lại session nếu không thay đổi
-        saveUninitialized: false, // Ngăn tạo session mới nếu không có dữ liệu
+        resave: true, // Ngăn lưu lại session nếu không thay đổi
+        saveUninitialized: true, // Ngăn tạo session mới nếu không có dữ liệu
         store: MongoStore.create({
             mongoUrl:
                 process.env.MONGO_URI ||
