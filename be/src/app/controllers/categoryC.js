@@ -7,7 +7,8 @@ class categoryC{
 
             const {name, description, subcategories} = req.body;
 
-            console.log(req.body);
+            // Sort subcategories
+            subcategories = subcategories.sort((a, b) => a.localeCompare(b));
 
             const category = new categoryM({name, description, subcategories});
 
@@ -26,6 +27,9 @@ class categoryC{
         try {
             
             const {categoryId, name, description, subcategories} = req.body;
+
+            // Sort subcategories
+            subcategories = subcategories.sort((a, b) => a.localeCompare(b));
 
             await categoryM.findByIdAndUpdate(categoryId, {name, description, subcategories});
 

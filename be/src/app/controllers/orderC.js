@@ -15,7 +15,7 @@ class orderC {
 
             const skip = (page - 1) * limit;
 
-            const orders = await orderM.find({ userId }).skip(skip).limit(limit).lean();
+            const orders = await orderM.find({ userId }).skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
 
             const totalOrders = await orderM.countDocuments({ userId });
 
@@ -186,7 +186,7 @@ class orderC {
 
             const skip = (page - 1) * limit;
 
-            const orders = await orderM.find({}).skip(skip).limit(limit).lean();
+            const orders = await orderM.find({}).skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
 
             const userIds = orders.map((order) => order.userId).filter(Boolean);
 
