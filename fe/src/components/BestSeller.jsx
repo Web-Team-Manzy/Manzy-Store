@@ -1,6 +1,4 @@
 import React from "react";
-import { useContext } from "react";
-import { ShopContext } from "../context/ShopContext";
 import { useState } from "react";
 import { useEffect } from "react";
 import Title from "./Title";
@@ -8,13 +6,7 @@ import ProductItem from "./ProductItem";
 import { getProducts } from "../service/callAPI";
 
 const BestSeller = () => {
-  //const {products} = useContext(ShopContext);
   const [bestSeller, setBestSeller] = useState([]);
-
-  // useEffect(() => {
-  //     const bestProduct = products.filter((item) => (item.bestseller));
-  //     setBestSeller(bestProduct.slice(0,5));
-  // },[])
 
   const collectionList = async (page, category) => {
     try {
@@ -35,7 +27,7 @@ const BestSeller = () => {
       <div className="text-center py-8 text-3xl">
         <Title text1={"BEST "} text2={"SELLERS"} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Giới thiệu sản phẩm mới nhất của chúng tôi
+          Introducing our best selling products
         </p>
       </div>
 
