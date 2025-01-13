@@ -152,15 +152,15 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
 
@@ -207,15 +207,15 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
 
@@ -265,15 +265,15 @@ class AuthController {
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_REFRESH_TOKEN_MAX_AGE, // 1 day
             });
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: false, // set true if your using https
-                sameSite: "strict",
+                secure: true, // set true if your using https
+                sameSite: "none",
                 maxAge: +process.env.COOKIE_ACCESS_TOKEN_MAX_AGE, // 15 minutes
             });
 
