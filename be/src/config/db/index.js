@@ -1,9 +1,14 @@
 const mongoose = require("mongoose");
+require('dotenv').config();
 
 async function connect() {
     try {
         await mongoose.connect(
-            "mongodb+srv://hoanglenam0905:22120217@cluster0.5queg.mongodb.net/ManzyStoreDB?retryWrites=true&w=majority&appName=Cluster0"
+            process.env.MONGO_URI,
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            }
         );
         console.log("Connect successfully!!!");
     } catch (error) {
